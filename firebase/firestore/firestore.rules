@@ -1,0 +1,56 @@
+rules_version = '2';
+
+// Skeleton only — expand as collections are implemented in Phase 2/3.
+// Enforces the same Client/Admin separation described in the proposal's
+// Regulatory and Compliance / Security (RBAC) sections at the data layer,
+// not just in the app UI.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.role == 'admin';
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Clients can read/write only their own profile; no address field
+    // should ever be written here per the proposal's data-handling logic.
+    match /clients/{userId} {
+      allow read, update: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId);
+      allow delete: if isAdmin();
+    }
+
+    // Service catalogue: publicly readable (guest browsing), admin-only writes.
+    match /services/{serviceId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Bookings: a client can read/create their own; only Admin can update status.
+    match /bookings/{bookingId} {
+      allow read: if isAdmin() || (isSignedIn() && resource.data.clientId == request.auth.uid);
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin();
+    }
+
+    // Payments/transaction log: server-side (Cloud Functions) writes only.
+    match /payments/{paymentId} {
+      allow read: if isAdmin() || (isSignedIn() && resource.data.clientId == request.auth.uid);
+      allow write: if false; // written only via Cloud Functions using the Admin SDK
+    }
+
+    // Notification log: admin-only.
+    match /notificationLog/{logId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+  }
+}
