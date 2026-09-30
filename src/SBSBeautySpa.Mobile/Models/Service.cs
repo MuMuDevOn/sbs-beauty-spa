@@ -28,6 +28,6 @@ namespace SBSBeautySpa.Mobile.Models
 /// <summary>
 /// Ids of other services that can be added onto this current service (e.g "Nail Art" as an add on to "Gel Estentions") . Powers the Add-Ons screen.
 /// </summary>
-        public List<string> AddOnServiceIds { get; set} = new();
+        public List<string> AddOnServiceIds { get; set;} = new();
     }
 }   
