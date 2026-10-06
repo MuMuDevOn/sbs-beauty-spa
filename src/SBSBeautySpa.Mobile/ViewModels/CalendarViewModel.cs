@@ -7,130 +7,137 @@ using SBSBeautySpa.Mobile.Services;
 
 namespace SBSBeautySpa.Mobile.ViewModels
 {
-    /// <summary> 
-    /// Backs the "select Date & Time" screen. The calendar grid (which 
-    ///  dates exist in the visible month)  is generated locllaly with 
-    /// NodaTime - that's just calendar math, not business availability.
-    /// The actual bookable time slots for whichever date is selected are
-    /// always fetched fresh from AvailabilityService: nothing here is a 
-    /// static/harcoded list of times.
-    /// </summary>
-    
+    // This class represents one time slot in the list.
+    // Example: "09:00 - 10:30"
+    public partial class TimeSlotCell : ObservableObject
+    {
+        public AvailabilitySlot Slot { get; }
+        public string Label => Slot.DisplayLabel;
+
+        // Tells us if this slot is currently selected by the user.
+        [ObservableProperty]
+        private bool isSelected;
+
+        public TimeSlotCell(AvailabilitySlot slot) => Slot = slot;
+    }
+
+    // This class controls the "Select Date & Time" screen.
+    //
+    // The calendar itself (the month view and day grid) is handled by
+    // Syncfusion's SfCalendar control in the View — not by this class.
+    //
+    // What this class DOES do:
+    //   - Whenever a date is picked, it asks the server for the real
+    //     bookable time slots for that date.
+    //   - The calendar control only knows about dates. It does NOT know
+    //     which dates actually have free slots. That's why we always ask
+    //     the server through AvailabilityService.
+    //
+    // One tricky part: SfCalendar uses System.DateTime (a normal C# date),
+    // but the rest of this app uses NodaTime's LocalDate. So:
+    //   - SelectedDateTime is what the calendar binds to.
+    //   - SelectedDate is the NodaTime version, derived from it, and is
+    //     what the rest of the app (BookingViewModel, AddOnsViewModel) uses.
     public partial class CalendarViewModel : BaseViewModel
     {
-        private readonly IAvailabilityService _availabilitySerivce;
-        private readonly IClock _Clock; // NodeTime.ICLOCK - inject SystemClock.Instance in production, fake it in tests.
+        private readonly IAvailabilityService _availabilityService;
+        private readonly IClock _clock; // NodaTime clock. Use SystemClock.Instance in real life, fake it in tests.
 
-        public CalendarViewModel(IAvaibilityService availabilityService, IClock clock)
+        public CalendarViewModel(IAvailabilityService availabilityService, IClock clock)
         {
-            _availabilityService = availibilityService;
+            _availabilityService = availabilityService;
             _clock = clock;
 
-            var today = _clock.GetCurrentInstant().InZone(DateTimeZoneProviders.TZDB["Africa/Johannesburg"]).Date;
-            visibleMonth = new YearMonth(today.Year, today.Monday);
-
-            selectedDate = today;
+            // Get today's date in South African time (Johannesburg).
+            var today = _clock.GetCurrentInstant().InZone(DateTimeZoneProviders.Tzdb["Africa/Johannesburg"]).Date;
+            selectedDateTime = new DateTime(today.Year, today.Month, today.Day);
 
             Title = "Select Date & Time";
-
         }
-/// <summary Set by the previous screen (Service Detail) before navigating here. </summary>
-public string ServiceId { get; set; } = string.Empty;
 
-[ObservableProperty]
-private YearMonth visibleMonth;
+        // Set by the previous screen (Service Detail) before opening this one.
+        public string ServiceId { get; set; } = string.Empty;
 
-[ObservableProperty]
-private LocalDate selectedDate;
+        // The date the user picked on the calendar.
+        [ObservableProperty]
+        private DateTime? selectedDateTime;
 
-[ObservableProperty]
-private AvailabilitySlot? selectedSlot;
+        // The time slot the user selected.
+        [ObservableProperty]
+        private AvailabilitySlot? selectedSlot;
 
-public ObervableCollection<LocalDate?> CalendarDays {get; } = new();
-public ObservableCollection<AvailablitySlot> TimeSlots { get; } = new();
+        // The list of available time slots shown below the calendar.
+        public ObservableCollection<TimeSlotCell> TimeSlots { get; } = new();
 
-public string VisibleMonthLabel => $"{CultureMonthName(VisibleMonth.Month)} { VisibleMonth.Year}";
-
-[RelayCommand]
-private void BuildCalendarGrid()
+        // The NodaTime version of the selected date.
+        // This is what the rest of the app reads — never bind to it directly.
+        public LocalDate SelectedDate
         {
-            CalendarDays.Clear();
-            var daysInMonth = firstOfMonth.PlusMonths(1).PlusDays(-1).Day;
-
-            //150 weekday: Monday = 1..Sunday = 7 -> convert to Sunday-first grid  (0..6) to match the mockup.
-            var leadingBlanks = (int)firstOfMonth.DayOfWeek % 7;
-            for (var i = 0; i < leadingBlanks; i++)
+            get
             {
-                CalendarDays.Add(null);
+                var d = SelectedDateTime ?? DateTime.Today;
+                return new LocalDate(d.Year, d.Month, d.Day);
             }
-
-for (var day = 1; day <= daysInMonth; day++)
-            {
-                CalendarDays.Add(new LocalDate(VisibleMonth.Year, VisibleMonth, day));
-
-            }
-
-
-
-        }
-        
-[RelayCommand]
-private void PreviousMonth()
-        {
-            VisibleMonth = VisibleMonth.PlusMonths(-1);
-            BuildCalendarGridCommand.Execute(null);
-
-        }
-[RelayCommand]
-private void NextMonth()
-        {
-            VisibleMonth = VisibleMonth.PlusMonths(1);
-            BuildCalendarGridCommand.Execute(null);
         }
 
-[RelayCommand]
-private async Task SelectDateAsync(LocalDate date)
+        // Shows a line like: "Selected: Wednesday, Oct 15, 2026"
+        public string SelectedDateLabel =>
+            $"Selected: {SelectedDate.ToString("dddd, MMM d, yyyy", System.Globalization.CultureInfo.InvariantCulture)}";
+
+        // True when the user has picked a time slot.
+        public bool CanContinue => SelectedSlot is not null;
+
+        // Runs automatically when the user picks a different date.
+        async partial void OnSelectedDateTimeChanged(DateTime? value)
         {
-            SelectedDate = date;
+            OnPropertyChanged(nameof(SelectedDate));
+            OnPropertyChanged(nameof(SelectedDateLabel));
             SelectedSlot = null;
             await LoadTimeSlotsAsync();
         }
 
-  [RelayCommand]
-  private async Task LoadSlotsAsync()
+        // Runs automatically when the user picks a different time slot.
+        partial void OnSelectedSlotChanged(AvailabilitySlot? value) => OnPropertyChanged(nameof(CanContinue));
+
+        // Loads the available time slots from the server for the selected date.
+        [RelayCommand]
+        private async Task LoadTimeSlotsAsync()
         {
             if (string.IsNullOrEmpty(ServiceId) || IsBusy)
             {
                 return;
             }
+
             IsBusy = true;
             ErrorMessage = null;
             TimeSlots.Clear();
 
             try
             {
-                //Note Mihle the Add-Ons is the screen after this one in the flow thus this mean only the primary service is known here
-                //createBooking revalidates the slot against the FULL serivce list (primary + whatever add-ons get picked next) before actually writing anything - if an
-                // add-on makes the appointment too long to fit, that re-check is what catches it, sending the person to pick a new time
-                //rather than silentlty double-booking.
-
-                var slots = await _availabilityService.GetAvailableSlotAsync(new[] {ServiceId}, SelectedDate);
+                // At this point, only the main service is known.
+                // The Add-Ons screen comes next, so we don't know yet if the
+                // user will add extras that make the appointment longer.
+                //
+                // That's okay — because when the booking is actually created,
+                // the server re-checks the time slot against the FULL list of
+                // services (main + add-ons). If the add-ons make it too long
+                // to fit, the server rejects it and sends the user back to
+                // pick a new time. This prevents double-booking.
+                var slots = await _availabilityService.GetAvailableSlotsAsync(new[] { ServiceId }, SelectedDate);
                 foreach (var slot in slots)
                 {
-                    TimeSlots.Add(slot);
+                    TimeSlots.Add(new TimeSlotCell(slot));
                 }
+
                 if (TimeSlots.Count == 0)
                 {
-                    ErrorMessage = "No available times on this date - try another day. ";
-
+                    ErrorMessage = "No available times on this date — try another day.";
                 }
-
             }
             catch (Exception ex)
             {
-                ErrorMessage = "Couldn't load available times. Check your connection and try again. ";
-                System.Diagnosstics.Debug.WriteLine(ex);
-
+                ErrorMessage = "Couldn't load available times. Check your connection and try again.";
+                System.Diagnostics.Debug.WriteLine(ex);
             }
             finally
             {
@@ -138,10 +145,17 @@ private async Task SelectDateAsync(LocalDate date)
             }
         }
 
-        [RelayCommand]  
-        private void SelectSlot(AvailabilitySlot slot) => SelectedSlot = slot;
-
-         private static string CultureMonthName(int month) => System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat.GetMonthName(month);  
-}
-
+        // Runs when the user taps a time slot.
+        // Marks that one as selected and clears the others.
+        [RelayCommand]
+        private void SelectSlot(TimeSlotCell cell)
+        {
+            foreach (var slot in TimeSlots)
+            {
+                slot.IsSelected = false;
+            }
+            cell.IsSelected = true;
+            SelectedSlot = cell.Slot;
+        }
+    }
 }
