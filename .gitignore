@@ -31,11 +31,17 @@ firebase-debug.log
 firebase/**/serviceAccountKey.json
 .runtimeconfig.json
 
+# Firebase / Node — general
+node_modules/
+
 # Environment / secrets
 .env
 .env.local
 *.pfx
 *.p12
+Secrets.cs
+scripts/serviceAccountKey.json
+/serviceAccountKey.json
 
 # OS files
 .DS_Store

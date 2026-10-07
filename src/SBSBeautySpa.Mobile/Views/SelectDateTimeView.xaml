@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="SBSBeautySpa.Mobile.Views.SelectDateTimeView"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:SBSBeautySpa.Mobile.ViewModels"
+             xmlns:conv="clr-namespace:SBSBeautySpa.Mobile.Converters"
+             xmlns:calendar="clr-namespace:Syncfusion.Maui.Calendar;assembly=Syncfusion.Maui.Calendar"
+             x:DataType="vm:CalendarViewModel"
+             BackgroundColor="White"
+             Shell.NavBarIsVisible="False">
+
+    <!--
+        At the moment this matches the figma wireframes however due to the wireframe colour scheme being to simple (only white) you guys can decide to edit it.
+
+        REQUIRES (not in this file — see MauiProgram.SyncfusionSetup.md):
+          1. NuGet package: Syncfusion.Maui.Calendar 
+          2. MauiProgram.cs: builder.ConfigureSyncfusionCore();
+          3. A registered Syncfusion license (Community License is free
+             for qualifying individuals/small businesses) — without it
+             the control still works but shows a trial watermark.
+    -->
+    <ContentPage.Resources>
+        <Color x:Key="DeepNavy">#1B2A4A</Color>
+        <Color x:Key="StormyBlue">#4D6893</Color>
+        <Color x:Key="InkText">#1A1A1A</Color>
+        <Color x:Key="MutedGray">#9AA0AE</Color>
+        <Color x:Key="HairlineGray">#E2E5EA</Color>
+
+        <LinearGradientBrush x:Key="ButtonGradient" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="{StaticResource DeepNavy}" Offset="0.0" />
+            <GradientStop Color="{StaticResource StormyBlue}" Offset="1.0" />
+        </LinearGradientBrush>
+
+        <conv:BoolToColorConverter x:Key="BoolToColor" />
+        <conv:InvertedBoolConverter x:Key="InvertedBool" />
+        <conv:IsNotNullConverter x:Key="IsNotNull" />
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- Header -->
+        <VerticalStackLayout Grid.Row="0" Padding="20,16,20,8" Spacing="16">
+            <Label Text="&#8592;" FontSize="22" TextColor="{StaticResource InkText}">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackTapped" />
+                </Label.GestureRecognizers>
+            </Label>
+            <Label Text="Select Date &amp; Time" FontSize="24" FontAttributes="Bold" TextColor="{StaticResource InkText}" />
+        </VerticalStackLayout>
+
+        <!-- Scrollable content -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="20,4,20,24" Spacing="16">
+
+                <!--
+                    SfCalendar owns the month header (‹ October 2026 ›,
+                    via HeaderView.ShowNavigationArrows) and the day grid
+                    itself — nothing in CalendarViewModel builds that grid;
+                    it only reacts to SelectedDateTime changing.
+                    FirstDayOfWeek="Sunday" matches the mockup (S M T W T F S).
+                -->
+                <calendar:SfCalendar View="Month"
+                                     HeightRequest="320"
+                                     SelectedDate="{Binding SelectedDateTime, Mode=TwoWay}"
+                                     SelectionShape="Circle"
+                                     SelectionBackground="{StaticResource DeepNavy}">
+                    <calendar:SfCalendar.HeaderView>
+                        <calendar:CalendarHeaderView TextFormat="MMMM yyyy" ShowNavigationArrows="True" Height="44">
+                            <calendar:CalendarHeaderView.TextStyle>
+                                <calendar:CalendarTextStyle TextColor="{StaticResource InkText}" FontSize="17" FontAttributes="Bold" />
+                            </calendar:CalendarHeaderView.TextStyle>
+                        </calendar:CalendarHeaderView>
+                    </calendar:SfCalendar.HeaderView>
+                    <calendar:SfCalendar.MonthView>
+                        <calendar:CalendarMonthView FirstDayOfWeek="Sunday">
+                            <calendar:CalendarMonthView.TextStyle>
+                                <calendar:CalendarTextStyle TextColor="{StaticResource InkText}" FontSize="15" />
+                            </calendar:CalendarMonthView.TextStyle>
+                            <calendar:CalendarMonthView.SelectionTextStyle>
+                                <calendar:CalendarTextStyle TextColor="White" FontSize="15" />
+                            </calendar:CalendarMonthView.SelectionTextStyle>
+                        </calendar:CalendarMonthView>
+                    </calendar:SfCalendar.MonthView>
+                </calendar:SfCalendar>
+
+                <!-- Selected date -->
+                <Label Text="{Binding SelectedDateLabel}" FontSize="14" TextColor="{StaticResource InkText}" />
+
+                <!-- Available Time Slots -->
+                <Label Text="Available Time Slots" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource InkText}" Margin="0,8,0,0" />
+
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource DeepNavy}" />
+
+                <Label Text="{Binding ErrorMessage}" TextColor="{StaticResource MutedGray}" FontSize="13"
+                       IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNull}}" />
+
+                <CollectionView ItemsSource="{Binding TimeSlots}" IsVisible="{Binding IsBusy, Converter={StaticResource InvertedBool}}" HeightRequest="220">
+                    <CollectionView.ItemsLayout>
+                        <GridItemsLayout Orientation="Vertical" Span="3" HorizontalItemSpacing="8" VerticalItemSpacing="8" />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:TimeSlotCell">
+                            <Border Padding="0,12" StrokeThickness="1"
+                                    Stroke="{Binding IsSelected, Converter={StaticResource BoolToColor}, ConverterParameter='#1B2A4A|#E2E5EA'}"
+                                    BackgroundColor="{Binding IsSelected, Converter={StaticResource BoolToColor}, ConverterParameter='#1B2A4A|White'}">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="10" />
+                                </Border.StrokeShape>
+                                <Label Text="{Binding Label}" FontSize="13" HorizontalOptions="Center"
+                                       TextColor="{Binding IsSelected, Converter={StaticResource BoolToColor}, ConverterParameter='White|#1A1A1A'}" />
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectSlotCommand}"
+                                                           CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Continue button -->
+        <Button Grid.Row="2" Text="Continue" Margin="20,8,20,20" HeightRequest="52" CornerRadius="12"
+                Background="{StaticResource ButtonGradient}" TextColor="White" FontAttributes="Bold"
+                IsEnabled="{Binding CanContinue}"
+                Clicked="OnContinueClicked" />
+    </Grid>
+</ContentPage>
