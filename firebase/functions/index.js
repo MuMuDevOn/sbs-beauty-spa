@@ -38,7 +38,7 @@ module.exports = {
   ...require("./Adminbookings"),         // updateBookingStatus
 
   // Payments (Paystack)
-  ...require("./payments"),              // initializePayment, verifyPayment, paystackWebhook
+  ...require("./payment"),              // initializePayment, verifyPayment, paystackWebhook
 
   // Admin identity and access
   ...require("./Adminclaims"),           // setAdminClaim, setSuperAdminClaim, listAdmins
@@ -60,7 +60,7 @@ module.exports = {
   ...require("./Businesssettings"),      // getBusinessSettingsPublic/Private, updateBusinessSettingsPublic/Private
 
   // Notes, notifications, reviews, contact form
-  ...require("./Nookingnotes"),          // addBookingNote, listBookingNotes
+  ...require("./Bookingnotes"),          // addBookingNote, listBookingNotes
   ...require("./Notifications"),         // onBookingStatusChange, onPaymentCompleted (triggers)
   ...require("./Reviews"),               // submitReview
   ...require("./Contactmessages"),       // submitContactMessage, listContactMessages, markContactMessageHandled
