@@ -1,3 +1,4 @@
+using SBSBeautySpa.Mobile.Services;
 using SBSBeautySpa.Mobile.ViewModels;
 
 namespace SBSBeautySpa.Mobile.Views
@@ -12,7 +13,6 @@ namespace SBSBeautySpa.Mobile.Views
             _viewModel = viewModel;
             BindingContext = _viewModel;
 
-            // Go to the home page as soon as the ViewModel reports a successful login
             _viewModel.PropertyChanged += OnViewModelPropertyChanged;
         }
 
@@ -24,21 +24,35 @@ namespace SBSBeautySpa.Mobile.Views
                 {
                     _viewModel.LoginSucceeded = false;
                     _viewModel.Password = string.Empty;
-                    await Shell.Current.GoToAsync("//HomePage");
+
+                    var services = IPlatformApplication.Current?.Services;
+                    var claims = services?.GetService<IUserClaimsService>();
+                    if (claims is not null)
+                        await claims.RefreshAsync();
+
+                    var window = Application.Current?.Windows.FirstOrDefault();
+                    if (window is null) return;
+
+                    if (claims?.IsAdmin == true)
+                    {
+                        var adminShell = new AdminShell();
+                        window.Page = adminShell;
+                        await adminShell.GoToAsync("//AdminMain/AdminDashboard");
+                    }
+                    else
+                    {
+                        var clientShell = new ClientShell();
+                        window.Page = clientShell;
+                        await clientShell.GoToAsync("//Main/HomePage");
+                    }
                 });
             }
         }
 
-        // For the "Sign Up" button (top of page)
         private async void OnSignUpClicked(object? sender, EventArgs e)
-        {
-            await Shell.Current.GoToAsync("RegisterPage");
-        }
+            => await Shell.Current.GoToAsync("//RegisterPage");
 
-        // For the "Sign Up" label (bottom of page)
         private async void OnSignUpTapped(object? sender, TappedEventArgs e)
-        {
-            await Shell.Current.GoToAsync("RegisterPage");
-        }
+            => await Shell.Current.GoToAsync("//RegisterPage");
     }
 }

@@ -14,7 +14,7 @@ public partial class App : Application
 
     protected override Window CreateWindow(IActivationState? activationState)
     {
-        var window = new Window(new AppShell());
+        var window = new Window(new Views.AuthShell());
 
 #if ANDROID || IOS
         window.Created += OnWindowCreated;
@@ -33,15 +33,12 @@ public partial class App : Application
         var firestore = services.GetService<IFirestoreService>();
         if (fcm is null || firestore is null) return;
 
-        // Whenever FCM issues a new token (first launch, reinstall, or refresh),
-        // save it to users/{uid}.fcmToken so the backend can deliver pushes.
         fcm.TokenRefreshed += async (_, args) =>
         {
             if (!string.IsNullOrEmpty(args.Token))
                 await firestore.SaveFcmTokenAsync(args.Token);
         };
 
-        // Also save the current token if FCM already has one from a previous run.
         if (!string.IsNullOrEmpty(fcm.Token))
             _ = firestore.SaveFcmTokenAsync(fcm.Token);
     }

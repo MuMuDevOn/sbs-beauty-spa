@@ -6,7 +6,7 @@ using Microsoft.Maui.Storage;
 
 namespace SBSBeautySpa.Mobile.Services
 {
-   
+
     // Firebase Auth via REST API. Handles sign-in, sign-up, sign-out,
     // and token refresh.
     public class FirebaseAuthService : IFirebaseAuthService
@@ -146,6 +146,100 @@ namespace SBSBeautySpa.Mobile.Services
 
         // Local sign-out only (forgets the session on this device)
         public Task SignOutAsync() => ClearSessionAsync();
+
+        // Changes the password. Re-checks the current one first.
+        public async Task<AuthResult> ChangePasswordAsync(string currentPassword, string newPassword)
+        {
+            try
+            {
+                var email = TokenClaims.Read(await GetIdTokenAsync(), "email");
+                if (string.IsNullOrEmpty(email))
+                {
+                    return new AuthResult(false, "Please sign in again.");
+                }
+
+                // 1. Confirm the current password is right
+                string checkedToken;
+                using (var check = await _http.PostAsJsonAsync(
+                    $"{AccountsUrl}:signInWithPassword?key={WebApiKey}",
+                    new { email, password = currentPassword, returnSecureToken = true }))
+                {
+                    if (!check.IsSuccessStatusCode)
+                    {
+                        var message = await ReadFriendlyErrorAsync(check);
+                        return new AuthResult(false, message == "Incorrect email or password."
+                            ? "Your current password is incorrect."
+                            : message);
+                    }
+
+                    var checkBody = await check.Content.ReadFromJsonAsync<SessionResponse>();
+                    if (checkBody is null)
+                    {
+                        return new AuthResult(false, "Something went wrong. Please try again.");
+                    }
+                    checkedToken = checkBody.IdToken;
+                }
+
+                // 2. Set the new password (returns fresh tokens, so the user stays signed in)
+                using var response = await _http.PostAsJsonAsync(
+                    $"{AccountsUrl}:update?key={WebApiKey}",
+                    new { idToken = checkedToken, password = newPassword, returnSecureToken = true });
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return new AuthResult(false, await ReadFriendlyErrorAsync(response));
+                }
+
+                var body = await response.Content.ReadFromJsonAsync<SessionResponse>();
+                if (body is not null)
+                {
+                    await StartSessionAsync(body.IdToken, body.RefreshToken, body.LocalId, body.ExpiresIn);
+                }
+
+                return new AuthResult(true);
+            }
+            catch (HttpRequestException ex)
+            {
+                Debug.WriteLine(ex);
+                return new AuthResult(false, "Couldn't connect. Check your internet connection.");
+            }
+        }
+
+        // Updates the display name in Firebase Auth.
+        // Returns fresh tokens, so the new name shows up in the login token straight away.
+        public async Task<AuthResult> UpdateDisplayNameAsync(string name)
+        {
+            try
+            {
+                var idToken = await GetIdTokenAsync();
+                if (string.IsNullOrEmpty(idToken))
+                {
+                    return new AuthResult(false, "Please sign in again.");
+                }
+
+                using var response = await _http.PostAsJsonAsync(
+                    $"{AccountsUrl}:update?key={WebApiKey}",
+                    new { idToken, displayName = name, returnSecureToken = true });
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return new AuthResult(false, await ReadFriendlyErrorAsync(response));
+                }
+
+                var body = await response.Content.ReadFromJsonAsync<SessionResponse>();
+                if (body is not null)
+                {
+                    await StartSessionAsync(body.IdToken, body.RefreshToken, body.LocalId, body.ExpiresIn);
+                }
+
+                return new AuthResult(true);
+            }
+            catch (HttpRequestException ex)
+            {
+                Debug.WriteLine(ex);
+                return new AuthResult(false, "Couldn't connect. Check your internet connection.");
+            }
+        }
 
         // -----------------------------------------------------------------
         // Session handling

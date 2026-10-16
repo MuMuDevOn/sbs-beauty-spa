@@ -1,3 +1,4 @@
+using SBSBeautySpa.Mobile.Services;
 using SBSBeautySpa.Mobile.ViewModels;
 
 namespace SBSBeautySpa.Mobile.Views
@@ -12,7 +13,6 @@ namespace SBSBeautySpa.Mobile.Views
             _viewModel = viewModel;
             BindingContext = _viewModel;
 
-            // SignUpAsync already signs the new user in, so go straight to the home page
             _viewModel.PropertyChanged += OnViewModelPropertyChanged;
         }
 
@@ -23,7 +23,27 @@ namespace SBSBeautySpa.Mobile.Views
                 MainThread.BeginInvokeOnMainThread(async () =>
                 {
                     _viewModel.RegistrationSucceeded = false;
-                    await Shell.Current.GoToAsync("//HomePage");
+
+                    var services = IPlatformApplication.Current?.Services;
+                    var claims = services?.GetService<IUserClaimsService>();
+                    if (claims is not null)
+                        await claims.RefreshAsync();
+
+                    var window = Application.Current?.Windows.FirstOrDefault();
+                    if (window is null) return;
+
+                    if (claims?.IsAdmin == true)
+                    {
+                        var adminShell = new AdminShell();
+                        window.Page = adminShell;
+                        await adminShell.GoToAsync("//AdminMain/AdminDashboard");
+                    }
+                    else
+                    {
+                        var clientShell = new ClientShell();
+                        window.Page = clientShell;
+                        await clientShell.GoToAsync("//Main/HomePage");
+                    }
                 });
             }
         }

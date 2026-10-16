@@ -1,3 +1,5 @@
+using SBSBeautySpa.Mobile.Services;
+
 namespace SBSBeautySpa.Mobile.Views;
 
 public partial class ChangePasswordPage : ContentPage
@@ -35,7 +37,30 @@ public partial class ChangePasswordPage : ContentPage
             return;
         }
 
-        // TODO: verify CurrentPasswordEntry.Text and update the password
-        await DisplayAlertAsync("Saved", "Your password has been changed", "OK");
+        var auth = IPlatformApplication.Current?.Services.GetService<IFirebaseAuthService>();
+        if (auth is null) return;
+
+        var button = sender as Button;
+        if (button is not null) button.IsEnabled = false;
+        try
+        {
+            var result = await auth.ChangePasswordAsync(CurrentPasswordEntry.Text, NewPasswordEntry.Text);
+            if (result.Success)
+            {
+                CurrentPasswordEntry.Text = string.Empty;
+                NewPasswordEntry.Text = string.Empty;
+                ConfirmPasswordEntry.Text = string.Empty;
+                await DisplayAlertAsync("Saved", "Your password has been changed", "OK");
+                await Shell.Current.GoToAsync("..");
+            }
+            else
+            {
+                await DisplayAlertAsync("Couldn't change password", result.ErrorMessage ?? "Please try again.", "OK");
+            }
+        }
+        finally
+        {
+            if (button is not null) button.IsEnabled = true;
+        }
     }
 }

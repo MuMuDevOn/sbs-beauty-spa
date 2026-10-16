@@ -11,10 +11,185 @@
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
-            <!-- App-wide converters (used by LoginPage and RegisterPage) -->
+            <!-- ========== Converters ========== -->
             <conv:IsNotNullConverter x:Key="IsNotNull" />
             <conv:InvertedBoolConverter x:Key="InvertedBool" />
             <conv:BoolToColorConverter x:Key="BoolToColor" />
+
+            <!-- ========== Colours and brushes (shared by every page) ========== -->
+            <Color x:Key="NavyText">#1B2A4A</Color>
+            <Color x:Key="MutedText">#5B6B8C</Color>
+            <Color x:Key="SoftText">#DCE8F5</Color>
+            <Color x:Key="Placeholder">#EDEEF3</Color>
+            <SolidColorBrush x:Key="CardWhite" Color="#F7F8FC" />
+
+            <LinearGradientBrush x:Key="PageGradient" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Color="#111827" Offset="0.00" />
+                <GradientStop Color="#1B2A4A" Offset="0.07" />
+                <GradientStop Color="#4D6893" Offset="0.34" />
+                <GradientStop Color="#7C93C4" Offset="0.74" />
+                <GradientStop Color="#9FBCE5" Offset="0.95" />
+            </LinearGradientBrush>
+
+            <LinearGradientBrush x:Key="NavyButtonGradient" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Color="#2A3B63" Offset="0" />
+                <GradientStop Color="#0F1B33" Offset="1" />
+            </LinearGradientBrush>
+
+            <!-- ========== Text styles ========== -->
+            <Style x:Key="ScreenTitle" TargetType="Label">
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="FontSize" Value="30" />
+                <Setter Property="FontAttributes" Value="Bold" />
+            </Style>
+
+            <Style x:Key="SectionLabel" TargetType="Label">
+                <Setter Property="TextColor" Value="{StaticResource SoftText}" />
+                <Setter Property="FontSize" Value="13" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="Margin" Value="4,20,0,8" />
+            </Style>
+
+            <Style x:Key="CardHeading" TargetType="Label">
+                <Setter Property="TextColor" Value="{StaticResource NavyText}" />
+                <Setter Property="FontSize" Value="18" />
+                <Setter Property="FontAttributes" Value="Bold" />
+            </Style>
+
+            <Style x:Key="CardCaption" TargetType="Label">
+                <Setter Property="TextColor" Value="{StaticResource MutedText}" />
+                <Setter Property="FontSize" Value="13" />
+            </Style>
+
+            <Style x:Key="RowText" TargetType="Label">
+                <Setter Property="TextColor" Value="{StaticResource NavyText}" />
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="VerticalOptions" Value="Center" />
+            </Style>
+
+            <Style x:Key="Chevron" TargetType="Label">
+                <Setter Property="Text" Value="›" />
+                <Setter Property="TextColor" Value="{StaticResource MutedText}" />
+                <Setter Property="FontSize" Value="26" />
+                <Setter Property="VerticalOptions" Value="Center" />
+            </Style>
+
+            <!-- ========== Containers ========== -->
+            <Style x:Key="ActionCard" TargetType="Border">
+                <Setter Property="Background" Value="{StaticResource CardWhite}" />
+                <Setter Property="StrokeThickness" Value="0" />
+                <Setter Property="StrokeShape" Value="RoundRectangle 18" />
+                <Setter Property="Padding" Value="16" />
+            </Style>
+
+            <Style x:Key="GroupCard" TargetType="Border">
+                <Setter Property="Background" Value="{StaticResource CardWhite}" />
+                <Setter Property="StrokeThickness" Value="0" />
+                <Setter Property="StrokeShape" Value="RoundRectangle 16" />
+            </Style>
+
+            <Style x:Key="IconBadge" TargetType="Border">
+                <Setter Property="WidthRequest" Value="52" />
+                <Setter Property="HeightRequest" Value="52" />
+                <Setter Property="BackgroundColor" Value="#1B2A4A" />
+                <Setter Property="StrokeThickness" Value="0" />
+                <Setter Property="StrokeShape" Value="RoundRectangle 16" />
+                <Setter Property="VerticalOptions" Value="Center" />
+            </Style>
+
+            <Style x:Key="Divider" TargetType="BoxView">
+                <Setter Property="HeightRequest" Value="1" />
+                <Setter Property="Color" Value="#E5E7EB" />
+                <Setter Property="Margin" Value="16,0" />
+            </Style>
+
+            <!-- ========== Buttons ========== -->
+            <Style x:Key="PrimaryButton" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource NavyButtonGradient}" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="CornerRadius" Value="12" />
+                <Setter Property="HeightRequest" Value="44" />
+            </Style>
+
+            <Style x:Key="OutlineButton" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="White" />
+                <Setter Property="TextColor" Value="{StaticResource NavyText}" />
+                <Setter Property="BorderColor" Value="#B8C0D4" />
+                <Setter Property="BorderWidth" Value="1" />
+                <Setter Property="CornerRadius" Value="12" />
+                <Setter Property="HeightRequest" Value="44" />
+            </Style>
+
+            <!-- ===== Form / sub-page styles ===== -->
+            <Style x:Key="PageTitle" TargetType="Label">
+                <Setter Property="FontFamily" Value="OpenSansSemibold" />
+                <Setter Property="FontSize" Value="22" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="VerticalOptions" Value="Center" />
+            </Style>
+
+            <Style x:Key="HintText" TargetType="Label">
+                <Setter Property="FontFamily" Value="OpenSansRegular" />
+                <Setter Property="FontSize" Value="13" />
+                <Setter Property="TextColor" Value="{StaticResource SoftText}" />
+            </Style>
+
+            <Style x:Key="CapsLabel" TargetType="Label">
+                <Setter Property="FontFamily" Value="OpenSansSemibold" />
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="CharacterSpacing" Value="1" />
+                <Setter Property="TextColor" Value="{StaticResource SoftText}" />
+            </Style>
+
+            <Style x:Key="FieldLabel" TargetType="Label">
+                <Setter Property="FontFamily" Value="OpenSansRegular" />
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="TextColor" Value="{StaticResource MutedText}" />
+            </Style>
+
+            <Style x:Key="FieldEntry" TargetType="Entry">
+                <Setter Property="BackgroundColor" Value="Transparent" />
+                <Setter Property="FontFamily" Value="OpenSansRegular" />
+                <Setter Property="FontSize" Value="15" />
+                <Setter Property="TextColor" Value="{StaticResource NavyText}" />
+                <Setter Property="PlaceholderColor" Value="#9AA5BC" />
+            </Style>
+
+            <Style x:Key="FieldPicker" TargetType="Picker">
+                <Setter Property="BackgroundColor" Value="Transparent" />
+                <Setter Property="FontFamily" Value="OpenSansRegular" />
+                <Setter Property="FontSize" Value="15" />
+                <Setter Property="TextColor" Value="{StaticResource NavyText}" />
+                <Setter Property="TitleColor" Value="#9AA5BC" />
+            </Style>
+
+            <Style x:Key="FieldEditor" TargetType="Editor">
+                <Setter Property="BackgroundColor" Value="Transparent" />
+                <Setter Property="FontFamily" Value="OpenSansRegular" />
+                <Setter Property="FontSize" Value="15" />
+                <Setter Property="HeightRequest" Value="110" />
+                <Setter Property="TextColor" Value="{StaticResource NavyText}" />
+                <Setter Property="PlaceholderColor" Value="#9AA5BC" />
+            </Style>
+
+            <Style x:Key="RowTitle" TargetType="Label">
+                <Setter Property="FontFamily" Value="OpenSansSemibold" />
+                <Setter Property="FontSize" Value="15" />
+                <Setter Property="TextColor" Value="{StaticResource NavyText}" />
+            </Style>
+
+            <Style x:Key="RowSubtitle" TargetType="Label">
+                <Setter Property="FontFamily" Value="OpenSansRegular" />
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="TextColor" Value="{StaticResource MutedText}" />
+            </Style>
+
+            <Style x:Key="AppSwitch" TargetType="Switch">
+                <Setter Property="OnColor" Value="#1B2A4A" />
+                <Setter Property="ThumbColor" Value="White" />
+                <Setter Property="VerticalOptions" Value="Center" />
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

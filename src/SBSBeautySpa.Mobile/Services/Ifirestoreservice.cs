@@ -2,6 +2,9 @@ using SBSBeautySpa.Mobile.Models;
 
 namespace SBSBeautySpa.Mobile.Services
 {
+    // The signed-in user's saved profile (users/{uid})
+    public record ProfileInfo(string Name, string Phone);
+
     public interface IFirestoreService
     {
         // Services 
@@ -29,6 +32,10 @@ namespace SBSBeautySpa.Mobile.Services
 
         //  Device token (push notifications) 
         Task SaveFcmTokenAsync(string token, CancellationToken ct = default);
+
+        // Own profile (users/{uid})
+        Task<ProfileInfo?> GetMyProfileAsync(CancellationToken ct = default);
+        Task UpdateMyProfileAsync(string name, string phone, CancellationToken ct = default);
 
         // Reviews 
         Task<List<Review>> GetReviewsForServiceAsync(string serviceId, CancellationToken ct = default);

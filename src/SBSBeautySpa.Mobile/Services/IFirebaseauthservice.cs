@@ -25,7 +25,11 @@ namespace SBSBeautySpa.Mobile.Services
         // Creates a new user account
         Task<AuthResult> SignUpAsync(string name, string email, string phone, string password);
 
-       
+        // Verifies the current password, then sets a new one
+        Task<AuthResult> ChangePasswordAsync(string currentPassword, string newPassword);
+
+        // Updates the display name in Firebase Auth
+        Task<AuthResult> UpdateDisplayNameAsync(string name);
 
         // Signs the current user out
         Task SignOutAsync();

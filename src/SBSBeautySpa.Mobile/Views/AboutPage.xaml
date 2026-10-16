@@ -4,115 +4,87 @@
              x:Class="SBSBeautySpa.Mobile.Views.AboutPage"
              Shell.NavBarIsVisible="False">
 
-    <!-- Main layout -->
     <Grid RowDefinitions="Auto,*" Padding="20,50,20,16"
           Background="{StaticResource PageGradient}">
 
         <!-- Header: Back arrow + page title -->
         <Grid Grid.Row="0" ColumnDefinitions="Auto,*" ColumnSpacing="14">
-            <!-- Back arrow; tapping it triggers OnBackTapped -->
             <Label Text="←" FontSize="28" TextColor="White" VerticalOptions="Center">
                 <Label.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnBackTapped" />
                 </Label.GestureRecognizers>
             </Label>
-            <!-- Page title -->
             <Label Grid.Column="1" Text="About" Style="{StaticResource PageTitle}" />
         </Grid>
 
-        <!-- Scrollable content area -->
+        <!-- Content -->
         <ScrollView Grid.Row="1" Margin="0,24,0,0">
             <VerticalStackLayout Spacing="10">
 
-                <!-- ABOUT THE APP section -->
+                <!-- About the app -->
                 <Label Text="ABOUT THE APP" Style="{StaticResource CapsLabel}" />
                 <Border Style="{StaticResource GroupCard}">
                     <VerticalStackLayout Padding="14,12" Spacing="6">
-                        <!-- Short description of what the app offers -->
                         <Label Text="Your services, in one place" Style="{StaticResource RowTitle}" />
-                        <Label Style="{StaticResource LegalBody}">
-                            Browse services, make and manage bookings, explore the shop and view the gallery. Keep your profile, payment methods and notification preferences together in your account.
-                        </Label>
+                        <Label Style="{StaticResource LegalBody}"
+                               Text="Browse services, make and manage bookings, explore the shop and view the gallery. Keep your profile, payment methods and notification preferences together in your account." />
                     </VerticalStackLayout>
                 </Border>
 
-                <!-- LEGAL section header -->
+                <!-- Legal -->
                 <Label Text="LEGAL" Style="{StaticResource CapsLabel}" Margin="0,10,0,0" />
-
-                <!-- TERMS AND CONDITIONS card -->
                 <Border Style="{StaticResource GroupCard}">
-                    <VerticalStackLayout Padding="16,16" Spacing="8">
+                    <VerticalStackLayout Padding="16" Spacing="4">
+
                         <Label Text="Terms and conditions" Style="{StaticResource LegalHeading}" />
+                        <Label Text="Last updated: 10/10/2026" Style="{StaticResource RowSubtitle}" />
 
-                        <!-- PASTE YOUR TERMS HERE: one Label per paragraph -->
-                        <Label Style="{StaticResource LegalBody}">
-                            Last Updated: [10/10/2026]
-                        1. Introduction
-                        Welcome to SBS Beauty Spa! Our app allows you to browse beauty services and products, book appointments, make payments and manage your bookings. By using the app, you agree to these Terms and Conditions.
-                        </Label>
-                        <Label Style="{StaticResource LegalBody}">
-                            2. User Accounts
-                            Users must provide accurate information when creating an account and keep their login details secure. Users may not access other people's accounts or use the app for unlawful activities.
-                        </Label>
+                        <Label Text="1. Introduction" Style="{StaticResource RowTitle}" Margin="0,10,0,0" />
+                        <Label Style="{StaticResource LegalBody}"
+                               Text="Welcome to SBS Beauty Spa! Our app allows you to browse beauty services and products, book appointments, make payments and manage your bookings. By using the app, you agree to these Terms and Conditions." />
 
-                        <Label Style="{StaticResource LegalBody}">
-                            3. User Roles
-                        The app has three user roles:
-                        • Client/User: Can manage their profile, book appointments, make payments and view booking history.
-                        • Admin/Employee: Can manage appointments, availability and relevant client information.
-                        • Super Admin: The business owner, with access to employee management, user management, business reports and important settings. This account cannot be created by ordinary users or employees.
-                        </Label>
+                        <Label Text="2. User Accounts" Style="{StaticResource RowTitle}" Margin="0,10,0,0" />
+                        <Label Style="{StaticResource LegalBody}"
+                               Text="Users must provide accurate information when creating an account and keep their login details secure. Users may not access other people's accounts or use the app for unlawful activities." />
 
-                        <Label Style="{StaticResource LegalBody}">
-                            4. Bookings and Cancellations
-                            Clients are responsible for selecting the correct service, date and time. Appointments are confirmed once the app or SBS Beauty Spa confirms the booking.
-                            Please arrive on time and notify us if you need to cancel or reschedule. Any cancellation deadlines or charges will be communicated before booking. If we need to cancel an appointment, we will notify you as soon as reasonably possible.
-                        </Label>
+                        <Label Text="3. User Roles" Style="{StaticResource RowTitle}" Margin="0,10,0,0" />
+                        <Label Style="{StaticResource LegalBody}"
+                               Text="The app has three user roles:&#10;• Client/User: Can manage their profile, book appointments, make payments and view booking history.&#10;• Admin/Employee: Can manage appointments, availability and relevant client information.&#10;• Super Admin: The business owner, with access to employee management, user management, business reports and important settings. This account cannot be created by ordinary users or employees." />
 
-                        <Label Style="{StaticResource LegalBody}">
-                            5. Payments and Refunds
-                            Service and product prices will be communicated before payment. Some appointments may require a deposit, and any applicable conditions will be explained before booking.
-                            Refunds, cancellations and payment disputes will be handled fairly and in accordance with our applicable policies and South African law.
-                        </Label>
+                        <Label Text="4. Bookings and Cancellations" Style="{StaticResource RowTitle}" Margin="0,10,0,0" />
+                        <Label Style="{StaticResource LegalBody}"
+                               Text="Clients are responsible for selecting the correct service, date and time. Appointments are confirmed once the app or SBS Beauty Spa confirms the booking. Please arrive on time and notify us if you need to cancel or reschedule. Any cancellation deadlines or charges will be communicated before booking. If we need to cancel an appointment, we will notify you as soon as reasonably possible." />
 
-                        <Label Style="{StaticResource LegalBody}">
-                            6. Services and Products
-                            Clients should inform us of relevant allergies or sensitivities before a beauty treatment. Nail designs shown in the app are examples, and final results may vary.
-                            For product orders, clients must provide correct delivery details. Delivery times may vary when third-party couriers are used. Please contact us if an order is missing, damaged or incorrect.
-                        </Label>
+                        <Label Text="5. Payments and Refunds" Style="{StaticResource RowTitle}" Margin="0,10,0,0" />
+                        <Label Style="{StaticResource LegalBody}"
+                               Text="Service and product prices will be communicated before payment. Some appointments may require a deposit, and any applicable conditions will be explained before booking. Refunds, cancellations and payment disputes will be handled fairly and in accordance with our applicable policies and South African law." />
 
-                        <Label Style="{StaticResource LegalBody}">
-                            7. Notifications and Privacy
-                            We may send booking confirmations, reminders, payment updates and order notifications through the app or email.
-                            We collect personal information needed to manage accounts, appointments, payments and orders. We take reasonable steps to protect this information and handle it in accordance with South African privacy laws, including POPIA. Please also read our Privacy Policy.
-                        </Label>
-                        
-                        <Label Style="{StaticResource LegalBody}">
-                          8. Acceptable Use
-                         Users must not misuse the app, access restricted information or interfere with its security. We may restrict accounts involved in fraud, unauthorised access or serious misuse where reasonably necessary.
-                        We aim to keep the app available but cannot guarantee uninterrupted service.
-                        </Label>
+                        <Label Text="6. Services and Products" Style="{StaticResource RowTitle}" Margin="0,10,0,0" />
+                        <Label Style="{StaticResource LegalBody}"
+                               Text="Clients should inform us of relevant allergies or sensitivities before a beauty treatment. Nail designs shown in the app are examples, and final results may vary. For product orders, clients must provide correct delivery details. Delivery times may vary when third-party couriers are used. Please contact us if an order is missing, damaged or incorrect." />
 
-                        <Label Style="{StaticResource LegalBody}">
-                            9. Changes to These Terms
-                            SBS Beauty Spa may update these Terms and Conditions when necessary. Updated terms will be made available through the app, with the date of the latest update.
-                        </Label>
-                        
-                        <Label Style="{StaticResource LegalBody}">
-                            10. Governing Law
-                        These Terms and Conditions are governed by the laws of the Republic of South Africa. Clients may contact us directly to resolve any concerns or complaints.
-                        </Label>
+                        <Label Text="7. Notifications and Privacy" Style="{StaticResource RowTitle}" Margin="0,10,0,0" />
+                        <Label Style="{StaticResource LegalBody}"
+                               Text="We may send booking confirmations, reminders, payment updates and order notifications through the app or email. We collect personal information needed to manage accounts, appointments, payments and orders. We take reasonable steps to protect this information and handle it in accordance with South African privacy laws, including POPIA. Please also read our Privacy Policy." />
 
-                        <Label Style="{StaticResource LegalBody}">
-                            12. Acceptance
-                        By creating an account or accepting these terms in the app, you confirm that you have read and agree to these Terms and Conditions, subject to your rights under applicable law.
-                        </Label>
+                        <Label Text="8. Acceptable Use" Style="{StaticResource RowTitle}" Margin="0,10,0,0" />
+                        <Label Style="{StaticResource LegalBody}"
+                               Text="Users must not misuse the app, access restricted information or interfere with its security. We may restrict accounts involved in fraud, unauthorised access or serious misuse where reasonably necessary. We aim to keep the app available but cannot guarantee uninterrupted service." />
 
+                        <Label Text="9. Changes to These Terms" Style="{StaticResource RowTitle}" Margin="0,10,0,0" />
+                        <Label Style="{StaticResource LegalBody}"
+                               Text="SBS Beauty Spa may update these Terms and Conditions when necessary. Updated terms will be made available through the app, with the date of the latest update." />
+
+                        <Label Text="10. Governing Law" Style="{StaticResource RowTitle}" Margin="0,10,0,0" />
+                        <Label Style="{StaticResource LegalBody}"
+                               Text="These Terms and Conditions are governed by the laws of the Republic of South Africa. Clients may contact us directly to resolve any concerns or complaints." />
+
+                        <Label Text="11. Acceptance" Style="{StaticResource RowTitle}" Margin="0,10,0,0" />
+                        <Label Style="{StaticResource LegalBody}"
+                               Text="By creating an account or accepting these terms in the app, you confirm that you have read and agree to these Terms and Conditions, subject to your rights under applicable law." />
 
                     </VerticalStackLayout>
                 </Border>
-
-                
 
             </VerticalStackLayout>
         </ScrollView>

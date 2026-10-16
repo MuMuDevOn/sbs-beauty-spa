@@ -94,6 +94,7 @@ exports.setSuperAdminClaim = onCall(async (request) => {
       "failed-precondition",
       "You can't remove your own super admin access — have another super admin do it, so the account is never accidentally locked out."
     );
+    
   }
 
   const targetUser = await admin.auth().getUser(targetUid);
@@ -110,6 +111,16 @@ exports.setSuperAdminClaim = onCall(async (request) => {
   await admin.auth().revokeRefreshTokens(targetUid);
 
   return { uid: targetUid, superAdmin: makeSuperAdmin, admin: newClaims.admin };
+});
+
+exports.getMyClaims = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Must be signed in.");
+  }
+  return {
+    admin: request.auth.token.admin === true,
+    superAdmin: request.auth.token.superAdmin === true,
+  };
 });
 
 /**

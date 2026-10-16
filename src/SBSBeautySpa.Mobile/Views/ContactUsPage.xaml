@@ -7,6 +7,7 @@
     <Grid RowDefinitions="Auto,*,Auto" Padding="20,50,20,16"
           Background="{StaticResource PageGradient}">
 
+        <!-- Header: Back arrow + page title -->
         <Grid Grid.Row="0" ColumnDefinitions="Auto,*" ColumnSpacing="14">
             <Label Text="←" FontSize="28" TextColor="White" VerticalOptions="Center">
                 <Label.GestureRecognizers>
@@ -16,33 +17,36 @@
             <Label Grid.Column="1" Text="Contact Us" Style="{StaticResource PageTitle}" />
         </Grid>
 
+        <!-- Form -->
         <ScrollView Grid.Row="1" Margin="0,24,0,0">
             <VerticalStackLayout Spacing="10">
 
                 <Label Text="Have a question or need help? Tell us what you need support with."
                        Style="{StaticResource HintText}" />
 
+                <!-- Your details -->
                 <Label Text="YOUR DETAILS" Style="{StaticResource CapsLabel}" Margin="0,6,0,0" />
                 <Border Style="{StaticResource GroupCard}">
                     <VerticalStackLayout>
 
                         <VerticalStackLayout Padding="14,10" Spacing="2">
                             <Label Text="Name" Style="{StaticResource FieldLabel}" />
-                            <Entry x:Name="NameEntry" Text="User name" Placeholder="Name"
+                            <Entry x:Name="NameEntry" Placeholder="Your name"
                                    Style="{StaticResource FieldEntry}" />
                         </VerticalStackLayout>
                         <BoxView Style="{StaticResource Divider}" />
 
                         <VerticalStackLayout Padding="14,10" Spacing="2">
                             <Label Text="Email address" Style="{StaticResource FieldLabel}" />
-                            <Entry x:Name="EmailEntry" Text="userEmail@example.com"
-                                   Placeholder="Email address" Keyboard="Email"
+                            <Entry x:Name="EmailEntry" Placeholder="you@example.com"
+                                   Keyboard="Email"
                                    Style="{StaticResource FieldEntry}" />
                         </VerticalStackLayout>
 
                     </VerticalStackLayout>
                 </Border>
 
+                <!-- Your message -->
                 <Label Text="YOUR MESSAGE" Style="{StaticResource CapsLabel}" Margin="0,10,0,0" />
                 <Border Style="{StaticResource GroupCard}">
                     <VerticalStackLayout>
@@ -64,7 +68,8 @@
                                     </Picker.ItemsSource>
                                 </Picker>
                             </VerticalStackLayout>
-                            <Label Grid.Column="1" Text="▾" FontSize="18" TextColor="#6B7280"
+                            <Label Grid.Column="1" Text="▾" FontSize="18"
+                                   TextColor="{StaticResource MutedText}"
                                    VerticalOptions="Center">
                                 <Label.GestureRecognizers>
                                     <TapGestureRecognizer Tapped="OnChevronTapped" />
@@ -83,12 +88,13 @@
                     </VerticalStackLayout>
                 </Border>
 
-                <Label Text="For a booking question, include any relevant booking details. Don't include passwords or payment card details."
+                <Label Text="For a booking question, include the booking date. Please don't include passwords or card details."
                        Style="{StaticResource HintText}" />
 
             </VerticalStackLayout>
         </ScrollView>
 
+        <!-- Send -->
         <Button Grid.Row="2" Text="Send message" Margin="0,10,0,0"
                 Style="{StaticResource PrimaryButton}" Clicked="OnSendClicked" />
     </Grid>

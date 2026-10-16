@@ -4,106 +4,95 @@
              xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              xmlns:vm="clr-namespace:SBSBeautySpa.Mobile.ViewModels"
              x:Class="SBSBeautySpa.Mobile.Views.BookingHistoryPage"
+             x:DataType="vm:BookingHistoryViewModel"
              Shell.NavBarIsVisible="False">
 
-    <Grid Padding ="24,60,24,40" RowDefinitions="Auto,Auto,*">
+    <Grid Background="{StaticResource PageGradient}"
+          RowDefinitions="Auto,Auto,*" Padding="20,56,20,0">
 
-        <Grid.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint ="0,1">
-                <GradientStop Color="#111827" Offset="0.00"/>
-                <GradientStop Color="#1B2A4A" Offset="0.07"/>
-                <GradientStop Color="#4D6893" Offset="0.34"/>
-                <GradientStop Color="#7C93C4" Offset="0.74"/>
-                <GradientStop Color="#9FBCE5" Offset="0.95"/>
-            </LinearGradientBrush>
-        </Grid.Background>
-
-        <!--Header-->
-        <Grid Grid.Row="0" ColumnDefinitions= "Auto, *, Auto, Auto" ColumnSpacing="14">
-            <Image Grid.Column="0" WidthRequest="28" HeightRequest="28"
-                mi:MauiIcon.Value="{mi:Material Icon = ArrowBack, IconColor= White}">
+        <!-- Header -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*" ColumnSpacing="12">
+            <Image WidthRequest="28" HeightRequest="28" VerticalOptions="Center"
+                   mi:MauiIcon.Value="{mi:Material Icon=ArrowBack, IconColor=White}">
                 <Image.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OnBackTapped"/>
+                    <TapGestureRecognizer Tapped="OnBackTapped" />
                 </Image.GestureRecognizers>
             </Image>
+            <Label Grid.Column="1" Text="Booking history" Style="{StaticResource ScreenTitle}"
+                   FontSize="26" VerticalOptions="Center" />
+        </Grid>
 
-            <Label Grid.Column="1" Text=" Booking History"
-                FontFamily="SerifBold" FontSize="28"
-                TextColor="White" VerticalOptions="Center"/>
-            </Grid>
-        
-        <!--Tabs-->
-        <CollectionView Grid.Row="1" Margin=" 0,16,0,12" HeightRequest="48"
-                        ItemsSource="{Binding Tabs}" ItemsLayout="HorizontalList">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Border BackgroundColor="{Binding ChipBackground}"
-                            StrokeThickness="0" StrokeShape="RoundRectangle 22"
-                            Padding="18,8" Margin="0,0,8,0">
-                        <Label Text="{Binding Name}" FontFamily="SerifRegular" FontSize="16"
-                               TextColor="{Binding ChipTextColor}" VerticalOptions="Center"/>
+        <!-- Tabs -->
+        <HorizontalStackLayout Grid.Row="1" Spacing="8" Margin="0,16,0,14"
+                               BindableLayout.ItemsSource="{Binding Tabs}">
+            <BindableLayout.ItemTemplate>
+                <DataTemplate x:DataType="vm:BookingHistoryTab">
+                    <Border BackgroundColor="{Binding ChipBackground}" StrokeThickness="0"
+                            StrokeShape="RoundRectangle 20" Padding="18,8">
+                        <Label Text="{Binding Name}" TextColor="{Binding ChipTextColor}" FontSize="15" />
                         <Border.GestureRecognizers>
-                            <TapGestureRecognizer
-                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BookingHistoryViewModel}}, Path=SelectTabCommand}"
-                                CommandParameter="{Binding .}" />
+                            <TapGestureRecognizer Tapped="OnTabTapped" />
                         </Border.GestureRecognizers>
-                        
                     </Border>
                 </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+            </BindableLayout.ItemTemplate>
+        </HorizontalStackLayout>
 
-        <!--Bookings-->
-        <CollectionView Grid.Row="2" ItemsSource="{Binding Bookings}">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Border BackgroundColor="White" Stroke="#DDE2EE" StrokeThickness="1"
-                            StrokeShape="RoundRectangle 12" Padding="14" Margin="0,0,0,12">
-                        <VerticalStackLayout Spacing="8">
+        <!-- Bookings -->
+        <ScrollView Grid.Row="2">
+            <VerticalStackLayout Spacing="12" Padding="0,0,0,24">
 
-                            <Grid ColumnDefinitions="*,Auto">
-                                <Label Text="{Binding ServiceName}" FontFamily="SerifBold"
-                                       FontSize="18" TextColor="{StaticResource NavyText}"
-                                       VerticalOptions="Center"/>
-                                <Border Grid.Column="1" Stroke="#B8C0D4" StrokeThickness="1"
-                                        StrokeShape="RoundRectangle 6" Padding="10,4">
-                                    <Label Text="{Binding Status}" FontFamily="SerifRegular"
-                                            FontSize="13" TextColor="{StaticResource NavyText}"/>
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                                   Color="White" HorizontalOptions="Center" />
+                <Label Text="{Binding ErrorMessage}" TextColor="#FECACA" FontSize="13"
+                       IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNull}}" />
+                <Label Text="No bookings here yet." TextColor="White" FontSize="15"
+                       HorizontalOptions="Center" Margin="0,30,0,0"
+                       IsVisible="{Binding HasNoBookings}" />
 
-                                </Border>
-                            </Grid>
-                            <Label Text="{Binding DateText}" FontFamily="SerifRegular"
-                                   FontSize="13" TextColor="{StaticResource MutedText}"/>
-                            <Label Text="{Binding PriceText}" FontFamily="SerifRegular"
-                                   FontSize="16" TextColor="{StaticResource NavyText}"/>
-                            
-                            <!--Confirmed Buttons-->
-                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10"
-                                  IsVisible="{Binding IsConfirmed}">
-                                <Button Text="Reschedule" BackgroundColor="White"
-                                        TextColor="{StaticResource NavyText}"
-                                        BorderColor="#B8C0D4" BorderWidth="1"
-                                        CornerRadius="10" HeightRequest="42"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BookingHistoryViewModel}}, Path=RescheduleCommand}"
-                                        CommandParameter="{Binding .}" />
-                                <Button Grid.Column="1" Text="View Address" TextColor="White"
-                                        CornerRadius="10" HeightRequest="42"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BookingHistoryViewModel}}, Path=ViewAddressCommand}"
-                                        CommandParameter="{Binding .}" >
-                                    <Button.Background>
-                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                            <GradientStop Color="#2A3B63" Offset="0" />
-                                            <GradientStop Color="#0F1B33" Offset="1" />
-                                        </LinearGradientBrush>
-                                    </Button.Background>
-                                </Button>
-                                
-                            </Grid>
-                        </VerticalStackLayout>
-                    </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+                <VerticalStackLayout Spacing="12" BindableLayout.ItemsSource="{Binding Bookings}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:BookingHistoryItem">
+                            <Border Style="{StaticResource ActionCard}" Padding="14">
+                                <VerticalStackLayout Spacing="8">
 
+                                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                        <Label Text="{Binding ServiceName}"
+                                               Style="{StaticResource CardHeading}"
+                                               VerticalOptions="Center" LineBreakMode="TailTruncation" />
+                                        <Border Grid.Column="1" BackgroundColor="{Binding StatusBackColor}"
+                                                StrokeThickness="0" StrokeShape="RoundRectangle 10"
+                                                Padding="10,4" VerticalOptions="Center">
+                                            <Label Text="{Binding Status}" FontSize="12" FontAttributes="Bold"
+                                                   TextColor="{Binding StatusTextColor}" />
+                                        </Border>
+                                    </Grid>
+
+                                    <Label Text="{Binding DateText}" Style="{StaticResource CardCaption}" />
+                                    <Label Text="{Binding PriceText}" FontSize="17" FontAttributes="Bold"
+                                           TextColor="{StaticResource NavyText}" />
+
+                                    <!-- Confirmed -->
+                                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10"
+                                          IsVisible="{Binding IsConfirmed}">
+                                        <Button Text="Reschedule" Style="{StaticResource OutlineButton}"
+                                                Clicked="OnRescheduleClicked" />
+                                        <Button Grid.Column="1" Text="View Address"
+                                                Style="{StaticResource PrimaryButton}"
+                                                Clicked="OnViewAddressClicked" />
+                                    </Grid>
+
+                                    <!-- Pending deposit -->
+                                    <Button Text="{Binding DepositLabel}" Style="{StaticResource PrimaryButton}"
+                                            IsVisible="{Binding IsPending}"
+                                            Clicked="OnPayDepositClicked" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
     </Grid>
 </ContentPage>

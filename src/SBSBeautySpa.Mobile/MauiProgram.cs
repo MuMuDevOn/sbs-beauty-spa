@@ -54,6 +54,7 @@ namespace SBSBeautySpa.Mobile
             builder.Services.AddSingleton<IDeletionLogService, DeletionLogService>();
             builder.UseFirebasePushNotifications();
             builder.Services.AddSingleton<IAdminClientsService, AdminClientsService>();
+            builder.Services.AddSingleton<IUserClaimsService, UserClaimsService>();
 
             // ---- Client ViewModels ----
             builder.Services.AddTransient<LoginViewModel>();

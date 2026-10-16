@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+       xmlns:admin="clr-namespace:SBSBeautySpa.Mobile.Views.Admin"
+       x:Class="SBSBeautySpa.Mobile.Views.AdminShell"
+       FlyoutBehavior="Disabled"
+       Shell.TabBarBackgroundColor="White"
+       Shell.TabBarForegroundColor="#111827"
+       Shell.TabBarTitleColor="#111827"
+       Shell.TabBarUnselectedColor="#9CA3AF">
+
+    <TabBar Route="AdminMain">
+        <ShellContent Title="Dashboard" Icon="home.png"
+                      Route="AdminDashboard"
+                      ContentTemplate="{DataTemplate admin:AdminDashboardPage}" />
+        <ShellContent Title="Bookings" Icon="booking.png"
+                      Route="AdminBookings"
+                      ContentTemplate="{DataTemplate admin:AdminBookingsPage}" />
+        <ShellContent Title="Services" Icon="shop.png"
+                      Route="AdminServices"
+                      ContentTemplate="{DataTemplate admin:AdminServicesPage}" />
+        <ShellContent Title="Products" Icon="gallery.png"
+                      Route="AdminProducts"
+                      ContentTemplate="{DataTemplate admin:AdminProductPage}" />
+        <ShellContent Title="Clients" Icon="profile.png"
+                      Route="AdminClients"
+                      ContentTemplate="{DataTemplate admin:AdminClientsPage}" />
+        <ShellContent Title="Staff" Icon="profile.png"
+                      Route="AdminStaff"
+                      ContentTemplate="{DataTemplate admin:AdminStaffPage}" />
+    </TabBar>
+
+</Shell>

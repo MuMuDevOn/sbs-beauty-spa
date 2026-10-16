@@ -20,9 +20,9 @@ namespace SBSBeautySpa.Mobile.Services
             _auth = auth;
         }
 
-        
+
         // SERVICES
-      
+
 
         public async Task<List<Service>> GetServicesAsync(string? categoryId = null, CancellationToken ct = default)
         {
@@ -48,9 +48,9 @@ namespace SBSBeautySpa.Mobile.Services
             return services.Where(s => s is not null).Cast<Service>().ToList();
         }
 
-        
+
         // PRODUCTS
-        
+
 
         public async Task<List<Product>> GetProductsAsync(string? categoryId = null, CancellationToken ct = default)
         {
@@ -88,9 +88,9 @@ namespace SBSBeautySpa.Mobile.Services
             };
         }
 
-       
+
         // CART (own data — filtered by clientId)
-        
+
 
         public async Task<List<CartItem>> GetMyCartAsync(CancellationToken ct = default)
         {
@@ -149,9 +149,9 @@ namespace SBSBeautySpa.Mobile.Services
                 await DeleteDocumentAsync($"cartItems/{item.Id}", ct);
         }
 
-        
+
         // OWN BOOKINGS / ORDERS / NOTIFICATIONS
-        
+
 
         public async Task<List<Booking>> GetMyBookingsAsync(CancellationToken ct = default)
         {
@@ -195,9 +195,9 @@ namespace SBSBeautySpa.Mobile.Services
             await PatchDocumentAsync($"notifications/{notificationId}", patch, ct, updateMask: "isRead");
         }
 
-        
+
         // DEVICE TOKEN (push notifications)
-       
+
 
         // Writes this device's FCM token to users/{uid}.fcmToken so the
         // Cloud Function sendPush() can find it and deliver push notifications.
@@ -218,9 +218,39 @@ namespace SBSBeautySpa.Mobile.Services
             await PatchDocumentAsync($"users/{uid}", patch, ct, updateMask: "fcmToken");
         }
 
-   
+        // PROFILE (users/{uid})
+
+        public async Task<ProfileInfo?> GetMyProfileAsync(CancellationToken ct = default)
+        {
+            var uid = _auth.CurrentUserId;
+            if (string.IsNullOrEmpty(uid)) return null;
+
+            var doc = await GetDocumentAsync($"users/{uid}", ct);
+            if (doc is null || !doc.Value.TryGetProperty("fields", out var fields)) return null;
+
+            return new ProfileInfo(GetString(fields, "name"), GetString(fields, "phoneNumber"));
+        }
+
+        public async Task UpdateMyProfileAsync(string name, string phone, CancellationToken ct = default)
+        {
+            var uid = _auth.CurrentUserId;
+            if (string.IsNullOrEmpty(uid)) throw new InvalidOperationException("Must be signed in.");
+
+            var patch = new
+            {
+                fields = new
+                {
+                    name = new { stringValue = name },
+                    phoneNumber = new { stringValue = phone }
+                }
+            };
+
+            await PatchDocumentAsync($"users/{uid}", patch, ct, updateMask: "name,phoneNumber");
+        }
+
+
         // REVIEWS / GALLERY / CATEGORIES
-        
+
 
         public async Task<List<Review>> GetReviewsForServiceAsync(string serviceId, CancellationToken ct = default)
         {
@@ -257,9 +287,9 @@ namespace SBSBeautySpa.Mobile.Services
                 .ToList();
         }
 
-        
+
         // REST HELPERS
-       
+
 
         private async Task<JsonElement?> GetDocumentAsync(string path, CancellationToken ct)
         {
@@ -297,7 +327,9 @@ namespace SBSBeautySpa.Mobile.Services
 
         private async Task PatchDocumentAsync(string path, object doc, CancellationToken ct, string? updateMask = null)
         {
-            var mask = updateMask is null ? "" : $"?updateMask.fieldPaths={updateMask}";
+            var mask = updateMask is null
+                ? ""
+                : "?" + string.Join("&", updateMask.Split(',').Select(m => $"updateMask.fieldPaths={m}"));
             var request = await BuildRequestAsync(HttpMethod.Patch, $"{BaseUrl}/{DocumentsPath}/{path}{mask}", doc, ct);
             var response = await _http.SendAsync(request, ct);
             response.EnsureSuccessStatusCode();
@@ -323,9 +355,9 @@ namespace SBSBeautySpa.Mobile.Services
             return request;
         }
 
-        
+
         // MAPPERS — Firestore REST JSON → Models
-    
+
 
         private static string GetString(JsonElement fields, string key)
         {
