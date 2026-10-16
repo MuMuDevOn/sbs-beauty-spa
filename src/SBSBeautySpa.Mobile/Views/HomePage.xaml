@@ -9,35 +9,44 @@
              Shell.NavBarIsVisible="False">
 
     <ContentPage.Resources>
+
+        <!-- Section heading on the gradient -->
         <Style x:Key="SectionTitle" TargetType="Label">
             <Setter Property="TextColor" Value="White" />
-            <Setter Property="FontSize" Value="22" />
-            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="FontFamily" Value="OpenSansSemibold" />
+            <Setter Property="FontSize" Value="20" />
             <Setter Property="VerticalOptions" Value="Center" />
         </Style>
         <Style x:Key="ResultHeading" TargetType="Label">
             <Setter Property="TextColor" Value="White" />
-            <Setter Property="FontSize" Value="17" />
-            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="FontFamily" Value="OpenSansSemibold" />
+            <Setter Property="FontSize" Value="16" />
         </Style>
         <Style x:Key="FilterHeading" TargetType="Label">
             <Setter Property="TextColor" Value="#1B2A4A" />
+            <Setter Property="FontFamily" Value="OpenSansSemibold" />
             <Setter Property="FontSize" Value="13" />
-            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="Margin" Value="0,6,0,2" />
         </Style>
+
+        <!-- "View all" pill text -->
         <Style x:Key="ViewAll" TargetType="Label">
-            <Setter Property="TextColor" Value="#E6EBF4" />
-            <Setter Property="FontSize" Value="14" />
+            <Setter Property="TextColor" Value="White" />
+            <Setter Property="FontFamily" Value="OpenSansSemibold" />
+            <Setter Property="FontSize" Value="12" />
             <Setter Property="VerticalOptions" Value="Center" />
         </Style>
+
+        <!-- Text inside white cards -->
         <Style x:Key="CardTitle" TargetType="Label">
-            <Setter Property="TextColor" Value="#111827" />
-            <Setter Property="FontSize" Value="15" />
-            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="#1B2A4A" />
+            <Setter Property="FontFamily" Value="OpenSansSemibold" />
+            <Setter Property="FontSize" Value="14" />
             <Setter Property="LineBreakMode" Value="TailTruncation" />
         </Style>
         <Style x:Key="CardSubtitle" TargetType="Label">
-            <Setter Property="TextColor" Value="#4D6893" />
+            <Setter Property="TextColor" Value="#5B6B8C" />
+            <Setter Property="FontFamily" Value="OpenSansRegular" />
             <Setter Property="FontSize" Value="12" />
             <Setter Property="LineBreakMode" Value="TailTruncation" />
         </Style>
@@ -55,20 +64,25 @@
 
         <!-- A service as a row (Popular Services + search results) -->
         <DataTemplate x:Key="ServiceRowTemplate" x:DataType="vm:HomeServiceCard">
-            <Border BackgroundColor="#F4F6FA" StrokeThickness="0"
-                    StrokeShape="RoundRectangle 16" Padding="12">
-                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                    <Border WidthRequest="52" HeightRequest="52" StrokeThickness="0"
-                            StrokeShape="RoundRectangle 10" BackgroundColor="#C9D2E3">
+            <Border BackgroundColor="White" StrokeThickness="0"
+                    StrokeShape="RoundRectangle 20" Padding="12">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Opacity="0.18" Radius="12" Offset="0,4" />
+                </Border.Shadow>
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                    <Border WidthRequest="60" HeightRequest="60" StrokeThickness="0"
+                            StrokeShape="RoundRectangle 14" BackgroundColor="#E6EBF4">
                         <Image Source="{Binding ImageUrl}" Aspect="AspectFill" />
                     </Border>
-                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="3">
                         <Label Text="{Binding Name}" Style="{StaticResource CardTitle}" />
                         <Label Text="{Binding DurationSubtitle}" Style="{StaticResource CardSubtitle}" />
                     </VerticalStackLayout>
-                    <Label Grid.Column="2" Text="{Binding PriceLabel}"
-                           TextColor="#111827" FontSize="15" FontAttributes="Bold"
-                           VerticalOptions="Center" />
+                    <Border Grid.Column="2" BackgroundColor="#E6EBF4" StrokeThickness="0"
+                            StrokeShape="RoundRectangle 14" Padding="12,6" VerticalOptions="Center">
+                        <Label Text="{Binding PriceLabel}" TextColor="#1B2A4A"
+                               FontFamily="OpenSansSemibold" FontSize="13" />
+                    </Border>
                 </Grid>
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnServiceTapped" />
@@ -78,16 +92,21 @@
 
         <!-- A product as a card (New Arrivals + search results) -->
         <DataTemplate x:Key="ProductCardTemplate" x:DataType="vm:HomeProductCard">
-            <Border FlexLayout.Basis="48%" BackgroundColor="White"
-                    StrokeThickness="0" StrokeShape="RoundRectangle 18"
-                    Padding="10" Margin="0,0,0,12">
-                <VerticalStackLayout Spacing="6">
-                    <Border HeightRequest="110" StrokeThickness="0"
-                            StrokeShape="RoundRectangle 12" BackgroundColor="#E5E7EB">
+            <Border FlexLayout.Basis="47%" BackgroundColor="White"
+                    StrokeThickness="0" StrokeShape="RoundRectangle 22"
+                    Padding="10" Margin="0,0,0,14">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Opacity="0.18" Radius="12" Offset="0,4" />
+                </Border.Shadow>
+                <VerticalStackLayout Spacing="8">
+                    <Border HeightRequest="120" StrokeThickness="0"
+                            StrokeShape="RoundRectangle 16" BackgroundColor="#E6EBF4">
                         <Image Source="{Binding ImageUrl}" Aspect="AspectFill" />
                     </Border>
-                    <Label Text="{Binding Name}" Style="{StaticResource CardTitle}" />
-                    <Label Text="{Binding Subtitle}" Style="{StaticResource CardSubtitle}" />
+                    <VerticalStackLayout Spacing="2" Padding="4,0,4,4">
+                        <Label Text="{Binding Name}" Style="{StaticResource CardTitle}" />
+                        <Label Text="{Binding Subtitle}" Style="{StaticResource CardSubtitle}" />
+                    </VerticalStackLayout>
                 </VerticalStackLayout>
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnProductTapped" />
@@ -96,38 +115,19 @@
         </DataTemplate>
     </ContentPage.Resources>
 
-    <Grid>
-        <Grid.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                <GradientStop Color="#111827" Offset="0.00"/>
-                <GradientStop Color="#1B2A4A" Offset="0.07"/>
-                <GradientStop Color="#4D6893" Offset="0.34"/>
-                <GradientStop Color="#7C93C4" Offset="0.74"/>
-                <GradientStop Color="#9FBCE5" Offset="0.95"/>
-            </LinearGradientBrush>
-        </Grid.Background>
-
+    <Grid Background="{StaticResource PageGradient}">
         <ScrollView>
-            <VerticalStackLayout Padding="16,40,16,24" Spacing="16">
+            <VerticalStackLayout Padding="20,46,20,32" Spacing="22">
 
-                <!-- Logo header -->
-                <Image Source="logo.png"
-                       HeightRequest="80" WidthRequest="240"
-                       Aspect="AspectFit"
-                       HorizontalOptions="Center"
-                       Margin="0,0,0,4" />
-
-                <!-- Greeting + notifications bell -->
+                <!-- Top row: logo + notifications bell -->
                 <Grid ColumnDefinitions="*,Auto">
-                    <VerticalStackLayout Spacing="2">
-                        <Label Text="Hello" TextColor="#DCE8F5" FontSize="14" />
-                        <Label Text="Welcome!" TextColor="White" FontSize="30" FontAttributes="Bold" />
-                    </VerticalStackLayout>
+                    <Image Source="logo.png" HeightRequest="46" WidthRequest="160"
+                           Aspect="AspectFit" HorizontalOptions="Start" VerticalOptions="Center" />
 
-                    <Border Grid.Column="1" WidthRequest="44" HeightRequest="44"
+                    <Border Grid.Column="1" WidthRequest="46" HeightRequest="46"
                             StrokeShape="Ellipse" StrokeThickness="0"
                             BackgroundColor="#E6EBF4" VerticalOptions="Center">
-                        <Label Text="🔔" FontSize="18"
+                        <Image Source="ic_bell.png" WidthRequest="22" HeightRequest="22"
                                HorizontalOptions="Center" VerticalOptions="Center" />
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding OpenNotificationsCommand}" />
@@ -135,38 +135,50 @@
                     </Border>
                 </Grid>
 
+                <!-- Greeting -->
+                <VerticalStackLayout Spacing="2" Margin="0,-4,0,0">
+                    <Label Text="Hello," TextColor="#DCE8F5" FontFamily="OpenSansRegular" FontSize="15" />
+                    <Label Text="Welcome!" TextColor="White" FontFamily="OpenSansSemibold" FontSize="32" />
+                    <Label Text="What would you like to book today?" TextColor="#DCE8F5"
+                           FontFamily="OpenSansRegular" FontSize="13" />
+                </VerticalStackLayout>
+
                 <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
                                    Color="White" HorizontalOptions="Center" />
                 <Label Text="{Binding ErrorMessage}" TextColor="#FECACA" FontSize="13"
                        IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNull}}" />
 
                 <!-- Search bar + Filters button -->
-                <Border BackgroundColor="#E6EBF4" StrokeThickness="0"
-                        StrokeShape="RoundRectangle 24" Padding="16,0"
-                        HeightRequest="50">
+                <Border BackgroundColor="White" StrokeThickness="0"
+                        StrokeShape="RoundRectangle 28" Padding="18,0,8,0"
+                        HeightRequest="54">
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Opacity="0.2" Radius="14" Offset="0,5" />
+                    </Border.Shadow>
                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
                         <Image Grid.Column="0" WidthRequest="20" HeightRequest="20"
                                VerticalOptions="Center"
-                               mi:MauiIcon.Value="{mi:Material Icon=Search, IconColor=#4D6893}" />
+                               mi:MauiIcon.Value="{mi:Material Icon=Search, IconColor=#5B6B8C}" />
 
                         <Entry Grid.Column="1"
                                Placeholder="Search nails, lashes, press-ons..."
-                               PlaceholderColor="#7C93C4"
+                               PlaceholderColor="#9AA5BC"
                                TextColor="#1B2A4A"
                                BackgroundColor="Transparent"
+                               FontFamily="OpenSansRegular"
                                FontSize="14"
                                VerticalOptions="Center"
                                ReturnType="Done"
                                Text="{Binding SearchText}" />
 
-                        <Border Grid.Column="2" BackgroundColor="White" StrokeThickness="0"
-                                StrokeShape="RoundRectangle 16" Padding="10,6"
-                                VerticalOptions="Center">
-                            <HorizontalStackLayout Spacing="6">
+                        <Border Grid.Column="2" BackgroundColor="#1B2A4A" StrokeThickness="0"
+                                StrokeShape="RoundRectangle 20" Padding="14,0"
+                                HeightRequest="38" VerticalOptions="Center">
+                            <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
                                 <Image WidthRequest="16" HeightRequest="16" VerticalOptions="Center"
-                                       mi:MauiIcon.Value="{mi:Material Icon=Tune, IconColor=#111827}" />
-                                <Label Text="{Binding FilterButtonText}" FontSize="13" FontAttributes="Bold"
-                                       TextColor="#111827" VerticalOptions="Center" />
+                                       mi:MauiIcon.Value="{mi:Material Icon=Tune, IconColor=White}" />
+                                <Label Text="{Binding FilterButtonText}" FontFamily="OpenSansSemibold"
+                                       FontSize="13" TextColor="White" VerticalOptions="Center" />
                             </HorizontalStackLayout>
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding ToggleFilterPanelCommand}" />
@@ -177,10 +189,13 @@
 
                 <!-- Filter panel (opens in place, nothing navigates away) -->
                 <Border IsVisible="{Binding IsFilterPanelOpen}"
-                        BackgroundColor="#E6EBF4" StrokeThickness="0"
-                        StrokeShape="RoundRectangle 20" Padding="16">
-                    <VerticalStackLayout Spacing="6">
-                        <Label Text="Show" Style="{StaticResource FilterHeading}" />
+                        BackgroundColor="White" StrokeThickness="0"
+                        StrokeShape="RoundRectangle 24" Padding="18">
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Opacity="0.2" Radius="14" Offset="0,5" />
+                    </Border.Shadow>
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Show" Style="{StaticResource FilterHeading}" Margin="0,0,0,2" />
                         <FlexLayout Wrap="Wrap"
                                     BindableLayout.ItemsSource="{Binding TypeChips}"
                                     BindableLayout.ItemTemplate="{StaticResource FilterChipTemplate}" />
@@ -200,13 +215,15 @@
                                     BindableLayout.ItemsSource="{Binding SortChips}"
                                     BindableLayout.ItemTemplate="{StaticResource FilterChipTemplate}" />
 
-                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,6,0,0">
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,8,0,0">
                             <Button Text="Clear all" Command="{Binding ClearFiltersCommand}"
                                     BackgroundColor="Transparent" TextColor="#1B2A4A"
-                                    BorderColor="#1B2A4A" BorderWidth="1" CornerRadius="12" />
+                                    BorderColor="#1B2A4A" BorderWidth="1" CornerRadius="14"
+                                    FontFamily="OpenSansSemibold" HeightRequest="46" />
                             <Button Grid.Column="1" Text="Show results"
                                     Command="{Binding ToggleFilterPanelCommand}"
-                                    BackgroundColor="#111827" TextColor="White" CornerRadius="12" />
+                                    BackgroundColor="#1B2A4A" TextColor="White" CornerRadius="14"
+                                    FontFamily="OpenSansSemibold" HeightRequest="46" />
                         </Grid>
                     </VerticalStackLayout>
                 </Border>
@@ -217,16 +234,18 @@
                                            BindableLayout.ItemsSource="{Binding Categories}">
                         <BindableLayout.ItemTemplate>
                             <DataTemplate x:DataType="vm:HomeCategory">
-                                <VerticalStackLayout Spacing="6" WidthRequest="64">
-                                    <Border WidthRequest="52" HeightRequest="52"
-                                            StrokeShape="Ellipse" StrokeThickness="0"
+                                <VerticalStackLayout Spacing="8" WidthRequest="72">
+                                    <Border WidthRequest="62" HeightRequest="62"
+                                            StrokeShape="Ellipse" StrokeThickness="2" Stroke="#40FFFFFF"
                                             BackgroundColor="{Binding Background}"
                                             HorizontalOptions="Center">
-                                        <Label Text="{Binding Glyph}" FontSize="22"
+                                        <Label Text="{Binding Glyph}" FontSize="24"
                                                HorizontalOptions="Center" VerticalOptions="Center" />
                                     </Border>
-                                    <Label Text="{Binding Label}" TextColor="White" FontSize="12"
-                                           HorizontalTextAlignment="Center" />
+                                    <Label Text="{Binding Label}" TextColor="White"
+                                           FontFamily="OpenSansRegular" FontSize="12"
+                                           HorizontalTextAlignment="Center"
+                                           LineBreakMode="TailTruncation" />
                                     <VerticalStackLayout.GestureRecognizers>
                                         <TapGestureRecognizer Tapped="OnCategoryTapped" />
                                     </VerticalStackLayout.GestureRecognizers>
@@ -240,20 +259,22 @@
                 <VerticalStackLayout IsVisible="{Binding IsFiltering}" Spacing="14">
                     <Grid ColumnDefinitions="*,Auto">
                         <Label Text="{Binding ResultSummary}" Style="{StaticResource SectionTitle}" />
-                        <Label Grid.Column="1" Text="Clear" Style="{StaticResource ViewAll}">
-                            <Label.GestureRecognizers>
+                        <Border Grid.Column="1" BackgroundColor="#33FFFFFF" StrokeThickness="0"
+                                StrokeShape="RoundRectangle 14" Padding="14,6" VerticalOptions="Center">
+                            <Label Text="Clear" Style="{StaticResource ViewAll}" />
+                            <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding ClearFiltersCommand}" />
-                            </Label.GestureRecognizers>
-                        </Label>
+                            </Border.GestureRecognizers>
+                        </Border>
                     </Grid>
 
                     <Label Text="No matches found. Try a different search or clear the filters."
-                           TextColor="White" FontSize="14"
+                           TextColor="White" FontFamily="OpenSansRegular" FontSize="14"
                            IsVisible="{Binding HasNoResults}" />
 
                     <Label Text="Services" Style="{StaticResource ResultHeading}"
                            IsVisible="{Binding HasServiceResults}" />
-                    <VerticalStackLayout Spacing="10"
+                    <VerticalStackLayout Spacing="12"
                                          IsVisible="{Binding HasServiceResults}"
                                          BindableLayout.ItemsSource="{Binding ResultServices}"
                                          BindableLayout.ItemTemplate="{StaticResource ServiceRowTemplate}" />
@@ -267,60 +288,89 @@
                 </VerticalStackLayout>
 
                 <!-- ============ DEFAULT HOME (hidden while searching / filtering) ============ -->
-                <VerticalStackLayout IsVisible="{Binding IsNotFiltering}" Spacing="16">
+                <VerticalStackLayout IsVisible="{Binding IsNotFiltering}" Spacing="22">
 
                     <!-- Promo banner -->
-                    <Border BackgroundColor="#DDE4F0" StrokeThickness="0"
-                            StrokeShape="RoundRectangle 22" Padding="18" HeightRequest="160">
-                        <Grid RowDefinitions="Auto,*">
-                            <Grid ColumnDefinitions="Auto,*,Auto">
-                                <Border BackgroundColor="#EAF0FA" StrokeThickness="0"
-                                        StrokeShape="RoundRectangle 16" Padding="12,6">
-                                    <Label Text="☀ Summer Sale" TextColor="#111827" FontSize="13" />
-                                </Border>
+                    <Border StrokeThickness="0" StrokeShape="RoundRectangle 28"
+                            HeightRequest="170" Padding="0">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#F7F8FC" Offset="0.0" />
+                                <GradientStop Color="#B9C9EA" Offset="1.0" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Border.Shadow>
+                            <Shadow Brush="Black" Opacity="0.22" Radius="16" Offset="0,6" />
+                        </Border.Shadow>
 
-                                <Border Grid.Column="2" BackgroundColor="#111827" StrokeThickness="0"
-                                        StrokeShape="RoundRectangle 16" Padding="14,8">
-                                    <Label Text="Shop now  →" TextColor="White"
-                                           FontSize="13" FontAttributes="Bold" />
-                                    <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding ShopNowCommand}" />
-                                    </Border.GestureRecognizers>
-                                </Border>
+                        <Grid>
+                            <!-- Decorative circles -->
+                            <Ellipse Fill="#40FFFFFF" WidthRequest="170" HeightRequest="170"
+                                     HorizontalOptions="End" VerticalOptions="Start"
+                                     Margin="0,-60,-50,0" />
+                            <Ellipse Fill="#26FFFFFF" WidthRequest="110" HeightRequest="110"
+                                     HorizontalOptions="Start" VerticalOptions="End"
+                                     Margin="-30,0,0,-40" />
+
+                            <Grid RowDefinitions="Auto,*" Padding="20">
+                                <Grid ColumnDefinitions="Auto,*,Auto">
+                                    <Border BackgroundColor="#1B2A4A" StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 14" Padding="12,6">
+                                        <Label Text="SUMMER SALE" TextColor="White"
+                                               FontFamily="OpenSansSemibold" FontSize="11" />
+                                    </Border>
+
+                                    <Border Grid.Column="2" BackgroundColor="White" StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 18" Padding="16,9">
+                                        <Label Text="Shop now  →" TextColor="#1B2A4A"
+                                               FontFamily="OpenSansSemibold" FontSize="13" />
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding ShopNowCommand}" />
+                                        </Border.GestureRecognizers>
+                                    </Border>
+                                </Grid>
+
+                                <VerticalStackLayout Grid.Row="1" VerticalOptions="End" Spacing="2">
+                                    <Label Text="Summer Nail Sale" TextColor="#1B2A4A"
+                                           FontFamily="OpenSansSemibold" FontSize="24" />
+                                    <Label Text="Up to 40% off select services" TextColor="#4D6893"
+                                           FontFamily="OpenSansRegular" FontSize="13" />
+                                </VerticalStackLayout>
                             </Grid>
-
-                            <VerticalStackLayout Grid.Row="1" VerticalOptions="End" Spacing="2">
-                                <Label Text="Summer Nail Sale" TextColor="#1B2A4A"
-                                       FontSize="22" FontAttributes="Bold" />
-                                <Label Text="Up to 40% off select services" TextColor="#4D6893" FontSize="13" />
-                            </VerticalStackLayout>
                         </Grid>
                     </Border>
 
                     <!-- Trending Styles -->
-                    <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,0">
+                    <Grid ColumnDefinitions="*,Auto">
                         <Label Text="Trending Styles" Style="{StaticResource SectionTitle}" />
-                        <Label Grid.Column="1" Text="View all" Style="{StaticResource ViewAll}">
-                            <Label.GestureRecognizers>
+                        <Border Grid.Column="1" BackgroundColor="#33FFFFFF" StrokeThickness="0"
+                                StrokeShape="RoundRectangle 14" Padding="14,6" VerticalOptions="Center">
+                            <Label Text="View all" Style="{StaticResource ViewAll}" />
+                            <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding ViewAllTrendingCommand}" />
-                            </Label.GestureRecognizers>
-                        </Label>
+                            </Border.GestureRecognizers>
+                        </Border>
                     </Grid>
 
                     <FlexLayout Wrap="Wrap" JustifyContent="SpaceBetween" AlignItems="Start"
                                 BindableLayout.ItemsSource="{Binding TrendingServices}">
                         <BindableLayout.ItemTemplate>
                             <DataTemplate x:DataType="vm:HomeServiceCard">
-                                <Border FlexLayout.Basis="48%" BackgroundColor="#E3E8F2"
-                                        StrokeThickness="0" StrokeShape="RoundRectangle 18"
-                                        Padding="10" Margin="0,0,0,12">
-                                    <VerticalStackLayout Spacing="6">
-                                        <Border HeightRequest="110" StrokeThickness="0"
-                                                StrokeShape="RoundRectangle 12" BackgroundColor="#C9D2E3">
+                                <Border FlexLayout.Basis="47%" BackgroundColor="White"
+                                        StrokeThickness="0" StrokeShape="RoundRectangle 22"
+                                        Padding="10" Margin="0,0,0,14">
+                                    <Border.Shadow>
+                                        <Shadow Brush="Black" Opacity="0.18" Radius="12" Offset="0,4" />
+                                    </Border.Shadow>
+                                    <VerticalStackLayout Spacing="8">
+                                        <Border HeightRequest="120" StrokeThickness="0"
+                                                StrokeShape="RoundRectangle 16" BackgroundColor="#E6EBF4">
                                             <Image Source="{Binding ImageUrl}" Aspect="AspectFill" />
                                         </Border>
-                                        <Label Text="{Binding Name}" Style="{StaticResource CardTitle}" />
-                                        <Label Text="{Binding PriceSubtitle}" Style="{StaticResource CardSubtitle}" />
+                                        <VerticalStackLayout Spacing="2" Padding="4,0,4,4">
+                                            <Label Text="{Binding Name}" Style="{StaticResource CardTitle}" />
+                                            <Label Text="{Binding PriceSubtitle}" Style="{StaticResource CardSubtitle}" />
+                                        </VerticalStackLayout>
                                     </VerticalStackLayout>
                                     <Border.GestureRecognizers>
                                         <TapGestureRecognizer Tapped="OnServiceTapped" />
@@ -331,13 +381,15 @@
                     </FlexLayout>
 
                     <!-- New Arrival Press-Ons -->
-                    <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,0">
+                    <Grid ColumnDefinitions="*,Auto">
                         <Label Text="New Arrival Press-Ons" Style="{StaticResource SectionTitle}" />
-                        <Label Grid.Column="1" Text="View all" Style="{StaticResource ViewAll}">
-                            <Label.GestureRecognizers>
+                        <Border Grid.Column="1" BackgroundColor="#33FFFFFF" StrokeThickness="0"
+                                StrokeShape="RoundRectangle 14" Padding="14,6" VerticalOptions="Center">
+                            <Label Text="View all" Style="{StaticResource ViewAll}" />
+                            <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding ViewAllNewArrivalsCommand}" />
-                            </Label.GestureRecognizers>
-                        </Label>
+                            </Border.GestureRecognizers>
+                        </Border>
                     </Grid>
 
                     <FlexLayout Wrap="Wrap" JustifyContent="SpaceBetween" AlignItems="Start"
@@ -345,16 +397,18 @@
                                 BindableLayout.ItemTemplate="{StaticResource ProductCardTemplate}" />
 
                     <!-- Popular Services -->
-                    <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,0">
+                    <Grid ColumnDefinitions="*,Auto">
                         <Label Text="Popular Services" Style="{StaticResource SectionTitle}" />
-                        <Label Grid.Column="1" Text="View all" Style="{StaticResource ViewAll}">
-                            <Label.GestureRecognizers>
+                        <Border Grid.Column="1" BackgroundColor="#33FFFFFF" StrokeThickness="0"
+                                StrokeShape="RoundRectangle 14" Padding="14,6" VerticalOptions="Center">
+                            <Label Text="View all" Style="{StaticResource ViewAll}" />
+                            <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding ViewAllPopularCommand}" />
-                            </Label.GestureRecognizers>
-                        </Label>
+                            </Border.GestureRecognizers>
+                        </Border>
                     </Grid>
 
-                    <VerticalStackLayout Spacing="10"
+                    <VerticalStackLayout Spacing="12"
                                          BindableLayout.ItemsSource="{Binding PopularServices}"
                                          BindableLayout.ItemTemplate="{StaticResource ServiceRowTemplate}" />
                 </VerticalStackLayout>
