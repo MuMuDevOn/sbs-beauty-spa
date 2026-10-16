@@ -1,0 +1,66 @@
+// storage.rules
+// Controls who can upload/download files in Firebase Storage.
+// This files store the actual file whereas the firestore store/holds records.
+// Uploads capped at 5 MB, must be images.
+
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Helper functions
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.admin == true;
+    }
+
+    function isImageUpload() {
+      return request.resource.contentType.matches('image/.*')
+          && request.resource.size < 5 * 1024 * 1024;
+    }
+
+    // Public catalog images: anyone views, admin manages
+
+    match /gallery/{allPaths=**} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isImageUpload();
+      allow delete: if isAdmin();
+    }
+
+    match /products/{allPaths=**} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isImageUpload();
+      allow delete: if isAdmin();
+    }
+
+    match /services/{allPaths=**} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isImageUpload();
+      allow delete: if isAdmin();
+    }
+
+    match /branding/{allPaths=**} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isImageUpload();
+      allow delete: if isAdmin();
+    }
+
+    // Profile pictures: owner or admin only
+
+    match /users/{uid}/{allPaths=**} {
+      allow read: if isSignedIn() && (request.auth.uid == uid || isAdmin());
+      allow create, update: if isSignedIn() && request.auth.uid == uid && isImageUpload();
+      allow delete: if isSignedIn() && request.auth.uid == uid;
+    }
+
+    // Default: deny everything else
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

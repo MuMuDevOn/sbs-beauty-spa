@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="SBSBeautySpa.Mobile.Views.CartView"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:SBSBeautySpa.Mobile.ViewModels"
+             xmlns:conv="clr-namespace:SBSBeautySpa.Mobile.Converters"
+             x:DataType="vm:CartViewModel"
+             BackgroundColor="White"
+             Shell.NavBarIsVisible="False">
+
+    <ContentPage.Resources>
+        <Color x:Key="DeepNavy">#1B2A4A</Color>
+        <Color x:Key="InkText">#1A1A1A</Color>
+        <Color x:Key="MutedGray">#9AA0AE</Color>
+        <Color x:Key="CardFill">#F8F9FB</Color>
+        <Color x:Key="CardStroke">#D9DEE6</Color>
+
+        <conv:InvertedBoolConverter x:Key="InvertedBool" />
+        <conv:IsNotNullConverter x:Key="IsNotNull" />
+
+        <!-- The small round - / + buttons from the wireframe -->
+        <Style x:Key="StepperButton" TargetType="Button">
+            <Setter Property="WidthRequest" Value="30" />
+            <Setter Property="HeightRequest" Value="30" />
+            <Setter Property="CornerRadius" Value="15" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="BackgroundColor" Value="#EEF0F3" />
+            <Setter Property="TextColor" Value="{StaticResource InkText}" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Padding="20,16,20,8" ColumnDefinitions="Auto,*" ColumnSpacing="18">
+            <Label Grid.Column="0" Text="&#8592;" FontSize="22" TextColor="{StaticResource InkText}" VerticalOptions="Center">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackTapped" />
+                </Label.GestureRecognizers>
+            </Label>
+            <Label Grid.Column="1" Text="Cart" FontSize="24" FontAttributes="Bold" TextColor="{StaticResource InkText}" VerticalOptions="Center" />
+        </Grid>
+
+        <!-- Items + summary -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="16,8,16,16" Spacing="12">
+
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource DeepNavy}" />
+
+                <!-- BindableLayout (not a CollectionView): the page already
+                     scrolls as a whole, and a CollectionView nested inside a
+                     ScrollView is a known MAUI layout trap. -->
+                <VerticalStackLayout Spacing="12" BindableLayout.ItemsSource="{Binding Lines}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:CartLine">
+                            <Border Padding="12" BackgroundColor="{StaticResource CardFill}"
+                                    Stroke="{StaticResource CardStroke}" StrokeThickness="1">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="12" />
+                                </Border.StrokeShape>
+                                <Grid ColumnDefinitions="56,*,Auto" ColumnSpacing="12">
+
+                                    <Border Grid.Column="0" WidthRequest="56" HeightRequest="56" VerticalOptions="Start"
+                                            BackgroundColor="#F2F4F7" Stroke="#C9CED6" StrokeThickness="1" StrokeDashArray="3,3">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="8" />
+                                        </Border.StrokeShape>
+                                        <Grid>
+                                            <Label Text="Image" FontSize="11" TextColor="{StaticResource MutedGray}"
+                                                   HorizontalOptions="Center" VerticalOptions="Center"
+                                                   IsVisible="{Binding HasImage, Converter={StaticResource InvertedBool}}" />
+                                            <Image Source="{Binding ImageUrl}" Aspect="AspectFill" />
+                                        </Grid>
+                                    </Border>
+
+                                    <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
+                                        <Label Text="{Binding Name}" FontSize="15" FontAttributes="Bold" TextColor="{StaticResource InkText}" />
+                                        <Label Text="{Binding UnitPriceLabel}" FontSize="13" TextColor="{StaticResource InkText}" />
+                                        <Label Text="No longer available" FontSize="12" TextColor="#B3261E"
+                                               IsVisible="{Binding IsAvailable, Converter={StaticResource InvertedBool}}" />
+                                        <Label Text="Remove" FontSize="12" TextColor="{StaticResource MutedGray}" TextDecorations="Underline">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RemoveCommand}"
+                                                                       CommandParameter="{Binding .}" />
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                    </VerticalStackLayout>
+
+                                    <HorizontalStackLayout Grid.Column="2" Spacing="10" VerticalOptions="Center">
+                                        <Button Text="-" Style="{StaticResource StepperButton}"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DecreaseCommand}"
+                                                CommandParameter="{Binding .}" />
+                                        <Label Text="{Binding Quantity}" FontSize="15" FontAttributes="Bold" TextColor="{StaticResource InkText}"
+                                               VerticalOptions="Center" WidthRequest="18" HorizontalTextAlignment="Center" />
+                                        <Button Text="+" Style="{StaticResource StepperButton}"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.IncreaseCommand}"
+                                                CommandParameter="{Binding .}" />
+                                    </HorizontalStackLayout>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <Label Text="Your cart is empty." FontSize="15" TextColor="{StaticResource MutedGray}"
+                       HorizontalOptions="Center" Margin="0,40,0,0">
+                    <Label.Triggers>
+                        <DataTrigger TargetType="Label" Binding="{Binding IsEmpty}" Value="False">
+                            <Setter Property="IsVisible" Value="False" />
+                        </DataTrigger>
+                    </Label.Triggers>
+                </Label>
+
+                <!-- Order Summary — hidden when the cart is empty -->
+                <VerticalStackLayout Spacing="10" Margin="0,12,0,0" IsVisible="{Binding IsEmpty, Converter={StaticResource InvertedBool}}">
+                    <Label Text="Order Summary" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource InkText}" />
+                    <Border Padding="16" BackgroundColor="{StaticResource CardFill}" Stroke="{StaticResource CardStroke}" StrokeThickness="1">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="12" />
+                        </Border.StrokeShape>
+                        <VerticalStackLayout Spacing="8">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Grid.Column="0" Text="Subtotal" FontSize="15" TextColor="#6B7280" />
+                                <Label Grid.Column="1" Text="{Binding SubtotalLabel}" FontSize="15" FontAttributes="Bold" TextColor="{StaticResource InkText}" />
+                            </Grid>
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Grid.Column="0" Text="Shipping" FontSize="15" TextColor="#6B7280" />
+                                <Label Grid.Column="1" Text="{Binding ShippingLabel}" FontSize="15" FontAttributes="Bold" TextColor="{StaticResource InkText}" />
+                            </Grid>
+                            <BoxView HeightRequest="1" Color="{StaticResource CardStroke}" />
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Grid.Column="0" Text="Total" FontSize="15" FontAttributes="Bold" TextColor="{StaticResource InkText}" />
+                                <Label Grid.Column="1" Text="{Binding TotalLabel}" FontSize="15" FontAttributes="Bold" TextColor="{StaticResource InkText}" />
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+
+                <Label Text="{Binding ErrorMessage}" FontSize="13" TextColor="#B3261E" HorizontalTextAlignment="Center"
+                       IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNull}}" />
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Footer actions -->
+        <VerticalStackLayout Grid.Row="2" Padding="16,8,16,16" Spacing="10">
+            <Button Text="Proceed to Checkout" FontAttributes="Bold" FontSize="16" HeightRequest="52" CornerRadius="10"
+                    BackgroundColor="{StaticResource DeepNavy}" TextColor="White"
+                    IsEnabled="{Binding IsEmpty, Converter={StaticResource InvertedBool}}"
+                    Clicked="OnCheckoutClicked" />
+            <Button Text="Continue Shopping" FontAttributes="Bold" FontSize="16" HeightRequest="52" CornerRadius="10"
+                    BackgroundColor="White" TextColor="{StaticResource InkText}"
+                    BorderColor="{StaticResource CardStroke}" BorderWidth="1"
+                    Clicked="OnContinueShoppingClicked" />
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

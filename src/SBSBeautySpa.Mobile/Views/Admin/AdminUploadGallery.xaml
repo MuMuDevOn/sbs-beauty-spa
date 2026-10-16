@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SBSBeautySpa.Mobile.Views.Admin.AdminUploadGalleryPage"
+             BackgroundColor="White"
+             Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,*,Auto" Padding="20,50,20,16">
+
+        <!-- Header -->
+        <VerticalStackLayout Grid.Row="0" Spacing="10">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                <Image Source="backarrowicon.png" HeightRequest="28" WidthRequest="28" 
+                       Aspect="AspectFit" VerticalOptions="Center">
+                    <Image.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnBackTapped" />
+                    </Image.GestureRecognizers>
+                </Image>
+                <Label Grid.Column="1" Text="Upload to Gallery" Style="{StaticResource AdminTitle}" />
+            </Grid>
+            <Label Text="Add your latest work to the gallery" Style="{StaticResource AdminSubtitle}" />
+        </VerticalStackLayout>
+
+        <!-- Form -->
+        <ScrollView Grid.Row="1" Margin="0,14,0,0">
+            <VerticalStackLayout Spacing="8">
+
+                <!-- Gallery photo -->
+                <Label Text="Gallery photo" Style="{StaticResource AdminInputLabel}" />
+                <Border BackgroundColor="#F9FAFB" Stroke="#D1D5DB" StrokeThickness="1"
+                        StrokeDashArray="4,3" StrokeShape="RoundRectangle 10" Padding="12">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+
+                        <Border WidthRequest="96" HeightRequest="108" BackgroundColor="#E5E7EB"
+                                StrokeThickness="0" StrokeShape="RoundRectangle 8">
+                            <Image x:Name="PhotoPreview" Aspect="AspectFill" />
+                        </Border>
+
+                        <VerticalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                            <Label x:Name="PhotoStatusLabel" Text="Photo selected"
+                                   FontFamily="OpenSansSemibold" FontSize="12" TextColor="#111827" />
+                            <Label Text="JPG or PNG · up to 10 MB" Style="{StaticResource AdminMuted}" />
+                            <Button Text="Replace photo" Style="{StaticResource AdminOutlineButton}"
+                                    HeightRequest="36" Clicked="OnReplacePhotoClicked" />
+                            <Label Text="Remove photo" Style="{StaticResource AdminMuted}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnRemovePhotoTapped" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <!-- Design title -->
+                <Label Text="Design title" Style="{StaticResource AdminInputLabel}" Margin="0,8,0,0" />
+                <Border Style="{StaticResource AdminField}" HeightRequest="46">
+                    <Entry x:Name="TitleEntry" Text="Rose Gold Chrome" Placeholder="Design title"
+                           Style="{StaticResource FieldEntry}" FontSize="13" />
+                </Border>
+
+                <!-- Shape / category -->
+                <Label Text="Shape / category" Style="{StaticResource AdminInputLabel}" Margin="0,8,0,0" />
+                <Border Style="{StaticResource AdminField}" HeightRequest="46">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Picker x:Name="CategoryPicker" Title="Select a shape"
+                                SelectedIndexChanged="OnCategoryChanged"
+                                BackgroundColor="Transparent" FontFamily="OpenSansRegular"
+                                FontSize="13" TextColor="#111827" TitleColor="#9CA3AF">
+                            <Picker.ItemsSource>
+                                <x:Array Type="{x:Type x:String}">
+                                    <x:String>Almond</x:String>
+                                    <x:String>Coffin</x:String>
+                                    <x:String>Square</x:String>
+                                    <x:String>Stiletto</x:String>
+                                    <x:String>Round</x:String>
+                                    <x:String>Oval</x:String>
+                                </x:Array>
+                            </Picker.ItemsSource>
+                        </Picker>
+                        <Image Grid.Column="1" Source="chevrondownicon.png" WidthRequest="18" HeightRequest="18"
+                               VerticalOptions="Center">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnChevronTapped" />
+                            </Image.GestureRecognizers>
+                        </Image>
+                    </Grid>
+                </Border>
+
+                <!-- Style tags -->
+                <Label Text="Style tags" Style="{StaticResource AdminInputLabel}" Margin="0,8,0,0" />
+                <FlexLayout x:Name="TagsLayout" Wrap="Wrap">
+                    <Border BackgroundColor="#F3F4F6" Stroke="#D1D5DB" StrokeThickness="1"
+                            StrokeShape="RoundRectangle 8" Padding="10,6" Margin="0,0,8,8">
+                        <HorizontalStackLayout Spacing="8">
+                            <Label Text="Chrome" FontSize="12" TextColor="#111827" VerticalOptions="Center" />
+                            <Image Source="xicon.png" WidthRequest="12" HeightRequest="12" VerticalOptions="Center">
+                                <Image.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnRemoveTagTapped" />
+                                </Image.GestureRecognizers>
+                            </Image>
+                        </HorizontalStackLayout>
+                    </Border>
+
+                    <Border Stroke="#D1D5DB" StrokeThickness="1" StrokeDashArray="4,3"
+                            StrokeShape="RoundRectangle 8" Padding="10,6" Margin="0,0,8,8">
+                        <Label Text="+ Add tag" FontSize="12" TextColor="#6B7280" VerticalOptions="Center" />
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnAddTagTapped" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                </FlexLayout>
+
+                <!-- Caption -->
+                <Label Text="Caption" Style="{StaticResource AdminInputLabel}" Margin="0,4,0,0" />
+                <Border Style="{StaticResource AdminField}" Padding="12,6">
+                    <Editor x:Name="CaptionEditor" HeightRequest="80"
+                            Text="Rose gold chrome with a smooth, reflective finish on an almond shape."
+                            Placeholder="Write a caption..."
+                            Style="{StaticResource FieldEditor}" FontSize="13" />
+                </Border>
+
+                <!-- Info note -->
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8" Margin="0,4,0,0">
+                    <Image Source="eyeicoon.png" WidthRequest="16" HeightRequest="16" VerticalOptions="Start" />
+                    <Label x:Name="InfoLabel" Grid.Column="1" FontSize="11" TextColor="#4B5563"
+                           Text="Published photos appear in the Almond gallery with your title and style tags." />
+                </Grid>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Buttons -->
+        <Grid Grid.Row="2" ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,10,0,0">
+            <Button Text="Save draft" Style="{StaticResource AdminOutlineButton}"
+                    HeightRequest="48" FontSize="14" Clicked="OnSaveDraftClicked" />
+            <Button Grid.Column="1" Text="Publish to Gallery" Style="{StaticResource AdminDarkButton}"
+                    HeightRequest="48" FontSize="14" Clicked="OnPublishClicked" />
+        </Grid>
+    </Grid>
+</ContentPage>
+
+
+
+

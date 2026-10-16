@@ -172,11 +172,4 @@ namespace SBSBeautySpa.Mobile.Services
         }
     }
 
-    // This file only needs ONE thing from the auth service:
-    // a way to get the user's ID token.
-    // It doesn't care about login, logout, or anything else.
-    public interface IFirebaseAuthService
-    {
-        Task<string?> GetIdTokenAsync();
-    }
 }

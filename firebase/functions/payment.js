@@ -1,16 +1,5 @@
 /**
- * payments.js
- * -----------------------------------------------------------------------
  * This file handles all payment logic using Paystack.
- *
- * How it fits together:
- *   - The secret key NEVER goes to the client. It's stored safely as a
- *     Firebase secret and only read inside these functions.
- *   - The client only ever sees:
- *       1. A URL to open for payment
- *       2. A status like "success" or "failed"
- *     The client never talks to Paystack directly.
- *
  * Two paths confirm a payment:
  *   1. paystackWebhook — Paystack calls this server-to-server. This is
  *      the real source of truth. It still works even if the user closes
@@ -18,13 +7,6 @@
  *   2. verifyPayment — the app calls this right after the payment page
  *      closes, just so the UI can update immediately instead of waiting
  *      on the webhook.
- *
- * Both paths use the same function reconcilePaymentByReference() so
- * there's only one place that decides "this payment is real."
- *
- * Amounts are converted to cents before calling Paystack, and re-checked
- * against what we expected — never trust an amount coming from the client.
- * -----------------------------------------------------------------------
  */
 
 const { onCall, onRequest, HttpsError } = require("firebase-functions/v2/https");

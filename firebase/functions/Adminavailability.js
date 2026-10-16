@@ -1,23 +1,12 @@
 /**
  * Adminavailability.js
- * -----------------------------------------------------------------------
  * This file is the write-side counterpart to availability.js.
  *
  * availability.js READS businessHours/{weekday} and blockedTime docs to
  * figure out what slots are free. This file is what CREATES and MANAGES
  * those docs.
- *
- * Without this file, every day would resolve to "closed" (no hours doc
- * = no slots). These five functions are how the admin:
- *   - Sets normal opening hours once
- *   - Blocks off one-off periods (public holidays, staff leave, etc.)
- *
- * Nothing here is hardcoded on the client — it all lives in Firestore,
- * and getAvailableSlots picks it up on the next call.
- *
  * Authorization: every write here checks the admin claim
  * (`request.auth.token.admin === true`).
- * -----------------------------------------------------------------------
  */
 
 const { onCall, HttpsError } = require("firebase-functions/v2/https");

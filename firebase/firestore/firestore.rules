@@ -1,56 +1,103 @@
-rules_version = '2';
+// firestore.rules
+// This file controls who can read/write Firestore from the mobile app.
+// Cloud Functions use the Admin SDK — they bypass these rules.
+// If a direct write is denied, that's correct — it should use a function.
+// 
 
-// Skeleton only — expand as collections are implemented in Phase 2/3.
-// Enforces the same Client/Admin separation described in the proposal's
-// Regulatory and Compliance / Security (RBAC) sections at the data layer,
-// not just in the app UI.
+rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    //Helper functions
 
     function isSignedIn() {
       return request.auth != null;
     }
 
     function isAdmin() {
-      return isSignedIn() && request.auth.token.role == 'admin';
+      return isSignedIn() && request.auth.token.admin == true;
     }
 
-    function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
+    function isSuperAdmin() {
+      return isSignedIn() && request.auth.token.superAdmin == true;
     }
 
-    // Clients can read/write only their own profile; no address field
-    // should ever be written here per the proposal's data-handling logic.
-    match /clients/{userId} {
-      allow read, update: if isOwner(userId) || isAdmin();
-      allow create: if isOwner(userId);
-      allow delete: if isAdmin();
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
     }
 
-    // Service catalogue: publicly readable (guest browsing), admin-only writes.
-    match /services/{serviceId} {
-      allow read: if true;
-      allow write: if isAdmin();
+    //Public catalog: anyone reads, functions write
+    match /services/{id}               { allow read: if true; allow write: if false; }
+    match /serviceCategories/{id}      { allow read: if true; allow write: if false; }
+    match /products/{id}               { allow read: if true; allow write: if false; }
+    match /productCategories/{id}      { allow read: if true; allow write: if false; }
+    match /galleryCategories/{id}      { allow read: if true; allow write: if false; }
+    match /galleryImages/{id}          { allow read: if true; allow write: if false; }
+    match /businessSettingsPublic/{id} { allow read: if true; allow write: if false; }
+    match /reviews/{id}                { allow read: if true; allow write: if false; }
+
+    // Business hours: signed-in only
+    match /businessHours/{id} {
+      allow read: if isSignedIn();
+      allow write: if false;
     }
 
-    // Bookings: a client can read/create their own; only Admin can update status.
-    match /bookings/{bookingId} {
+    // Own data
+
+    match /users/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow write: if isOwner(uid);
+    }
+
+    match /clientPreferences/{uid} {
+      allow read, write: if isOwner(uid) || isAdmin();
+    }
+
+    match /cartItems/{itemId} {
+      allow read, delete: if isSignedIn() && resource.data.clientId == request.auth.uid;
+      allow create, update: if isSignedIn() && request.resource.data.clientId == request.auth.uid;
+    }
+
+    //Bookings / Orders / Payments: read own, write never
+
+    match /bookings/{id} {
       allow read: if isAdmin() || (isSignedIn() && resource.data.clientId == request.auth.uid);
-      allow create: if isSignedIn();
-      allow update, delete: if isAdmin();
+      allow write: if false;
     }
 
-    // Payments/transaction log: server-side (Cloud Functions) writes only.
-    match /payments/{paymentId} {
+    match /orders/{id} {
       allow read: if isAdmin() || (isSignedIn() && resource.data.clientId == request.auth.uid);
-      allow write: if false; // written only via Cloud Functions using the Admin SDK
+      allow write: if false;
     }
 
-    // Notification log: admin-only.
-    match /notificationLog/{logId} {
+    match /payments/{id} {
       allow read: if isAdmin();
       allow write: if false;
+    }
+
+    // Notifications: read own, only flip isRead
+
+    match /notifications/{id} {
+      allow read: if isAdmin() || (isSignedIn() && resource.data.clientId == request.auth.uid);
+      allow update: if isSignedIn()
+        && resource.data.clientId == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRead']);
+      allow create, delete: if false;
+    }
+
+    //Admin-only: no client access
+
+    match /clientNotes/{id}             { allow read, write: if false; }
+    match /bookingNotes/{id}            { allow read, write: if false; }
+    match /businessSettingsPrivate/{id} { allow read, write: if false; }
+    match /contactMessages/{id}         { allow read, write: if false; }
+    match /deletionLog/{id}             { allow read, write: if false; }
+
+    // Default: deny everything else 
+
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

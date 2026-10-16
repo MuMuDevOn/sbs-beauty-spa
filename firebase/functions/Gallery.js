@@ -1,18 +1,10 @@
 /**
- * gallery.js
- * -----------------------------------------------------------------------
  * This file handles the gallery (portfolio images).
- *
  * Important:
  *   - The images themselves live in Firebase Storage.
  *   - The admin app uploads them directly using the Storage SDK.
  *   - These functions only manage the Firestore records that POINT
  *     at the uploaded images.
- *
- * NOTE: The rules for who can upload to Storage live in storage.rules,
- * which is a separate file. It's not shown here — that's a real gap
- * that needs to be filled.
- * -----------------------------------------------------------------------
  */
 
 const { onCall, HttpsError } = require("firebase-functions/v2/https");

@@ -7,23 +7,37 @@ using SBSBeautySpa.Mobile.Services;
 
 namespace SBSBeautySpa.Mobile.ViewModels
 {
-    // Represents one tab at the top of the Services screen.
-    // Id = the category ID (null means "All")
-    // Label = what the tab says (like "Nails" or "Lashes")
-    public record ServiceCategoryTab(string? Id, string Label);
+    // A category chip. It knows whether it is selected so the chip can change colour.
+    public partial class ServiceCategoryTab : ObservableObject
+    {
+        public ServiceCategoryTab(string? id, string label, bool isSelected = false)
+        {
+            Id = id;
+            Label = label;
+            this.isSelected = isSelected;
+        }
 
-    // This class controls the "Services" screen.
-    // It handles:
-    //   - The category tabs at the top
-    //   - The search box
-    //   - The list of services shown below
-    //   - Tapping a service to view its details
+        public string? Id { get; }
+        public string Label { get; }
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(ChipBackground))]
+        [NotifyPropertyChangedFor(nameof(ChipTextColor))]
+        private bool isSelected;
+
+        public Color ChipBackground => IsSelected ? Color.FromArgb("#111827") : Colors.White;
+        public Color ChipTextColor => IsSelected ? Colors.White : Color.FromArgb("#1B2A4A");
+    }
+
+    // What one row of the list shows
+    public record ServiceListItem(string Id, string Name, string Description,
+                                  string? ImageUrl, string PriceText, string DurationText);
+
+    [QueryProperty(nameof(CategoryQuery), "category")]
+    [QueryProperty(nameof(SearchQuery), "search")]
     public partial class ServicesViewModel : BaseViewModel
     {
         private readonly IFirestoreService _firestoreService;
-
-        // We keep all loaded services in memory so we can filter them
-        // without asking the server every time.
         private List<Service> _allLoadedServices = new();
 
         public ServicesViewModel(IFirestoreService firestoreService)
@@ -31,11 +45,9 @@ namespace SBSBeautySpa.Mobile.ViewModels
             _firestoreService = firestoreService;
             Title = "Services";
 
-            // Set up the category tabs.
-            // Update these to match your actual service categories.
             Categories = new ObservableCollection<ServiceCategoryTab>
             {
-                new(null, "All"),
+                new(null, "All", isSelected: true),
                 new("nails", "Nails"),
                 new("lashes", "Lashes"),
                 new("press-ons", "Press-Ons"),
@@ -43,49 +55,68 @@ namespace SBSBeautySpa.Mobile.ViewModels
             selectedCategory = Categories[0];
         }
 
-        // The list of tabs shown at the top.
+        // Filled in by Shell when another page navigates here with ?category=... / ?search=...
+        public string CategoryQuery
+        {
+            get => SelectedCategory?.Id ?? string.Empty;
+            set => SelectedCategory = Categories.FirstOrDefault(c => c.Id == value) ?? Categories[0];
+        }
+
+        public string SearchQuery
+        {
+            get => SearchText;
+            set => SearchText = value ?? string.Empty;
+        }
+
         public ObservableCollection<ServiceCategoryTab> Categories { get; }
+        public ObservableCollection<ServiceListItem> Services { get; } = new();
 
-        // The list of services shown in the list below.
-        public ObservableCollection<Service> Services { get; } = new();
-
-        // The currently selected tab.
         [ObservableProperty]
         private ServiceCategoryTab selectedCategory;
 
-        // What the user typed in the search box.
         [ObservableProperty]
         private string searchText = string.Empty;
 
-        // When the user taps a different tab, re-filter the list.
-        partial void OnSelectedCategoryChanged(ServiceCategoryTab value) => ApplyFilter();
+        partial void OnSelectedCategoryChanged(ServiceCategoryTab value)
+        {
+            foreach (var tab in Categories)
+                tab.IsSelected = tab == value;
 
-        // When the user types in the search box, re-filter the list.
+            ApplyFilter();
+        }
+
         partial void OnSearchTextChanged(string value) => ApplyFilter();
 
-        // Loads all active services from the server.
+        [RelayCommand]
+        private void SelectCategory(ServiceCategoryTab? tab)
+        {
+            if (tab is not null)
+                SelectedCategory = tab;
+        }
+
+        [RelayCommand]
+        private Task SelectServiceAsync(string? serviceId)
+        {
+            if (string.IsNullOrEmpty(serviceId)) return Task.CompletedTask;
+            return Shell.Current.GoToAsync($"SelectDateTimeView?serviceId={Uri.EscapeDataString(serviceId)}");
+        }
+
         [RelayCommand]
         private async Task LoadServicesAsync()
         {
-            if (IsBusy)
-            {
-                return;
-            }
+            if (IsBusy) return;
 
             IsBusy = true;
             ErrorMessage = null;
 
             try
             {
-                // Load the full catalog once, then filter on the device.
-                // This is faster than asking the server every time the user
-                // taps a tab or types a letter in the search box.
                 _allLoadedServices = await _firestoreService.GetServicesAsync();
                 ApplyFilter();
             }
             catch (Exception ex)
             {
-                ErrorMessage = "Couldn't load services. Pull to refresh to try again.";
+                ErrorMessage = "Couldn't load services. Please try again.";
                 System.Diagnostics.Debug.WriteLine(ex);
             }
             finally
@@ -94,19 +125,13 @@ namespace SBSBeautySpa.Mobile.ViewModels
             }
         }
 
-        // Filters the loaded services based on the selected tab and search text.
         private void ApplyFilter()
         {
-            // Start with only active services.
             var filtered = _allLoadedServices.Where(s => s.IsActive);
 
-            // If a specific category is selected (not "All"), filter by it.
             if (SelectedCategory?.Id is not null)
-            {
                 filtered = filtered.Where(s => s.CategoryId == SelectedCategory.Id);
-            }
 
-            // If the search box has text, filter by name or description.
             if (!string.IsNullOrWhiteSpace(SearchText))
             {
                 var query = SearchText.Trim();
@@ -115,12 +140,25 @@ namespace SBSBeautySpa.Mobile.ViewModels
                     s.Description.Contains(query, StringComparison.OrdinalIgnoreCase));
             }
 
-            // Replace the visible list with the filtered results.
             Services.Clear();
-            foreach (var service in filtered)
+            foreach (var s in filtered)
             {
-                Services.Add(service);
+                Services.Add(new ServiceListItem(
+                    s.Id,
+                    s.Name,
+                    s.Description,
+                    s.ImageUrl,
+                    $"R{s.Price:0.00}",
+                    FormatDuration(s.DurationMinutes)));
             }
+        }
+
+        private static string FormatDuration(int minutes)
+        {
+            if (minutes < 60) return $"{minutes} min";
+            var h = minutes / 60;
+            var m = minutes % 60;
+            return m == 0 ? $"{h} hr" : $"{h} hr {m} min";
         }
     }
 }

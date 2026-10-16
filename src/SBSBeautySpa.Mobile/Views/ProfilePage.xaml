@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SBSBeautySpa.Mobile.Views.ProfilePage"
+             Shell.NavBarIsVisible="False">
+
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint ="0,1">
+                <GradientStop Color="#111827" Offset="0.00"/>
+                <GradientStop Color="#1B2A4A" Offset="0.07"/>
+                <GradientStop Color="#4D6893" Offset="0.34"/>
+                <GradientStop Color="#7C93C4" Offset="0.74"/>
+                <GradientStop Color="#9FBCE5" Offset="0.95"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <ScrollView>
+            <VerticalStackLayout Padding="20,50,20,24">
+
+                <!--Header-->
+                <HorizontalStackLayout Spacing="14">
+                    <Label Text="←" FontSize="28" TextColor="White" VerticalOptions="Center">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnBackTapped"/>
+                        </Label.GestureRecognizers>
+                    </Label>
+                    <Label Text="Profile" FontFamily="SeriBold" FontSize="28"
+                           TextColor="White" VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+
+                <!--Logo and user details-->
+                <VerticalStackLayout HorizontalOptions="Center" Margin="0,6,0,0" Spacing="2">
+                    <Image Source="logo.png" HeightRequest="90" WidthRequest="200"
+                           Aspect="AspectFit" HorizontalOptions="Center"/>
+
+                    <Label x:Name="NameLabel" Text="User name"
+                           FontFamily="SerifBold" FontSize="16" TextColor="White"
+                           HorizontalOptions="Center" Margin="0,8,0,0"/>
+
+                    <Label x:Name="EmailLabel" Text="userEmail@example.com"
+                            FontFamily="SerifBold" FontSize="12" TextColor="#DCE8F5"
+                            HorizontalOptions="Center" />
+
+                    <Label x:Name="PhoneLabel" Text="(Phone number)"
+                            FontFamily="SerifBold" FontSize="12" TextColor="#DCE8F5"
+                            HorizontalOptions="Center" />
+                </VerticalStackLayout>
+
+                <!--Account Settings-->
+                <Label Text="Account Settings" Style="{StaticResource SectionLabel}" Margin="0,26,0,6"/>
+                <Border Style="{StaticResource GroupCard}">
+                    <VerticalStackLayout>
+
+                        <Grid ColumnDefinitions="*,Auto" Padding="16,12">
+                            <Label Text="Edit Profile" Style="{StaticResource RowText}"/>
+                            <Label Grid.Column="1" Style="{StaticResource Chevron}"/>
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnRowTapped" CommandParameter="Edit Profile"/>
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                        <BoxView Style="{StaticResource Divider}"/>
+
+
+                        <Grid ColumnDefinitions="*,Auto" Padding="16,12">
+                            <Label Text="Payment Methods" Style="{StaticResource RowText}"/>
+                            <Label Grid.Column="1" Style="{StaticResource Chevron}"/>
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnRowTapped" CommandParameter="Payment Methods"/>
+                            </Grid.GestureRecognizers>
+                        </Grid>
+
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--Pereferences-->
+                <Label Text="Preferences" Style="{StaticResource SectionLabel}" />
+                <Border Style="{StaticResource GroupCard}">
+
+                    <Grid ColumnDefinitions="*,Auto" Padding="16,12">
+                        <Label Text="Notifications" Style="{StaticResource RowText}"/>
+                        <Label Grid.Column="1" Style="{StaticResource Chevron}"/>
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnRowTapped" CommandParameter="Notifications"/>
+                        </Grid.GestureRecognizers>
+                    </Grid>
+                </Border>
+
+                <!--Support-->
+                <Label Text="Support" Style="{StaticResource SectionLabel}"/>
+                <Border Style="{StaticResource GroupCard}">
+                    <VerticalStackLayout>
+
+                        <Grid ColumnDefinitions="*,Auto" Padding="16,12">
+                            <Label Text="About" Style="{StaticResource RowText}"/>
+                            <Label Grid.Column="1" Style="{StaticResource Chevron}"/>
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnRowTapped" CommandParameter="About"/>
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                        <BoxView Style="{StaticResource Divider}"/>
+
+                        <Grid ColumnDefinitions="*,Auto" Padding="16,12">
+                            <Label Text="Contact Us" Style="{StaticResource RowText}"/>
+                            <Label Grid.Column="1" Style="{StaticResource Chevron}"/>
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnRowTapped" CommandParameter="Contact Us"/>
+                            </Grid.GestureRecognizers>
+                        </Grid>
+
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--Logout Button-->
+                <Border StrokeThickness="0" StrokeShape="RoundRectangle 12"
+                        HeightRequest="48" WidthRequest="150"
+                        HorizontalOptions="Center" Margin="0,24,0,0">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint ="0,1">
+                            <GradientStop Color="#111827" Offset="0.05"/>
+                            <GradientStop Color="#162139" Offset="0.19"/>
+                            <GradientStop Color="#34496F" Offset="0.92"/>
+                        </LinearGradientBrush>
+
+                    </Border.Background>
+                    <Button Text="Logout" BackgroundColor="Transparent" TextColor="White"
+                            FontFamily="SerifBold" FontSize="14"
+                            Clicked="OnLogoutClicked"/>
+                </Border>
+
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+
+</ContentPage>

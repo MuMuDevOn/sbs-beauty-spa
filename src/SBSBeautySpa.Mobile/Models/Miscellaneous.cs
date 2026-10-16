@@ -35,7 +35,7 @@ namespace SBSBeautySpa.Mobile.Models
 
     // Represents a client's review of a service.
     //
-    // Reviews are only created via submitReview (a Cloud Function).
+    // Reviews are only created via submitReview 
     // Each completed booking can be reviewed once.
     // Reading reviews is public.
     public class Review

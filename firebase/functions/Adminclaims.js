@@ -1,31 +1,14 @@
 /**
- * adminClaims.js
- * -----------------------------------------------------------------------
  * This file sets request.auth.token.admin, which every admin-only
  * function in the app checks.
- *
- * There are two claims, matching the "Admin" CRC card:
- *
+ 
+ * There are two claims
  *   admin      — can manage bookings, services, hours, etc.
  *   superAdmin — can do everything admin can do, PLUS grant/revoke
  *                admin access to other users. superAdmin implies admin.
  *
- * Why custom claims instead of a Firestore "role" field?
- *   Claims travel inside the user's ID token. So every function can
- *   check request.auth.token.admin with ZERO extra reads — no Firestore
- *   lookup, no risk of the check and the data drifting apart.
- *
- *   Trade-off: A change here doesn't take effect until the client gets
- *   a new ID token (see the note on revokeRefreshTokens below).
- *
- * THE BOOTSTRAP PROBLEM:
- *   These functions require an existing superAdmin to call them. So they
- *   can't create the very first one — that would need a publicly-callable
- *   function, which is a security hole.
- *
  *   Instead, the first superAdmin is set with a one-off local script:
  *   scripts/bootstrapSuperAdmin.js — run once, outside the deployed app.
- * -----------------------------------------------------------------------
  */
 
 const { onCall, HttpsError } = require("firebase-functions/v2/https");

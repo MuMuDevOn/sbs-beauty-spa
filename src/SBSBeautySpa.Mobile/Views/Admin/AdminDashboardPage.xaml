@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             x:Class="SBSBeautySpa.Mobile.Views.Admin.AdminDashboardPage"
+             x:Name="ThisPage"
+             BackgroundColor="White"
+             Shell.NavBarIsVisible="False">
+
+    <ContentPage.Resources>
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="BackgroundColor" Value="#F9FAFB"/>
+            <Setter Property="Stroke" Value="#E5E7EB"/>
+            <Setter Property="StrokeThickness" Value="1"/>
+            <Setter Property="StrokeShape" Value="RoundRectangle 10"/>
+            <Setter Property="Padding" Value="12"/>
+        </Style>
+
+        <Style x:Key="SectionTitle" TargetType="Label">
+            <Setter Property="FontFamily" Value="OpenSansSemibold"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="TextColor" Value="Black"/>
+        </Style>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20,50,20,20" Spacing="14">
+
+            <!-- Header -->
+            <HorizontalStackLayout Spacing="14">
+                <Image WidthRequest="26" HeightRequest="26"
+                       mi:MauiIcon.Value="{mi:Material Icon=ArrowBack, IconColor=Black}">
+                    <Image.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnBackTapped"/>
+                    </Image.GestureRecognizers>
+                </Image>
+                <Label Text=" Dashboard" FontFamily="OpenSansSemibold" FontSize="20"
+                       TextColor="Black" VerticalOptions="Center"/>
+            </HorizontalStackLayout>
+
+            <VerticalStackLayout Spacing="2">
+                <Label Text="Sbs_Beauty Admin" FontFamily="OpenSansSemibold"
+                       FontSize="24" TextColor="Black"/>
+                <Label Text=" Manager workspace overview" FontSize="12" TextColor="#6B7280"/>
+            </VerticalStackLayout>
+
+            <!-- Statistic cards -->
+            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                <Border Grid.Column="0" Style="{StaticResource Card}">
+                    <VerticalStackLayout>
+                        <Label Text=" BOOKINGS" FontSize="10" TextColor="#6B7280"/>
+                        <Label Text="{Binding UpcomingBookingsCount}" FontFamily="OpenSansSemibold"
+                               FontSize="22" TextColor="Black"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Grid.Column="1" Style="{StaticResource Card}">
+                    <VerticalStackLayout>
+                        <Label Text=" REVENUE" FontSize="10" TextColor="#6B7280"/>
+                        <Label Text="{Binding RevenueThisMonth, StringFormat='R{0:0.00}'}"
+                               FontFamily="OpenSansSemibold"
+                               FontSize="22" TextColor="Black"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Grid.Column="2" Style="{StaticResource Card}">
+                    <VerticalStackLayout>
+                        <Label Text=" PENDING" FontSize="10" TextColor="#6B7280"/>
+                        <Label Text="{Binding PendingCount}" FontFamily="OpenSansSemibold"
+                               FontSize="22" TextColor="Black"/>
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+
+            <!-- Quick Actions -->
+            <Label Text=" Quick Actions" Style="{StaticResource SectionTitle}" Margin="0,6,0,0"/>
+
+            <Border Style="{StaticResource Card}" Padding="14,12">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Text="Manage Bookings" FontFamily="OpenSansSemibold"
+                           FontSize="13" TextColor="Black" VerticalOptions="Center"/>
+                    <Image Grid.Column="1" WidthRequest="16" HeightRequest="16"
+                           mi:MauiIcon.Value="{mi:Material Icon=ArrowForward, IconColor=Black}"/>
+                </Grid>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnManageBookingsTapped"/>
+                </Border.GestureRecognizers>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Padding="14,12">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Text="Manage Services" FontFamily="OpenSansSemibold"
+                           FontSize="13" TextColor="Black" VerticalOptions="Center"/>
+                    <Image Grid.Column="1" WidthRequest="16" HeightRequest="16"
+                           mi:MauiIcon.Value="{mi:Material Icon=ArrowForward, IconColor=Black}"/>
+                </Grid>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnManageServicesTapped"/>
+                </Border.GestureRecognizers>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Padding="14,12">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Text="Manage Products" FontFamily="OpenSansSemibold"
+                           FontSize="13" TextColor="Black" VerticalOptions="Center"/>
+                    <Image Grid.Column="1" WidthRequest="16" HeightRequest="16"
+                           mi:MauiIcon.Value="{mi:Material Icon=ArrowForward, IconColor=Black}"/>
+                </Grid>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnManageProductsTapped"/>
+                </Border.GestureRecognizers>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Padding="14,12">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Text="Business Hours" FontFamily="OpenSansSemibold"
+                           FontSize="13" TextColor="Black" VerticalOptions="Center"/>
+                    <Image Grid.Column="1" WidthRequest="16" HeightRequest="16"
+                           mi:MauiIcon.Value="{mi:Material Icon=ArrowForward, IconColor=Black}"/>
+                </Grid>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBusinessHoursTapped"/>
+                </Border.GestureRecognizers>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Padding="14,12">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Text="Upload to Gallery" FontFamily="OpenSansSemibold"
+                           FontSize="13" TextColor="Black" VerticalOptions="Center"/>
+                    <Image Grid.Column="1" WidthRequest="16" HeightRequest="16"
+                           mi:MauiIcon.Value="{mi:Material Icon=ArrowForward, IconColor=Black}"/>
+                </Grid>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnUploadGalleryTapped"/>
+                </Border.GestureRecognizers>
+            </Border>
+            <Border Style="{StaticResource Card}" Padding="14,12">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Text="Manage Clients" FontFamily="OpenSansSemibold"
+               FontSize="13" TextColor="Black" VerticalOptions="Center"/>
+                    <Image Grid.Column="1" WidthRequest="16" HeightRequest="16"
+               mi:MauiIcon.Value="{mi:Material Icon=ArrowForward, IconColor=Black}"/>
+                </Grid>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnManageClientsTapped"/>
+                </Border.GestureRecognizers>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Padding="14,12">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Text="Manage Staff" FontFamily="OpenSansSemibold"
+               FontSize="13" TextColor="Black" VerticalOptions="Center"/>
+                    <Image Grid.Column="1" WidthRequest="16" HeightRequest="16"
+               mi:MauiIcon.Value="{mi:Material Icon=ArrowForward, IconColor=Black}"/>
+                </Grid>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnManageStaffTapped"/>
+                </Border.GestureRecognizers>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

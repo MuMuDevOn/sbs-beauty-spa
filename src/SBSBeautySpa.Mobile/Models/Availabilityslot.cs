@@ -3,10 +3,6 @@ namespace SBSBeautySpa.Mobile.Models
 {
     ///<summary>
     /// A single bookable slot for one service on one date.
-    /// This is never constructed from a hardcoded list - instances are
-    /// deserialized from the "getAvailableSlots" Cloud Function repsonse,
-    /// which computes them fresh from BusinessHours + BlockedTime + 
-    /// existing Bookings on the server (see AvailabilityService).
     /// </summary>
     public class AvailabilitySlot
     {

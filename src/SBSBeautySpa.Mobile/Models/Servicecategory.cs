@@ -1,6 +1,6 @@
 namespace SBSBeautySpa.Mobile.Models
 {
-    // Represents a service category (like "Nails", "Lashes", "Press-Ons").
+    // Represents a service category 
     //
     // What it's for: Services point to a category via Service.CategoryId.
     // So instead of every service knowing its full category info, it just

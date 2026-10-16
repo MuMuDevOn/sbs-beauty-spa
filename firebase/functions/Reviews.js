@@ -1,17 +1,8 @@
 /**
- * reviews.js
- * -----------------------------------------------------------------------
  * This file handles reviews.
  *
  * Reading reviews for a service is a direct, public Firestore read —
  * nothing trust-sensitive there.
- *
- * Submitting one goes through a Cloud Function because it needs real
- * validation that a direct write can't do:
- *   - Only the client who had that booking can review
- *   - Only after the booking is "completed"
- *   - Only once per booking
- * -----------------------------------------------------------------------
  */
 
 const { onCall, HttpsError } = require("firebase-functions/v2/https");

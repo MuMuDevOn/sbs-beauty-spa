@@ -1,0 +1,5 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/SBSBeautySpa.Mobile/SBSBeautySpa.Mobile.csproj" />
+  </Folder>
+</Solution>

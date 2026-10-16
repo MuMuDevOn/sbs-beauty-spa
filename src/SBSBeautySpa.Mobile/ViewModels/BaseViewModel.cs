@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
- namespace SBSBeautySpa.Mobile.ViewModels
+
+namespace SBSBeautySpa.Mobile.ViewModels
 {
     /// <summary> Common bindable state every screen's ViewModel needs. </summary>
     public abstract partial class BaseViewModel : ObservableObject
@@ -13,14 +14,11 @@ using CommunityToolkit.Mvvm.ComponentModel;
         [ObservableProperty]
         private string? errorMessage;
 
-        public bool IssNotBusy => !IsBusy;
+        public bool IsNotBusy => !IsBusy;
 
-        partial void OnIsBusyChanged (bool value)
+        partial void OnIsBusyChanged(bool value)
         {
             OnPropertyChanged(nameof(IsNotBusy));
         }
-
     }
-
-
 }

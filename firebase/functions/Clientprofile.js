@@ -1,21 +1,9 @@
 /**
- * clientProfile.js
- * -----------------------------------------------------------------------
  * This file handles two things:
  *   1. ClientPreference — a client managing their own preferences
  *      (preferred staff, contact method).
  *   2. ClientNote — staff-authored notes ABOUT a client (allergies,
  *      past issues, preferences noticed in person).
- *
- * Why preferences use a Cloud Function:
- *   Even though it's low-stakes, setMyPreferences validates the
- *   contact method value instead of trusting whatever string the
- *   client sends.
- *
- * Why notes are admin-only:
- *   A client never sees notes about themselves — only admins can
- *   read or write them.
- * -----------------------------------------------------------------------
  */
 
 const { onCall, HttpsError } = require("firebase-functions/v2/https");

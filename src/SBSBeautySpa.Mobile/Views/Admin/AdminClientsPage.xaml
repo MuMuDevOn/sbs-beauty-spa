@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:svc="clr-namespace:SBSBeautySpa.Mobile.Services"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             x:Class="SBSBeautySpa.Mobile.Views.Admin.AdminClientsPage"
+             BackgroundColor="White"
+             Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*" Padding="20,50,20,0" RowSpacing="12">
+
+        <HorizontalStackLayout Grid.Row="0" Spacing="14">
+            <Image WidthRequest="26" HeightRequest="26"
+                   mi:MauiIcon.Value="{mi:Material Icon=ArrowBack, IconColor=Black}">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackTapped"/>
+                </Image.GestureRecognizers>
+            </Image>
+            <Label Text="Manage Clients" FontFamily="OpenSansSemibold" FontSize="20"
+                   TextColor="Black" VerticalOptions="Center"/>
+        </HorizontalStackLayout>
+
+        <Border Grid.Row="1" BackgroundColor="#F3F4F6" StrokeThickness="0"
+                StrokeShape="RoundRectangle 10" Padding="12,0" HeightRequest="44">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                <Image Grid.Column="0" WidthRequest="18" HeightRequest="18"
+                       VerticalOptions="Center"
+                       mi:MauiIcon.Value="{mi:Material Icon=Search, IconColor=#6B7280}"/>
+                <Entry Grid.Column="1" Placeholder="Search by name, email or phone"
+                       FontSize="13" TextColor="Black" BackgroundColor="Transparent"
+                       VerticalOptions="Center" Text="{Binding SearchText}"/>
+            </Grid>
+        </Border>
+
+        <Label Grid.Row="2" Text="{Binding Clients.Count, StringFormat='{0} clients'}"
+               FontSize="12" TextColor="#6B7280"/>
+
+        <CollectionView Grid.Row="3" ItemsSource="{Binding Clients}">
+            <CollectionView.EmptyView>
+                <Label Text="No clients found." TextColor="#9CA3AF"
+                       HorizontalOptions="Center" Margin="0,40,0,0"/>
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="svc:ClientSummary">
+                    <Border BackgroundColor="White" Stroke="#E5E7EB" StrokeThickness="1"
+                            StrokeShape="RoundRectangle 10" Padding="14" Margin="0,0,0,10">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+
+                            <VerticalStackLayout Spacing="3">
+                                <Label Text="{Binding Name, FallbackValue='(no name)'}"
+                                       FontFamily="OpenSansSemibold" FontSize="14"
+                                       TextColor="#111827"/>
+                                <Label Text="{Binding Email}" FontSize="12"
+                                       TextColor="#4B5563"/>
+                                <Label Text="{Binding PhoneNumber}" FontSize="12"
+                                       TextColor="#9CA3AF"/>
+                            </VerticalStackLayout>
+
+                            <Border Grid.Column="1" Padding="10,4"
+                                    BackgroundColor="#E5E7EB"
+                                    StrokeThickness="0" StrokeShape="RoundRectangle 6"
+                                    VerticalOptions="Start">
+                                <Label Text="Client" FontSize="11" TextColor="#4B5563"/>
+                            </Border>
+
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </Grid>
+</ContentPage>

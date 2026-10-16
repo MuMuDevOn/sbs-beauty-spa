@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+       xmlns:views="clr-namespace:SBSBeautySpa.Mobile.Views"
+       x:Class="SBSBeautySpa.Mobile.AppShell"
+       FlyoutBehavior="Disabled"
+       Shell.TabBarBackgroundColor="White"
+       Shell.TabBarForegroundColor="#111827"
+       Shell.TabBarTitleColor="#111827"
+       Shell.TabBarUnselectedColor="#9CA3AF">
+
+    <!-- Starting page — no tabs, no nav bar -->
+    <ShellContent Route="GetStartedPage"
+                  ContentTemplate="{DataTemplate views:GetStartedPage}"
+                  Shell.TabBarIsVisible="False"
+                  Shell.NavBarIsVisible="False" />
+
+    <!-- Main app tabs -->
+    <TabBar Route="Main">
+        <ShellContent Title="Home" Icon="home.png"
+                      Route="HomePage"
+                      ContentTemplate="{DataTemplate views:HomePage}" />
+        <ShellContent Title="Shop" Icon="shop.png"
+                      Route="ShopView"
+                      ContentTemplate="{DataTemplate views:ShopView}" />
+        <ShellContent Title="Gallery" Icon="gallery.png"
+                      Route="GalleryView"
+                      ContentTemplate="{DataTemplate views:GalleryView}" />
+        <ShellContent Title="Profile" Icon="profile.png"
+                      Route="ProfilePage"
+                      ContentTemplate="{DataTemplate views:ProfilePage}" />
+    </TabBar>
+
+</Shell>

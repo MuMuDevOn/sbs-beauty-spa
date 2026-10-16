@@ -1,13 +1,7 @@
 /**
- * serviceCategories.js
- * -----------------------------------------------------------------------
  * This file handles service categories (nails, lashes, press-ons).
  *
  * Categories are what each service points to (via Service.categoryId).
- *
- * Reading the list is a direct Firestore read (the rules allow public
- * reads of serviceCategories). Only the WRITES go through functions here.
- * -----------------------------------------------------------------------
  */
 
 const { onCall, HttpsError } = require("firebase-functions/v2/https");

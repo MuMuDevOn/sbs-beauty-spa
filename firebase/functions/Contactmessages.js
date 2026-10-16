@@ -1,16 +1,5 @@
 /**
- * contactMessages.js
- * -----------------------------------------------------------------------
  * This file handles the public "get in touch" contact form.
- *
- * IMPORTANT: submitContactMessage takes NO auth — anyone can call it,
- * even before signing up or logging in.
- *
- * That also makes it the ONE endpoint in this whole backend that's
- * genuinely open to abuse (spam submissions). Real protections like
- * App Check, reCAPTCHA, or IP-based rate limiting are NOT built here.
- * This is a known gap — basic field validation alone isn't enough.
- * -----------------------------------------------------------------------
  */
 
 const { onCall, HttpsError } = require("firebase-functions/v2/https");

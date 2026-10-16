@@ -1,6 +1,4 @@
 /**
- * deletionLog.js
- * -----------------------------------------------------------------------
  * This file handles the deletion audit log.
  *
  * There are TWO parts here:
@@ -11,13 +9,6 @@
  *
  *   2. listDeletionLog — a real Cloud Function that admins can call to
  *      see the log.
- *
- * Why logDeletion is a helper, not a function:
- *   It's called AFTER the real delete succeeds. If the audit write fails,
- *   we don't want it to block or roll back the deletion. But we also don't
- *   want it to silently vanish. So callers await it, but it can't fail
- *   the deletion itself.
- * -----------------------------------------------------------------------
  */
 
 const { onCall, HttpsError } = require("firebase-functions/v2/https");

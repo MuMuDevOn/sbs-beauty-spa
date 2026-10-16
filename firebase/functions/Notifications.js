@@ -1,6 +1,4 @@
 /**
- * notifications.js
- * -----------------------------------------------------------------------
  * This file handles ALL notifications across three channels:
  *
  *   1. IN-APP — the notification centre. Created instantly.
@@ -10,15 +8,6 @@
  *              Sent via SendGrid. Has a "queued → sent/failed" lifecycle.
  *
  *   3. PUSH — booking reminders via Firebase Cloud Messaging.
- *
- * All three channels write into ONE `notifications` collection
- * (with a `channel` field) so the Admin Notification Log can show
- * everything in one place.
- *
- * NOTE: Nothing in this backend yet registers the device token from the
- * client. Until that's built, push attempts will fail with "No device
- * token registered" — that's the honest failure mode, not a silent no-op.
- * -----------------------------------------------------------------------
  */
 
 const { onDocumentUpdated } = require("firebase-functions/v2/firestore");

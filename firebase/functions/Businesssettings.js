@@ -1,6 +1,4 @@
 /**
- * businessSettings.js
- * -----------------------------------------------------------------------
  * This file handles the business settings for a single-location business.
  *
  * There are TWO settings documents:
@@ -9,8 +7,7 @@
  *   2. businessSettingsPrivate/main — bank details, payment notes
  *
  * The public settings can be read by ANYONE (even before login).
- * The private settings can only be read by admins.
- * -----------------------------------------------------------------------
+ * The private settings can only be read by admins.---
  */
 
 const { onCall, HttpsError } = require("firebase-functions/v2/https");

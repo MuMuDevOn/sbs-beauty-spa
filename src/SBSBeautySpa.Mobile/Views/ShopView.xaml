@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="SBSBeautySpa.Mobile.Views.ShopView"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:SBSBeautySpa.Mobile.ViewModels"
+             xmlns:models="clr-namespace:SBSBeautySpa.Mobile.Models"
+             xmlns:conv="clr-namespace:SBSBeautySpa.Mobile.Converters"
+             x:DataType="vm:ShopViewModel"
+             BackgroundColor="White"
+             Shell.NavBarIsVisible="False">
+
+    <!-- Plain white page per the Shop wireframe. Colors are page-local;
+         they belong in Resources/Styles/Styles.xaml once a few more
+         pages exist. -->
+    <ContentPage.Resources>
+        <Color x:Key="DeepNavy">#1B2A4A</Color>
+        <Color x:Key="InkText">#1A1A1A</Color>
+        <Color x:Key="MutedGray">#9AA0AE</Color>
+        <Color x:Key="CardFill">#F8F9FB</Color>
+        <Color x:Key="CardStroke">#D9DEE6</Color>
+
+        <conv:BoolToColorConverter x:Key="BoolToColor" />
+        <conv:InvertedBoolConverter x:Key="InvertedBool" />
+        <conv:IsNotNullConverter x:Key="IsNotNull" />
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*">
+
+        <!-- Header: back, title, search, cart -->
+        <Grid Grid.Row="0" Padding="20,16,20,8" ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="18">
+            <Label Grid.Column="0" Text="&#8592;" FontSize="22" TextColor="{StaticResource InkText}" VerticalOptions="Center">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackTapped" />
+                </Label.GestureRecognizers>
+            </Label>
+            <Label Grid.Column="1" Text="Shop" FontSize="24" FontAttributes="Bold" TextColor="{StaticResource InkText}" VerticalOptions="Center" />
+
+            <!-- Search icon (drawn, so it matches the wireframe's outline style on every platform) -->
+            <Grid Grid.Column="2" WidthRequest="26" HeightRequest="26" VerticalOptions="Center">
+                <Ellipse Stroke="{StaticResource InkText}" StrokeThickness="2" WidthRequest="15" HeightRequest="15"
+                         HorizontalOptions="Start" VerticalOptions="Start" />
+                <Line X1="14" Y1="14" X2="23" Y2="23" Stroke="{StaticResource InkText}" StrokeThickness="2" StrokeLineCap="Round"
+                      HorizontalOptions="Start" VerticalOptions="Start" />
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ToggleSearchCommand}" />
+                </Grid.GestureRecognizers>
+            </Grid>
+
+            <!-- Cart icon. NOT in the Shop wireframe — added because the
+                 wireframe has no way to reach the Cart screen. Delete this
+                 Grid (and OnCartTapped) if you'd rather open the cart some
+                 other way. -->
+            <Grid Grid.Column="3" WidthRequest="28" HeightRequest="26" VerticalOptions="Center">
+                <Path Data="M1,2 L5,2 L8,15 L22,15 L25,5 L6,5" Stroke="{StaticResource InkText}" StrokeThickness="2"
+                      StrokeLineJoin="Round" StrokeLineCap="Round" />
+                <Ellipse Fill="{StaticResource InkText}" WidthRequest="4" HeightRequest="4" HorizontalOptions="Start" VerticalOptions="Start" Margin="9,19,0,0" />
+                <Ellipse Fill="{StaticResource InkText}" WidthRequest="4" HeightRequest="4" HorizontalOptions="Start" VerticalOptions="Start" Margin="19,19,0,0" />
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnCartTapped" />
+                </Grid.GestureRecognizers>
+            </Grid>
+        </Grid>
+
+        <!-- Search box (shown when the search icon is toggled) -->
+        <Entry Grid.Row="1" Margin="20,0,20,8" Placeholder="Search products" Text="{Binding SearchText}"
+               IsVisible="{Binding IsSearchVisible}" TextColor="{StaticResource InkText}" />
+
+        <!-- Category tabs: All | Kits | Sets ... built from real categories -->
+        <CollectionView Grid.Row="2" ItemsSource="{Binding Categories}" HeightRequest="48" Margin="20,0,0,8">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="8" />
+            </CollectionView.ItemsLayout>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:SelectableTab">
+                    <Border Padding="18,8" StrokeThickness="0" VerticalOptions="Center"
+                            BackgroundColor="{Binding IsSelected, Converter={StaticResource BoolToColor}, ConverterParameter='#1B2A4A|#F1F3F5'}">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="18" />
+                        </Border.StrokeShape>
+                        <Label Text="{Binding Label}" FontSize="14"
+                               TextColor="{Binding IsSelected, Converter={StaticResource BoolToColor}, ConverterParameter='White|#6B7280'}" />
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectCategoryCommand}"
+                                                   CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Product grid + overlays (loading / empty / error / toast) -->
+        <Grid Grid.Row="3">
+            <CollectionView ItemsSource="{Binding Products}" Margin="12,0,12,0">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="2" HorizontalItemSpacing="8" VerticalItemSpacing="8" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Product">
+                        <Border Padding="10" BackgroundColor="{StaticResource CardFill}"
+                                Stroke="{StaticResource CardStroke}" StrokeThickness="1">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="12" />
+                            </Border.StrokeShape>
+                            <VerticalStackLayout Spacing="5">
+
+                                <!-- Image box: dashed placeholder like the wireframe until/unless there's a photo -->
+                                <Border HeightRequest="110" BackgroundColor="#F2F4F7" Stroke="#C9CED6" StrokeThickness="1"
+                                        StrokeDashArray="3,3">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="8" />
+                                    </Border.StrokeShape>
+                                    <Grid>
+                                        <Label Text="Image" FontSize="13" TextColor="{StaticResource MutedGray}"
+                                               HorizontalOptions="Center" VerticalOptions="Center"
+                                               IsVisible="{Binding HasImage, Converter={StaticResource InvertedBool}}" />
+                                        <Image Source="{Binding ImageUrl}" Aspect="AspectFill" />
+                                    </Grid>
+                                </Border>
+
+                                <Label Text="{Binding Name}" FontSize="15" FontAttributes="Bold" TextColor="{StaticResource InkText}"
+                                       MaxLines="1" LineBreakMode="TailTruncation" Margin="0,4,0,0" />
+                                <Label Text="{Binding Description}" FontSize="12" TextColor="{StaticResource MutedGray}"
+                                       MaxLines="1" LineBreakMode="TailTruncation" />
+
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Grid.Column="0" Text="{Binding PriceLabel}" FontSize="14" FontAttributes="Bold" TextColor="{StaticResource InkText}" />
+                                    <!-- Rating: hidden until a product actually has one (see Product.Rating) -->
+                                    <Label Grid.Column="1" Text="{Binding RatingLabel, StringFormat='&#9733; {0}'}" FontSize="12"
+                                           TextColor="{StaticResource InkText}" IsVisible="{Binding HasRating}" />
+                                </Grid>
+
+                                <Button Text="Add to Cart" FontAttributes="Bold" FontSize="14" HeightRequest="40" CornerRadius="8"
+                                        BackgroundColor="{StaticResource DeepNavy}" TextColor="White"
+                                        IsEnabled="{Binding IsInStock}"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.AddToCartCommand}"
+                                        CommandParameter="{Binding .}" />
+                                <Label Text="Out of stock" FontSize="11" TextColor="{StaticResource MutedGray}" HorizontalOptions="Center"
+                                       IsVisible="{Binding IsInStock, Converter={StaticResource InvertedBool}}" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource DeepNavy}"
+                               HorizontalOptions="Center" VerticalOptions="Center" />
+
+            <Label Text="No products found." FontSize="14" TextColor="{StaticResource MutedGray}"
+                   HorizontalOptions="Center" VerticalOptions="Center" IsVisible="{Binding IsEmpty}" />
+
+            <Label Text="{Binding ErrorMessage}" FontSize="14" TextColor="{StaticResource MutedGray}" Margin="30,0"
+                   HorizontalTextAlignment="Center" HorizontalOptions="Center" VerticalOptions="Center"
+                   IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNull}}" />
+
+            <Border BackgroundColor="{StaticResource DeepNavy}" StrokeThickness="0" Padding="16,12" Margin="24,0,24,20"
+                    VerticalOptions="End" IsVisible="{Binding ToastMessage, Converter={StaticResource IsNotNull}}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="10" />
+                </Border.StrokeShape>
+                <Label Text="{Binding ToastMessage}" TextColor="White" FontSize="13" HorizontalTextAlignment="Center" />
+            </Border>
+        </Grid>
+    </Grid>
+</ContentPage>

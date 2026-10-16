@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="SBSBeautySpa.Mobile.Views.GalleryView"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:SBSBeautySpa.Mobile.ViewModels"
+             xmlns:models="clr-namespace:SBSBeautySpa.Mobile.Models"
+             xmlns:conv="clr-namespace:SBSBeautySpa.Mobile.Converters"
+             x:DataType="vm:GalleryViewModel"
+             Shell.NavBarIsVisible="False">
+
+    <!-- Unlike Shop/Cart, this wireframe is a full-page gradient with a
+         white sidebar panel on it — palette straight from the proposal. -->
+    <ContentPage.Resources>
+        <Color x:Key="DeepNavy">#1B2A4A</Color>
+        <Color x:Key="StormyBlue">#4D6893</Color>
+        <Color x:Key="DustyPeriwinkle">#7C93C4</Color>
+        <Color x:Key="InkText">#1A1A1A</Color>
+        <Color x:Key="MutedGray">#6B7280</Color>
+
+        <LinearGradientBrush x:Key="PageGradient" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="{StaticResource DeepNavy}" Offset="0.0" />
+            <GradientStop Color="{StaticResource StormyBlue}" Offset="0.5" />
+            <GradientStop Color="{StaticResource DustyPeriwinkle}" Offset="1.0" />
+        </LinearGradientBrush>
+
+        <conv:BoolToColorConverter x:Key="BoolToColor" />
+        <conv:IsNotNullConverter x:Key="IsNotNull" />
+
+        <!-- One image tile, shared by both columns. Height comes from each
+             image's own aspect ratio, which is what makes the staggered
+             look in the wireframe. -->
+        <DataTemplate x:Key="GalleryTile" x:DataType="models:GalleryImage">
+            <VerticalStackLayout Spacing="6">
+                <Border BackgroundColor="#F2F4F7" StrokeThickness="0" MinimumHeightRequest="140">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="14" />
+                    </Border.StrokeShape>
+                    <Image Source="{Binding ImageUrl}" Aspect="AspectFill" />
+                </Border>
+                <Label Text="{Binding Title}" FontSize="14" TextColor="{StaticResource DeepNavy}"
+                       IsVisible="{Binding HasTitle}" />
+            </VerticalStackLayout>
+        </DataTemplate>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*" Background="{StaticResource PageGradient}">
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Padding="20,16,20,12" ColumnDefinitions="Auto,*" ColumnSpacing="18">
+            <Label Grid.Column="0" Text="&#8592;" FontSize="22" TextColor="White" VerticalOptions="Center">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackTapped" />
+                </Label.GestureRecognizers>
+            </Label>
+            <Label Grid.Column="1" Text="Gallery" FontSize="24" FontAttributes="Bold" TextColor="White" VerticalOptions="Center" />
+        </Grid>
+
+        <Grid Grid.Row="1" ColumnDefinitions="112,*" ColumnSpacing="10" Padding="16,0,16,0">
+
+            <!-- Category sidebar -->
+            <Border Grid.Column="0" BackgroundColor="White" StrokeThickness="0" Padding="8" VerticalOptions="Start">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="16" />
+                </Border.StrokeShape>
+                <ScrollView>
+                    <VerticalStackLayout Spacing="8" BindableLayout.ItemsSource="{Binding Categories}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="vm:SelectableTab">
+                                <Border Padding="6,10" StrokeThickness="1"
+                                        BackgroundColor="{Binding IsSelected, Converter={StaticResource BoolToColor}, ConverterParameter='#1B2A4A|White'}"
+                                        Stroke="{Binding IsSelected, Converter={StaticResource BoolToColor}, ConverterParameter='#1B2A4A|#D9DEE6'}">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="10" />
+                                    </Border.StrokeShape>
+                                    <!-- Wraps to a second line instead of clipping ("French Tip" clips in the wireframe) -->
+                                    <Label Text="{Binding Label}" FontSize="13" HorizontalTextAlignment="Center" MaxLines="2"
+                                           TextColor="{Binding IsSelected, Converter={StaticResource BoolToColor}, ConverterParameter='White|#6B7280'}" />
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectCategoryCommand}"
+                                                               CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </ScrollView>
+            </Border>
+
+            <!-- Image grid: two independently stacked columns -->
+            <Grid Grid.Column="1">
+                <ScrollView>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Padding="0,0,0,20">
+                        <VerticalStackLayout Grid.Column="0" Spacing="12"
+                                             BindableLayout.ItemsSource="{Binding LeftColumn}"
+                                             BindableLayout.ItemTemplate="{StaticResource GalleryTile}" />
+                        <VerticalStackLayout Grid.Column="1" Spacing="12"
+                                             BindableLayout.ItemsSource="{Binding RightColumn}"
+                                             BindableLayout.ItemTemplate="{StaticResource GalleryTile}" />
+                    </Grid>
+                </ScrollView>
+
+                <ActivityIndicator IsRunning="{Binding IsLoadingImages}" IsVisible="{Binding IsLoadingImages}" Color="White"
+                                   HorizontalOptions="Center" VerticalOptions="Center" />
+
+                <Label Text="No images in this category yet." FontSize="14" TextColor="White"
+                       HorizontalOptions="Center" VerticalOptions="Center" IsVisible="{Binding IsEmpty}" />
+
+                <Label Text="{Binding ErrorMessage}" FontSize="14" TextColor="White" Margin="20,0"
+                       HorizontalTextAlignment="Center" HorizontalOptions="Center" VerticalOptions="Center"
+                       IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNull}}" />
+            </Grid>
+        </Grid>
+    </Grid>
+</ContentPage>

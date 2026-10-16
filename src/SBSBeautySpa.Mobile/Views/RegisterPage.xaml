@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:SBSBeautySpa.Mobile.ViewModels"
+             x:Class="SBSBeautySpa.Mobile.Views.RegisterPage"
+             x:DataType="vm:RegisterViewModel"
+             Title="Sign Up"
+             BackgroundColor="#14213D"
+             Shell.NavBarIsVisible="False">
+
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Color="#111827" Offset="0.00"/>
+                <GradientStop Color="#1B2A4A" Offset="0.07"/>
+                <GradientStop Color="#4D6893" Offset="0.34"/>
+                <GradientStop Color="#7C93C4" Offset="0.74"/>
+                <GradientStop Color="#9FBCE5" Offset="0.95"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <ScrollView>
+            <VerticalStackLayout Padding="24,50,24,30" Spacing="0">
+
+                <Image Source="logo.png"
+                       HeightRequest="140"
+                       WidthRequest="260"
+                       Aspect="AspectFit"
+                       HorizontalOptions="Center"/>
+
+                <Label Text="Nails • Lashes • Press-Ons"
+                       TextColor="#DCE8F5"
+                       FontSize="20"
+                       Margin="0,18,0,20"
+                       HorizontalOptions="Center"
+                       Padding="4"/>
+
+                <Border Stroke="Transparent"
+                        StrokeShape="RoundRectangle 28,28,0,0"
+                        BackgroundColor="White"
+                        Margin="-24,26,-24,-30"
+                        Padding="26,32,26,40">
+                    <VerticalStackLayout Spacing="0">
+
+                        <Label Text="Create your account"
+                               FontFamily="Georgia"
+                               FontAttributes="Bold"
+                               FontSize="24"
+                               TextColor="#1B2A4A"
+                               HorizontalOptions="Center"/>
+
+                        <Label Text="Sign up to book your first appointment"
+                               FontSize="13"
+                               TextColor="#3B5BA5"
+                               Margin="0,4,0,26"
+                               HorizontalOptions="Center"/>
+
+                        <Label Text="Name &amp; Surname"
+                               FontSize="13"
+                               TextColor="#1B2A4A"
+                               Margin="0,0,0,6"/>
+                        <Border Stroke="Transparent"
+                                StrokeShape="RoundRectangle 8"
+                                BackgroundColor="#EAF0F6"
+                                Margin="0,0,0,18"
+                                Padding="14,0"
+                                HeightRequest="46">
+                            <Entry Text="{Binding FullName}"
+                                   BackgroundColor="Transparent"
+                                   VerticalOptions="Center"/>
+                        </Border>
+
+                        <Label Text="Email Address"
+                               FontSize="13"
+                               TextColor="#1B2A4A"
+                               Margin="0,0,0,6"/>
+                        <Border Stroke="Transparent"
+                                StrokeShape="RoundRectangle 8"
+                                BackgroundColor="#EAF0F6"
+                                Margin="0,0,0,18"
+                                Padding="14,0"
+                                HeightRequest="46">
+                            <Entry Text="{Binding Email}"
+                                   Keyboard="Email"
+                                   BackgroundColor="Transparent"
+                                   VerticalOptions="Center"/>
+                        </Border>
+
+                        <Label Text="Phone number"
+                               FontSize="13"
+                               TextColor="#1B2A4A"
+                               Margin="0,0,0,6"/>
+                        <Border Stroke="Transparent"
+                                StrokeShape="RoundRectangle 8"
+                                BackgroundColor="#EAF0F6"
+                                Margin="0,0,0,18"
+                                Padding="14,0"
+                                HeightRequest="46">
+                            <Entry Text="{Binding PhoneNumber}"
+                                   Keyboard="Telephone"
+                                   BackgroundColor="Transparent"
+                                   VerticalOptions="Center"/>
+                        </Border>
+
+                        <Label Text="Password"
+                               FontSize="13"
+                               TextColor="#1B2A4A"
+                               Margin="0,0,0,6"/>
+                        <Border Stroke="Transparent"
+                                StrokeShape="RoundRectangle 8"
+                                BackgroundColor="#EAF0F6"
+                                Margin="0,0,0,18"
+                                Padding="14,0"
+                                HeightRequest="46">
+                            <Entry Text="{Binding Password}"
+                                   IsPassword="True"
+                                   BackgroundColor="Transparent"
+                                   VerticalOptions="Center"/>
+                        </Border>
+
+                        <Label Text="Password Confirmation"
+                               FontSize="13"
+                               TextColor="#1B2A4A"
+                               Margin="0,0,0,6"/>
+                        <Border Stroke="Transparent"
+                                StrokeShape="RoundRectangle 8"
+                                BackgroundColor="#EAF0F6"
+                                Margin="0,0,0,18"
+                                Padding="14,0"
+                                HeightRequest="46">
+                            <Entry Text="{Binding ConfirmPassword}"
+                                   IsPassword="True"
+                                   BackgroundColor="Transparent"
+                                   VerticalOptions="Center"/>
+                        </Border>
+
+                        <HorizontalStackLayout Margin="0,0,0,18" Spacing="8">
+                            <CheckBox IsChecked="{Binding AgreedToTerms}" Color="#2563EB"/>
+                            <Label Text="I agree to the Terms and Conditions"
+                                   TextColor="#1B2A4A"
+                                   FontSize="13"
+                                   VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+
+                        <Label Text="{Binding ErrorMessage}"
+                               TextColor="Red"
+                               FontSize="13"
+                               Margin="0,0,0,12"
+                               IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNull}}"/>
+
+                        <Border Stroke="Transparent"
+                                StrokeShape="RoundRectangle 24"
+                                HeightRequest="52"
+                                HorizontalOptions="Fill">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                    <GradientStop Color="#111827" Offset="0.05"/>
+                                    <GradientStop Color="#162139" Offset="0.19"/>
+                                    <GradientStop Color="#34496F" Offset="0.92"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Button Text="Create Account"
+                                    BackgroundColor="Transparent"
+                                    TextColor="White"
+                                    FontAttributes="Bold"
+                                    FontSize="16"
+                                    Command="{Binding RegisterCommand}"/>
+                        </Border>
+
+                        <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                           IsVisible="{Binding IsBusy}"
+                                           Color="#2563EB"
+                                           Margin="0,10,0,0"/>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SBSBeautySpa.Mobile.Views.ContactUsPage"
+             Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,*,Auto" Padding="20,50,20,16"
+          Background="{StaticResource PageGradient}">
+
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*" ColumnSpacing="14">
+            <Label Text="←" FontSize="28" TextColor="White" VerticalOptions="Center">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackTapped" />
+                </Label.GestureRecognizers>
+            </Label>
+            <Label Grid.Column="1" Text="Contact Us" Style="{StaticResource PageTitle}" />
+        </Grid>
+
+        <ScrollView Grid.Row="1" Margin="0,24,0,0">
+            <VerticalStackLayout Spacing="10">
+
+                <Label Text="Have a question or need help? Tell us what you need support with."
+                       Style="{StaticResource HintText}" />
+
+                <Label Text="YOUR DETAILS" Style="{StaticResource CapsLabel}" Margin="0,6,0,0" />
+                <Border Style="{StaticResource GroupCard}">
+                    <VerticalStackLayout>
+
+                        <VerticalStackLayout Padding="14,10" Spacing="2">
+                            <Label Text="Name" Style="{StaticResource FieldLabel}" />
+                            <Entry x:Name="NameEntry" Text="User name" Placeholder="Name"
+                                   Style="{StaticResource FieldEntry}" />
+                        </VerticalStackLayout>
+                        <BoxView Style="{StaticResource Divider}" />
+
+                        <VerticalStackLayout Padding="14,10" Spacing="2">
+                            <Label Text="Email address" Style="{StaticResource FieldLabel}" />
+                            <Entry x:Name="EmailEntry" Text="userEmail@example.com"
+                                   Placeholder="Email address" Keyboard="Email"
+                                   Style="{StaticResource FieldEntry}" />
+                        </VerticalStackLayout>
+
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label Text="YOUR MESSAGE" Style="{StaticResource CapsLabel}" Margin="0,10,0,0" />
+                <Border Style="{StaticResource GroupCard}">
+                    <VerticalStackLayout>
+
+                        <Grid ColumnDefinitions="*,Auto" Padding="14,10">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="Topic" Style="{StaticResource FieldLabel}" />
+                                <Picker x:Name="TopicPicker" Title="Select a topic"
+                                        Style="{StaticResource FieldPicker}">
+                                    <Picker.ItemsSource>
+                                        <x:Array Type="{x:Type x:String}">
+                                            <x:String>Booking question</x:String>
+                                            <x:String>Services and pricing</x:String>
+                                            <x:String>Payments</x:String>
+                                            <x:String>Shop order</x:String>
+                                            <x:String>Problem with the app</x:String>
+                                            <x:String>Other</x:String>
+                                        </x:Array>
+                                    </Picker.ItemsSource>
+                                </Picker>
+                            </VerticalStackLayout>
+                            <Label Grid.Column="1" Text="▾" FontSize="18" TextColor="#6B7280"
+                                   VerticalOptions="Center">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnChevronTapped" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </Grid>
+                        <BoxView Style="{StaticResource Divider}" />
+
+                        <VerticalStackLayout Padding="14,10" Spacing="2">
+                            <Label Text="Message" Style="{StaticResource FieldLabel}" />
+                            <Editor x:Name="MessageEditor" HeightRequest="110"
+                                    Placeholder="Describe how we can help..."
+                                    Style="{StaticResource FieldEditor}" />
+                        </VerticalStackLayout>
+
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label Text="For a booking question, include any relevant booking details. Don't include passwords or payment card details."
+                       Style="{StaticResource HintText}" />
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Button Grid.Row="2" Text="Send message" Margin="0,10,0,0"
+                Style="{StaticResource PrimaryButton}" Clicked="OnSendClicked" />
+    </Grid>
+</ContentPage>

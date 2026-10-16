@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:SBSBeautySpa.Mobile.ViewModels"
+             x:Class="SBSBeautySpa.Mobile.Views.GetStartedPage"
+             x:DataType="vm:GetStartedViewModel"
+             Shell.NavBarIsVisible="False">
+
+    <Grid Padding="24,60,24,40"
+          RowDefinitions="Auto,*,Auto">
+
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Color="#111827" Offset="0.00"/>
+                <GradientStop Color="#1B2A4A" Offset="0.07"/>
+                <GradientStop Color="#4D6893" Offset="0.34"/>
+                <GradientStop Color="#7C93C4" Offset="0.74"/>
+                <GradientStop Color="#9FBCE5" Offset="0.95"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <VerticalStackLayout Grid.Row="0" Spacing="0" HorizontalOptions="Center">
+
+            <Image Source="logo.png"
+                   HeightRequest="140"
+                   WidthRequest="260"
+                   Aspect="AspectFit"
+                   HorizontalOptions="Center"/>
+
+            <Label Text="Nails • Lashes • Press-Ons"
+                   TextColor="#DCE8F5"
+                   FontSize="20"
+                   Margin="0,18,0,20"
+                   HorizontalOptions="Center"/>
+        </VerticalStackLayout>
+
+        <Border Grid.Row="2"
+                Stroke="Transparent"
+                StrokeShape="RoundRectangle 24"
+                HeightRequest="56"
+                HorizontalOptions="Fill">
+
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#111827" Offset="0.05"/>
+                    <GradientStop Color="#162139" Offset="0.19"/>
+                    <GradientStop Color="#34496F" Offset="0.92"/>
+                </LinearGradientBrush>
+            </Border.Background>
+
+            <!-- Now uses a Command instead of Clicked -->
+            <Button Text="Get Started"
+                    Command="{Binding ContinueCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="White"
+                    FontAttributes="Bold"
+                    FontSize="16"/>
+        </Border>
+    </Grid>
+
+</ContentPage>

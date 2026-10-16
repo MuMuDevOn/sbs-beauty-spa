@@ -1,17 +1,8 @@
 /**
- * bookingNotes.js
- * -----------------------------------------------------------------------
  * This file handles internal staff notes about a specific appointment.
- *
- * Examples of notes:
- *   - "Client ran 20 minutes late"
- *   - "Used a different shade than requested"
- *   - "Client mentioned an allergy to gel"
- *
  * IMPORTANT: These notes are NEVER shown to the client.
  * They're completely separate from Booking.notes (which the client
  * writes themselves when booking).
- * -----------------------------------------------------------------------
  */
 
 const { onCall, HttpsError } = require("firebase-functions/v2/https");

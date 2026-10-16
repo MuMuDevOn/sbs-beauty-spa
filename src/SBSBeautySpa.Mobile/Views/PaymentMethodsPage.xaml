@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SBSBeautySpa.Mobile.Views.PaymentMethodsPage"
+             Shell.NavBarIsVisible="False">
+
+    <!-- Main layout: Header (Auto) / Scrollable content (*) / Add button (Auto) -->
+    <Grid RowDefinitions="Auto,*,Auto" Padding="20,50,20,16"
+          Background="{StaticResource PageGradient}">
+
+        <!-- Header: Back arrow + page title -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*" ColumnSpacing="14">
+            <!-- Back arrow; tapping it triggers OnBackTapped -->
+            <Label Text="←" FontSize="28" TextColor="White" VerticalOptions="Center">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackTapped" />
+                </Label.GestureRecognizers>
+            </Label>
+            <!-- Page title -->
+            <Label Grid.Column="1" Text="Payment Methods" Style="{StaticResource PageTitle}" />
+        </Grid>
+
+        <!-- Content: scrollable area for payment method information -->
+        <ScrollView Grid.Row="1" Margin="0,24,0,0">
+            <VerticalStackLayout Spacing="10">
+
+                <!-- Intro hint -->
+                <Label Text="View and manage the payment methods saved to your account."
+                       Style="{StaticResource HintText}" />
+
+                <!-- Section header -->
+                <Label Text="SAVED PAYMENT METHODS" Style="{StaticResource CapsLabel}" Margin="0,6,0,0" />
+
+                <!-- Empty state card. Your teammate hides this when there are saved methods -->
+                <Border x:Name="EmptyState" Style="{StaticResource GroupCard}">
+                    <VerticalStackLayout Padding="20,28" Spacing="8">
+
+                        <!-- Circular placeholder containing a card icon -->
+                        <Border WidthRequest="56" HeightRequest="56" HorizontalOptions="Center"
+                                BackgroundColor="{StaticResource Placeholder}"
+                                StrokeThickness="0" StrokeShape="RoundRectangle 28">
+                            <Image Source="creditcardicon.png"
+                                   WidthRequest="26" HeightRequest="26"
+                                   Aspect="AspectFit"
+                                   HorizontalOptions="Center" VerticalOptions="Center" />
+                        </Border>
+
+                        <!-- Empty state title -->
+                        <Label Text="No saved payment methods" Margin="0,6,0,0"
+                               FontFamily="OpenSansSemibold" FontSize="14"
+                               TextColor="{StaticResource NavyText}"
+                               HorizontalOptions="Center" />
+
+                        <!-- Empty state description -->
+                        <Label Text="You haven't added a payment method yet. Add one to keep it available for future bookings."
+                               FontFamily="OpenSansRegular" FontSize="12" TextColor="#4B5563"
+                               HorizontalTextAlignment="Center" />
+
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Additional hint text below the card -->
+                <Label Text="Your saved methods will appear here after you add them."
+                       Style="{StaticResource HintText}" />
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Add button; triggers OnAddPaymentClicked -->
+        <Button Grid.Row="2" Text="Add payment method" Margin="0,10,0,0"
+                Style="{StaticResource PrimaryButton}" Clicked="OnAddPaymentClicked" />
+    </Grid>
+</ContentPage>
+    
+   

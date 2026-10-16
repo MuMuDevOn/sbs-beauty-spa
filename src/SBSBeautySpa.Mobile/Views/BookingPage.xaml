@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SBSBeautySpa.Mobile.Views.BookingPage"
+             x:Name="ThisPage"
+             Shell.NavBarIsVisible="False">
+
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint ="0,1">
+                <GradientStop Color="#111827" Offset="0.00"/>
+                <GradientStop Color="#1B2A4A" Offset="0.07"/>
+                <GradientStop Color="#4D6893" Offset="0.34"/>
+                <GradientStop Color="#7C93C4" Offset="0.74"/>
+                <GradientStop Color="#9FBCE5" Offset="0.95"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <VerticalStackLayout Padding="20, 50, 20, 20" Spacing=" 16">
+
+            <Label Text=" Booking" 
+                   FontFamily ="SerifBold" FontSize ="30"
+                   TextColor="White" Margin="0,0,0,10" />
+            
+            <!--Services Box-->
+            <Border Background="{StaticResource CardWhite}"
+                    StrokeThickness="3" Stroke="White"
+                    StrokeShape="RoundRectangle 14" Padding=" 12">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnServicesTapped" />
+               
+                </Border.GestureRecognizers>
+                <HorizontalStackLayout Spacing="14">
+                    <Border WidthRequest="75" HeightRequest="75" 
+                            BackgroundColor="{StaticResource Placeholder}"
+                            StrokeShape="RoundRectangle 10" StrokeThickness=" 0"/>
+                    <Label Text="Services" FontFamily="SeriBold" FontSize="24"
+                           TextColor="{StaticResource NavyText}"
+                           VerticalOptions="Start"/>
+                   
+                </HorizontalStackLayout>
+              </Border>
+            <!--Booking History Box-->
+            <Border Background="{StaticResource CardWhite}"
+           StrokeThickness="3" Stroke="White"
+           StrokeShape="RoundRectangle 14" Padding=" 12">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnHistoryTapped" />
+
+                </Border.GestureRecognizers>
+                <HorizontalStackLayout Spacing="14">
+                    <Border WidthRequest="75" HeightRequest="75" 
+                   BackgroundColor="{StaticResource Placeholder}"
+                   StrokeShape="RoundRectangle 10" StrokeThickness=" 0"/>
+                    <Label Text="Booking History" FontFamily="SeriBold" FontSize="24"
+                  TextColor="{StaticResource NavyText}"
+                  VerticalOptions="Start"/>
+
+                </HorizontalStackLayout>
+            </Border>
+
+
+
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

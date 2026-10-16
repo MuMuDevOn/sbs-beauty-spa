@@ -1,6 +1,4 @@
 /**
- * shop.js
- * -----------------------------------------------------------------------
  * This file handles the retail shop (products, cart, orders).
  *
  * How it's split:

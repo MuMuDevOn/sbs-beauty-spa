@@ -1,23 +1,5 @@
 /**
- * adminServices.js
- * -----------------------------------------------------------------------
  * This file handles full CRUD for the Service catalog.
- *
- * The services managed here are the SAME services that getAvailableSlots
- * and createBooking read from. So the validation done here (positive
- * duration, non-negative price, deposit never exceeding price) is what
- * keeps the availability engine from getting bad data.
- *
- * Note on deleteService:
- *   It's a hard delete, but guarded. It refuses if the service has any
- *   pending/confirmed bookings that use it as the primary service.
- *   In that case, you should DEACTIVATE instead of delete.
- *
- *   (Note: the guard only checks the primary `serviceId` field. A service
- *   used only as someone's add-on wouldn't be caught. That's why
- *   deactivating is the safer everyday tool, and deleting is only for
- *   cleanup of something that was never actually used.)
- * -----------------------------------------------------------------------
  */
 
 const { onCall, HttpsError } = require("firebase-functions/v2/https");

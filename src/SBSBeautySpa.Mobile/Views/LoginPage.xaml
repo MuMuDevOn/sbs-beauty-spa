@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:SBSBeautySpa.Mobile.ViewModels"
+             x:Class="SBSBeautySpa.Mobile.Views.LoginPage"
+             x:DataType="vm:LoginViewModel"
+             Shell.NavBarIsVisible="False"
+             Title="LoginPage">
+
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Color="#111827" Offset="0.00"/>
+                <GradientStop Color="#1B2A4A" Offset="0.07"/>
+                <GradientStop Color="#4D6893" Offset="0.34"/>
+                <GradientStop Color="#7C93C4" Offset="0.74"/>
+                <GradientStop Color="#9FBCE5" Offset="0.95"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <ScrollView>
+            <VerticalStackLayout Padding="24,50,24,30" Spacing="0">
+
+                <Image Source="logo.png"
+                       HeightRequest="140"
+                       WidthRequest="260"
+                       Aspect="AspectFit"
+                       HorizontalOptions="Center"/>
+
+                <!-- Logo + Tagline -->
+                <Label Text="SBS Beauty Spa"
+                       FontSize="32"
+                       FontAttributes="Bold"
+                       TextColor="White"
+                       HorizontalOptions="Center"/>
+                <Label Text="Nails • Lashes • Press-Ons"
+                       FontSize="14"
+                       TextColor="LightGray"
+                       HorizontalOptions="Center"/>
+
+                <!-- Tabs -->
+                <Grid ColumnDefinitions="*,*" Margin="0,20,0,0">
+                    <Button Text="Log In"
+                            BackgroundColor="White"
+                            TextColor="Black"
+                            CornerRadius="10"
+                            Grid.Column="0"/>
+                    <Button Text="Sign Up"
+                            BackgroundColor="#2563EB"
+                            TextColor="White"
+                            CornerRadius="10"
+                            Grid.Column="1"
+                            Clicked="OnSignUpClicked"/>
+                </Grid>
+
+                <!-- Login Card -->
+                <Frame BackgroundColor="White"
+                       CornerRadius="20"
+                       Padding="25"
+                       Margin="0,20,0,0"
+                       HasShadow="True">
+
+                    <VerticalStackLayout Spacing="15">
+
+                        <Label Text="Welcome back!"
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               TextColor="#0F172A"/>
+                        <Label Text="Log in to manage your appointments"
+                               FontSize="14"
+                               TextColor="Gray"/>
+
+                        <!-- Email -->
+                        <Entry Placeholder="Email Address"
+                               Keyboard="Email"
+                               PlaceholderColor="Gray"
+                               TextColor="Black"
+                               Text="{Binding Email}"/>
+
+                        <!-- Password -->
+                        <Entry Placeholder="Password"
+                               IsPassword="True"
+                               PlaceholderColor="Gray"
+                               TextColor="Black"
+                               Text="{Binding Password}"/>
+
+                        <!-- Error Message -->
+                        <Label Text="{Binding ErrorMessage}"
+                               TextColor="Red"
+                               FontSize="13"
+                               IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNull}}"/>
+
+                        <!-- Forgot Password -->
+                        <Label Text="Forgot password?"
+                               TextColor="#2563EB"
+                               FontSize="14"
+                               HorizontalOptions="End"/>
+
+                        <!-- Login Button -->
+                        <Button Text="Log In"
+                                BackgroundColor="#2563EB"
+                                TextColor="White"
+                                CornerRadius="15"
+                                FontAttributes="Bold"
+                                Command="{Binding LoginCommand}"/>
+
+                        <!-- Loading Indicator -->
+                        <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                           IsVisible="{Binding IsBusy}"
+                                           Color="#2563EB"
+                                           HorizontalOptions="Center"/>
+
+                        <!-- Sign Up Link -->
+                        <HorizontalStackLayout HorizontalOptions="Center">
+                            <Label Text="Don't have an account?"
+                                   TextColor="Gray"/>
+                            <Label Text=" Sign Up"
+                                   TextColor="#2563EB"
+                                   FontAttributes="Bold">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnSignUpTapped"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </Frame>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

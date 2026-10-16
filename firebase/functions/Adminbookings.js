@@ -1,20 +1,11 @@
 /**
  * adminBookings.js
- * -----------------------------------------------------------------------
- * This file handles the one write an admin needs on a booking:
- * moving its status forward.
- *
- * IMPORTANT: This is NOT a generic "update this booking" function.
- * Only specific, validated transitions are allowed. This means an admin
- * client can't accidentally (or maliciously, if compromised) push a
- * booking into a nonsensical state.
- *
  * Note on cancellation:
  *   Cancelling a booking needs no extra work to free up the slot.
  *   getAvailableSlots already only counts bookings with status
  *   "pending" or "confirmed" as occupying time. So a "cancelled"
  *   booking just stops being counted on the next call.
- * -----------------------------------------------------------------------
+ 
  */
 
 const { onCall, HttpsError } = require("firebase-functions/v2/https");

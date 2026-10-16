@@ -1,29 +1,12 @@
 /**
- * availability.js
- * -----------------------------------------------------------------------
  * This file handles two things:
  *   1. getAvailableSlots — figuring out which time slots are free
  *   2. createBooking — actually creating a booking
- *
- * Why this lives on the server (not the app):
- *   1. The app never has a fixed list of times. Every call asks the
- *      server "what's free right now?" and gets a fresh answer.
- *   2. "Now" means the SERVER's clock (Google's time servers), not the
- *      phone's clock. The phone's time could be wrong or faked, so we
- *      never trust it for deciding if a slot is bookable.
- *   3. luxon (a date library) handles all the time math — no manual
- *      string work, no time zone bugs.
- *
  * This file reads from these Firestore collections:
  *   - services
  *   - businessHours
  *   - blockedTime
  *   - bookings
- *
- * Note: getAvailableSlots and createBooking share the same real logic
- * (computeAvailableSlots). We don't have one Cloud Function call another —
- * that's not a supported pattern. Both just call the shared function.
- * -----------------------------------------------------------------------
  */
 
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
