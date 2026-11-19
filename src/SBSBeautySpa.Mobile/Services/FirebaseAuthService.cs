@@ -31,7 +31,7 @@ namespace SBSBeautySpa.Mobile.Services
         private string? _idToken;
         private string? _refreshToken;
         private string? _uid;
-        private DateTime _expiresAtUtc = DateTime.MinValue;
+        private DateTime _expiresAtUtc = new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         public FirebaseAuthService(HttpClient http) => _http = http;
 
@@ -58,6 +58,14 @@ namespace SBSBeautySpa.Mobile.Services
             {
                 // SecureStorage can fail if the device keystore is reset.
                 Debug.WriteLine(ex);
+                await ClearSessionAsync();
+                return;
+            }
+
+            // Sessions that never went through the emailed-code step (e.g. from before
+            // it existed) are signed out, so the person logs in again with a code.
+            if (IsSignedIn && !HasMfaClaim(_idToken))
+            {
                 await ClearSessionAsync();
             }
         }
@@ -99,8 +107,9 @@ namespace SBSBeautySpa.Mobile.Services
                     return new AuthResult(false, "Couldn't log in. Please try again.");
                 }
 
-                await StartSessionAsync(body.IdToken, body.RefreshToken, body.LocalId, body.ExpiresIn);
-                return new AuthResult(true);
+                // Password is right - but the session only starts once the emailed code is entered.
+                _pending = new PendingSession(body.IdToken, body.RefreshToken, body.LocalId, body.ExpiresIn, email);
+                return new AuthResult(true, null, "code");
             }
             catch (HttpRequestException ex)
             {
@@ -129,11 +138,38 @@ namespace SBSBeautySpa.Mobile.Services
                     return new AuthResult(false, "Couldn't create your account. Please try again.");
                 }
 
-                await StartSessionAsync(body.IdToken, body.RefreshToken, body.LocalId, body.ExpiresIn);
+                // The session only starts once the email address is verified.
+                _pending = new PendingSession(body.IdToken, body.RefreshToken, body.LocalId, body.ExpiresIn, email);
 
                 // Best-effort follow-ups — account is created either way
                 await TrySetDisplayNameAsync(body.IdToken, name);
                 await TryCreateProfileDocAsync(body.LocalId, body.IdToken, name, email, phone);
+
+                // Send the verification link to their inbox (they can resend from the next screen)
+                await SendVerificationEmailAsync();
+
+                return new AuthResult(true, null, "verify-email");
+            }
+            catch (HttpRequestException ex)
+            {
+                Debug.WriteLine(ex);
+                return new AuthResult(false, "Couldn't connect. Check your internet connection.");
+            }
+        }
+
+        // Emails a password-reset link. Firebase sends the email itself.
+        public async Task<AuthResult> SendPasswordResetAsync(string email)
+        {
+            try
+            {
+                using var response = await _http.PostAsJsonAsync(
+                    $"{AccountsUrl}:sendOobCode?key={WebApiKey}",
+                    new { requestType = "PASSWORD_RESET", email });
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return new AuthResult(false, await ReadFriendlyErrorAsync(response));
+                }
 
                 return new AuthResult(true);
             }
@@ -190,11 +226,9 @@ namespace SBSBeautySpa.Mobile.Services
                     return new AuthResult(false, await ReadFriendlyErrorAsync(response));
                 }
 
-                var body = await response.Content.ReadFromJsonAsync<SessionResponse>();
-                if (body is not null)
-                {
-                    await StartSessionAsync(body.IdToken, body.RefreshToken, body.LocalId, body.ExpiresIn);
-                }
+                // A new password ends every old login, so the person logs in again
+                // (with the emailed code) using the new password.
+                await ClearSessionAsync();
 
                 return new AuthResult(true);
             }
@@ -227,9 +261,14 @@ namespace SBSBeautySpa.Mobile.Services
                 }
 
                 var body = await response.Content.ReadFromJsonAsync<SessionResponse>();
-                if (body is not null)
+                if (body is not null && HasMfaClaim(body.IdToken))
                 {
                     await StartSessionAsync(body.IdToken, body.RefreshToken, body.LocalId, body.ExpiresIn);
+                }
+                else
+                {
+                    // Keep the current session; the new name shows up after the next token refresh.
+                    await ForceRefreshAsync();
                 }
 
                 return new AuthResult(true);
@@ -239,6 +278,200 @@ namespace SBSBeautySpa.Mobile.Services
                 Debug.WriteLine(ex);
                 return new AuthResult(false, "Couldn't connect. Check your internet connection.");
             }
+        }
+
+        // -----------------------------------------------------------------
+        // Two-step sign-in + sign-up email verification
+        // -----------------------------------------------------------------
+
+        private record PendingSession(string IdToken, string RefreshToken, string Uid, string ExpiresIn, string Email);
+
+        private PendingSession? _pending;
+
+        public string? PendingEmail => _pending?.Email;
+
+        public bool HasPendingSession => _pending is not null && !IsSignedIn;
+
+        public void CancelPending() => _pending = null;
+
+        public async Task<AuthResult> SendLoginCodeAsync()
+        {
+            if (_pending is null) return new AuthResult(false, "Please log in again.");
+            return await CallFunctionAsync("sendLoginCode", new { }, _pending.IdToken);
+        }
+
+        public async Task<AuthResult> VerifyLoginCodeAsync(string code)
+        {
+            var pending = _pending;
+            if (pending is null) return new AuthResult(false, "Please log in again.");
+
+            var result = await CallFunctionAsync("verifyLoginCode", new { code }, pending.IdToken);
+            if (!result.Success) return result;
+
+            await StartSessionAsync(pending.IdToken, pending.RefreshToken, pending.Uid, pending.ExpiresIn);
+
+            // Get a fresh token that carries the new "mfaAt" stamp.
+            // Only forget the pending login once it fully worked, so a retry is possible.
+            var finished = await FinishWithFreshTokenAsync();
+            if (finished.Success) _pending = null;
+            return finished;
+        }
+
+        public async Task<AuthResult> SendVerificationEmailAsync()
+        {
+            try
+            {
+                var idToken = _pending?.IdToken ?? await GetIdTokenAsync();
+                if (string.IsNullOrEmpty(idToken)) return new AuthResult(false, "Please log in again.");
+
+                using var response = await _http.PostAsJsonAsync(
+                    $"{AccountsUrl}:sendOobCode?key={WebApiKey}",
+                    new { requestType = "VERIFY_EMAIL", idToken });
+
+                if (!response.IsSuccessStatusCode)
+                    return new AuthResult(false, await ReadFriendlyErrorAsync(response));
+
+                return new AuthResult(true);
+            }
+            catch (HttpRequestException ex)
+            {
+                Debug.WriteLine(ex);
+                return new AuthResult(false, "Couldn't connect. Check your internet connection.");
+            }
+        }
+
+        public async Task<AuthResult> CompleteEmailVerificationAsync()
+        {
+            var pending = _pending;
+            if (pending is null) return new AuthResult(false, "Please log in again.");
+
+            try
+            {
+                using var response = await _http.PostAsJsonAsync(
+                    $"{AccountsUrl}:lookup?key={WebApiKey}",
+                    new { idToken = pending.IdToken });
+
+                if (!response.IsSuccessStatusCode)
+                    return new AuthResult(false, await ReadFriendlyErrorAsync(response));
+
+                using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+                var verified =
+                    doc.RootElement.TryGetProperty("users", out var users) &&
+                    users.GetArrayLength() > 0 &&
+                    users[0].TryGetProperty("emailVerified", out var flag) &&
+                    flag.ValueKind == JsonValueKind.True;
+
+                if (!verified)
+                    return new AuthResult(false, "We can't see the verification yet. Open the link in your email first, then tap again.");
+
+                // The server confirms it and stamps the account (no login code needed right after sign-up).
+                var granted = await CallFunctionAsync("completeEmailSignup", new { }, pending.IdToken);
+                if (!granted.Success) return granted;
+
+                await StartSessionAsync(pending.IdToken, pending.RefreshToken, pending.Uid, pending.ExpiresIn);
+                var finished = await FinishWithFreshTokenAsync();
+                if (finished.Success) _pending = null;
+                else Debug.WriteLine("[completeEmailSignup] finish failed: " + finished.ErrorMessage);
+                return finished;
+            }
+            catch (HttpRequestException ex)
+            {
+                Debug.WriteLine(ex);
+                return new AuthResult(false, "Couldn't connect. Check your internet connection.");
+            }
+        }
+
+        // Refreshes the token right away and checks it carries the emailed-code stamp.
+        private async Task<AuthResult> FinishWithFreshTokenAsync()
+        {
+            await ForceRefreshAsync();
+
+            if (!IsSignedIn || !HasMfaClaim(_idToken))
+            {
+                await ClearSessionAsync();
+                return new AuthResult(false, "We couldn't finish logging you in. Please try again.");
+            }
+
+            return new AuthResult(true);
+        }
+
+        private async Task ForceRefreshAsync()
+        {
+            _expiresAtUtc = DateTime.UtcNow.AddDays(-1);
+            await RefreshAsync();
+        }
+
+        // True when the token has "mfaAt" at least as new as the sign-in time ("auth_time").
+        private static bool HasMfaClaim(string? idToken)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(idToken)) return false;
+
+                var parts = idToken.Split('.');
+                if (parts.Length < 2) return false;
+
+                var payload = parts[1].Replace('-', '+').Replace('_', '/');
+                payload = payload.PadRight(payload.Length + (4 - payload.Length % 4) % 4, '=');
+
+                using var doc = JsonDocument.Parse(Convert.FromBase64String(payload));
+                var root = doc.RootElement;
+
+                return root.TryGetProperty("mfaAt", out var mfa) && mfa.TryGetInt64(out var mfaAt)
+                    && root.TryGetProperty("auth_time", out var auth) && auth.TryGetInt64(out var authTime)
+                    && mfaAt >= authTime;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        // Calls one of our Cloud Functions with an explicit token (the person isn't signed in yet).
+        private async Task<AuthResult> CallFunctionAsync(string functionName, object data, string idToken)
+        {
+            try
+            {
+                using var request = new HttpRequestMessage(HttpMethod.Post, $"{CallableFunctionClient.FunctionsBaseUrl}/{functionName}")
+                {
+                    Content = JsonContent.Create(new { data }),
+                };
+                request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", idToken);
+
+                using var response = await _http.SendAsync(request);
+                if (response.IsSuccessStatusCode) return new AuthResult(true);
+
+                var raw = await response.Content.ReadAsStringAsync();
+                Debug.WriteLine($"[{functionName}] HTTP {(int)response.StatusCode}: {raw}");
+                var friendly = ReadFunctionMessage(raw);
+                return new AuthResult(false, friendly == "Something went wrong. Please try again."
+                    ? $"Something went wrong (code {(int)response.StatusCode}). Please try again."
+                    : friendly);
+            }
+            catch (HttpRequestException ex)
+            {
+                Debug.WriteLine(ex);
+                // TEMPORARY detail while debugging
+                return new AuthResult(false, $"Couldn't connect ({functionName}): {ex.Message}");
+            }
+        }
+
+        private static string ReadFunctionMessage(string raw)
+        {
+            try
+            {
+                using var doc = JsonDocument.Parse(raw);
+                if (doc.RootElement.TryGetProperty("error", out var error) &&
+                    error.TryGetProperty("message", out var message))
+                {
+                    var text = message.GetString();
+                    if (!string.IsNullOrWhiteSpace(text)) return text!;
+                }
+            }
+            catch (JsonException)
+            {
+            }
+            return "Something went wrong. Please try again.";
         }
 
         // -----------------------------------------------------------------
@@ -271,7 +504,7 @@ namespace SBSBeautySpa.Mobile.Services
             _idToken = null;
             _refreshToken = null;
             _uid = null;
-            _expiresAtUtc = DateTime.MinValue;
+            _expiresAtUtc = DateTime.UtcNow.AddDays(-1);
 
             try
             {

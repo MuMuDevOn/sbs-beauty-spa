@@ -7,7 +7,7 @@
  *     at the uploaded images.
  */
 
-const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const { onCall, HttpsError } = require("./secure");
 const admin = require("firebase-admin");
 const { logDeletion } = require("./Deletionlog");
 

@@ -15,6 +15,8 @@ namespace SBSBeautySpa.Mobile.Services
         Task<List<AdminUser>> ListAdminsAsync(CancellationToken ct = default);
         Task SetAdminAsync(string targetUid, bool makeAdmin, CancellationToken ct = default);
         Task SetSuperAdminAsync(string targetUid, bool makeSuperAdmin, CancellationToken ct = default);
+
+        Task AddStaffByEmailAsync(string email, CancellationToken ct = default);
     }
 
     // This class talks to the server about admin accounts.
@@ -35,7 +37,7 @@ namespace SBSBeautySpa.Mobile.Services
 
         // The base web address of your deployed Cloud Functions.
         // Replace this with your real URL after deploying.
-        private const string FunctionsBaseUrl = "https://<region>-<project-id>.cloudfunctions.net";
+        private const string FunctionsBaseUrl = "https://us-central1-sbs-beauty-spa.cloudfunctions.net";
 
         public AdminUsersService(HttpClient http, IFirebaseAuthService auth)
         {
@@ -59,6 +61,8 @@ namespace SBSBeautySpa.Mobile.Services
         // Gives or removes the "SuperAdmin" role for a user.
         public Task SetSuperAdminAsync(string targetUid, bool makeSuperAdmin, CancellationToken ct = default) =>
             PostCallableAsync<object>("setSuperAdminClaim", new { data = new { targetUid, makeSuperAdmin } }, ct);
+        public Task AddStaffByEmailAsync(string email, CancellationToken ct = default) =>
+    PostCallableAsync<object>("addStaffByEmail", new { data = new { email } }, ct);
 
         // This helper method sends a POST request to the server and reads the response.
         // Same pattern as every other service in this app.
@@ -83,7 +87,19 @@ namespace SBSBeautySpa.Mobile.Services
             using var response = await _http.SendAsync(request, ct);
 
             // Throw an error if the server returned a failure status code.
-            response.EnsureSuccessStatusCode();
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                string msg = errorBody;
+                try
+                {
+                    using var d = System.Text.Json.JsonDocument.Parse(errorBody);
+                    if (d.RootElement.TryGetProperty("error", out var er) && er.TryGetProperty("message", out var m))
+                        msg = m.GetString() ?? errorBody;
+                }
+                catch { }
+                throw new InvalidOperationException(msg);
+            }
 
             // Read the JSON response and turn it into the expected object.
             var body = await response.Content.ReadFromJsonAsync<TEnvelope>(cancellationToken: ct);

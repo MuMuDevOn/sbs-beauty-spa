@@ -37,10 +37,18 @@ namespace SBSBeautySpa.Mobile.Services
 
             // Revenue this month: only bookings CREATED this month
             var startOfMonth = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1, 0, 0, 0, DateTimeKind.Utc);
-            var revenue = allBookings
-                .Where(b => b.CreatedAt.HasValue && b.CreatedAt.Value >= startOfMonth)
-                .Where(b => b.Status == BookingStatus.Confirmed || b.Status == BookingStatus.Completed)
-                .Sum(b => b.DepositAmount);
+            // Service money = what clients ACTUALLY paid online this month (deposit or full amount).
+            // If the payments can't be read, fall back to the old method (deposit amounts only).
+            var serviceRevenue = await GetServiceRevenueSinceAsync(startOfMonth, ct)
+                ?? allBookings
+                    .Where(b => b.CreatedAt.HasValue && b.CreatedAt.Value >= startOfMonth)
+                    .Where(b => b.Status == BookingStatus.Confirmed || b.Status == BookingStatus.Completed)
+                    .Sum(b => b.DepositAmount);
+
+            // Shop sales this month: paid product orders (the products only, not delivery).
+            var productRevenue = await GetProductRevenueSinceAsync(startOfMonth, ct);
+
+            var revenue = serviceRevenue + productRevenue;
 
             // Recent bookings: 5 most recent by creation date
             var recent = allBookings
@@ -77,25 +85,147 @@ namespace SBSBeautySpa.Mobile.Services
             return bookings;
         }
 
-       
+
         // Firestore reads
-      
+
 
         private async Task<List<Booking>> GetAllBookingsAsync(CancellationToken ct)
         {
-            var request = await BuildRequestAsync(
-                $"{BaseUrl}/{DocumentsPath}/bookings", ct);
+            var all = new List<Booking>();
+            string? pageToken = null;
 
-            var response = await _http.SendAsync(request, ct);
-            if (!response.IsSuccessStatusCode) return new List<Booking>();
+            // Firestore returns documents in pages (20 by default), so keep asking for the next page.
+            do
+            {
+                var url = $"{BaseUrl}/{DocumentsPath}/bookings?pageSize=300";
+                if (pageToken is not null) url += $"&pageToken={Uri.EscapeDataString(pageToken)}";
 
-            var json = await response.Content.ReadAsStringAsync(ct);
-            using var doc = JsonDocument.Parse(json);
+                var request = await BuildRequestAsync(url, ct);
+                var response = await _http.SendAsync(request, ct);
+                var json = await response.Content.ReadAsStringAsync(ct);
 
-            if (!doc.RootElement.TryGetProperty("documents", out var documents))
-                return new List<Booking>();
+                // A failed request must NOT look like "no bookings", so say what went wrong.
+                if (!response.IsSuccessStatusCode)
+                    throw new InvalidOperationException($"Firestore said {(int)response.StatusCode}: {json}");
 
-            return documents.EnumerateArray().Select(MapBooking).ToList();
+                using var doc = JsonDocument.Parse(json);
+
+                if (doc.RootElement.TryGetProperty("documents", out var documents))
+                    all.AddRange(documents.EnumerateArray().Select(MapBooking));
+
+                pageToken = doc.RootElement.TryGetProperty("nextPageToken", out var next) ? next.GetString() : null;
+            }
+            while (pageToken is not null);
+
+            return all;
+        }
+
+        // Money clients paid for BOOKINGS since "since": every completed online payment
+        // (a deposit, a full payment or a balance), so a client who paid in full counts in full.
+        // The balance a client pays in the spa on the day is not recorded in the app, so it isn't here.
+        // Returns null if the payments couldn't be read.
+        private async Task<decimal?> GetServiceRevenueSinceAsync(DateTime since, CancellationToken ct)
+        {
+            try
+            {
+                decimal total = 0;
+                string? pageToken = null;
+
+                do
+                {
+                    var url = $"{BaseUrl}/{DocumentsPath}/payments?pageSize=300";
+                    if (pageToken is not null) url += $"&pageToken={Uri.EscapeDataString(pageToken)}";
+
+                    var request = await BuildRequestAsync(url, ct);
+                    var response = await _http.SendAsync(request, ct);
+                    var json = await response.Content.ReadAsStringAsync(ct);
+
+                    if (!response.IsSuccessStatusCode)
+                        throw new InvalidOperationException($"Firestore said {(int)response.StatusCode}: {json}");
+
+                    using var doc = JsonDocument.Parse(json);
+
+                    if (doc.RootElement.TryGetProperty("documents", out var documents))
+                    {
+                        foreach (var d in documents.EnumerateArray())
+                        {
+                            if (!d.TryGetProperty("fields", out var fields)) continue;
+
+                            if (GetString(fields, "status") != "completed") continue;
+                            if (GetString(fields, "type") == "order") continue;            // shop orders are counted separately
+                            if (string.IsNullOrEmpty(GetString(fields, "bookingId"))) continue;
+
+                            var paidAt = GetTimestamp(fields, "paidAt");
+                            if (paidAt is null || paidAt.Value < since) continue;
+
+                            total += GetDecimal(fields, "amount");
+                        }
+                    }
+
+                    pageToken = doc.RootElement.TryGetProperty("nextPageToken", out var next) ? next.GetString() : null;
+                }
+                while (pageToken is not null);
+
+                return total;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex);
+                return null;
+            }
+        }
+
+        // Money from shop orders: orders that were PAID since "since", not cancelled.
+        // Adds up the products only (subtotal) - the delivery fee goes to the courier.
+        // A problem reading orders must not break the whole dashboard, so it counts as 0.
+        private async Task<decimal> GetProductRevenueSinceAsync(DateTime since, CancellationToken ct)
+        {
+            try
+            {
+                decimal total = 0;
+                string? pageToken = null;
+
+                do
+                {
+                    var url = $"{BaseUrl}/{DocumentsPath}/orders?pageSize=300";
+                    if (pageToken is not null) url += $"&pageToken={Uri.EscapeDataString(pageToken)}";
+
+                    var request = await BuildRequestAsync(url, ct);
+                    var response = await _http.SendAsync(request, ct);
+                    var json = await response.Content.ReadAsStringAsync(ct);
+
+                    if (!response.IsSuccessStatusCode)
+                        throw new InvalidOperationException($"Firestore said {(int)response.StatusCode}: {json}");
+
+                    using var doc = JsonDocument.Parse(json);
+
+                    if (doc.RootElement.TryGetProperty("documents", out var documents))
+                    {
+                        foreach (var d in documents.EnumerateArray())
+                        {
+                            if (!d.TryGetProperty("fields", out var fields)) continue;
+
+                            if (GetString(fields, "paymentStatus") != "paid") continue;
+                            if (GetString(fields, "status") == "cancelled") continue;
+
+                            var paidAt = GetTimestamp(fields, "paidAt");
+                            if (paidAt is null || paidAt.Value < since) continue;
+
+                            total += GetDecimal(fields, "subtotal");
+                        }
+                    }
+
+                    pageToken = doc.RootElement.TryGetProperty("nextPageToken", out var next) ? next.GetString() : null;
+                }
+                while (pageToken is not null);
+
+                return total;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex);
+                return 0;
+            }
         }
 
         private async Task<HttpRequestMessage> BuildRequestAsync(string url, CancellationToken ct)
@@ -110,9 +240,9 @@ namespace SBSBeautySpa.Mobile.Services
             return request;
         }
 
-        
+
         // Firestore JSON mappers
-       
+
 
         private static string GetString(JsonElement fields, string key)
         {

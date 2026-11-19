@@ -50,3 +50,8 @@ Thumbs.db
 # Logs
 *.log
 npm-debug.log*
+src/SBSBeautySpa.Mobile/AppPackages/
+src/SBSBeautySpa.Mobile/BundleArtifacts/
+*.lnk
+src/SBSBeautySpa.Mobile/await
+firebase/public/*.apk

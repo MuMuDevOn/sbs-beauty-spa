@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SBSBeautySpa.Mobile.Views.AddOnsPage"
+              Shell.NavBarIsVisible="False">
+
+    <!-- Main layout -->
+    <Grid RowDefinitions="Auto,*,Auto" Padding="20,50,20,16"
+          Background="{StaticResource PageGradient}">
+
+        <!-- Header -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*" ColumnSpacing="14">
+            <!-- Back arrow -->
+            <Image Source="backarrowicon.png" HeightRequest="28" WidthRequest="28" 
+                   VerticalOptions="Center">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackTapped" />
+                </Image.GestureRecognizers>
+            </Image>
+            <!-- Page title -->
+            <Label Grid.Column="1" Text="Add-Ons" Style="{StaticResource PageTitle}" />
+        </Grid>
+
+        <!-- Scrollable content area -->
+        <ScrollView Grid.Row="1" Margin="0,24,0,0">
+            <VerticalStackLayout Spacing="10">
+
+                <!-- Booking Summary Card -->
+                <Border Style="{StaticResource GroupCard}">
+                    <VerticalStackLayout Padding="14,12" Spacing="4">
+                        <Label x:Name="ServiceNameLabel" Text="Your service" Style="{StaticResource RowTitle}" />
+                        <Label x:Name="WhenLabel" Text="" Style="{StaticResource RowSubtitle}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Section header -->
+                <Label x:Name="SectionLabel" Text="Available Add-Ons" Style="{StaticResource CapsLabel}" Margin="0,6,0,0" />
+
+                <!-- Add-Ons Card -->
+                <Border Style="{StaticResource GroupCard}">
+                    <VerticalStackLayout>
+
+                        <!-- Add-ons are built in code from the price list, based on the service type -->
+                        <VerticalStackLayout x:Name="AddOnsList" />
+                        <BoxView Style="{StaticResource Divider}" />
+
+                        <!-- Estimated Total Row -->
+                        <Grid ColumnDefinitions="*,Auto" Padding="14,16">
+                            <Label Text="Estimated Total:" FontFamily="OpenSansSemibold" FontSize="16" TextColor="{StaticResource NavyText}" VerticalOptions="Center" />
+                            <Label x:Name="TotalLabel" Grid.Column="1" Text="+R0.00" FontFamily="OpenSansSemiBold" FontSize="20" TextColor="{StaticResource NavyText}" VerticalOptions="Center" />
+                        </Grid>
+
+                    </VerticalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Continue button-->
+        <Button Grid.Row="2" Text="Continue" Margin="0,10,0,0"
+                Style="{StaticResource PrimaryButton}" Clicked="OnContinueClicked" />
+    </Grid>
+
+</ContentPage>

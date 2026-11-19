@@ -5,24 +5,24 @@
        x:Class="SBSBeautySpa.Mobile.Views.ClientShell"
        FlyoutBehavior="Disabled"
        Shell.TabBarBackgroundColor="White"
-       Shell.TabBarForegroundColor="#111827"
-       Shell.TabBarTitleColor="#111827"
-       Shell.TabBarUnselectedColor="#9CA3AF">
+       Shell.TabBarForegroundColor="#6D3FE0"
+       Shell.TabBarTitleColor="#6D3FE0"
+       Shell.TabBarUnselectedColor="#9A93BF">
 
     <TabBar Route="Main">
-        <ShellContent Title="Home" Icon="home.png"
+        <ShellContent Title="Home" Icon="tab_home.svg"
                       Route="HomePage"
                       ContentTemplate="{DataTemplate views:HomePage}" />
-        <ShellContent Title="Booking" Icon="booking.png"
+        <ShellContent Title="Booking" Icon="tab_bookings.svg"
                       Route="BookingPage"
                       ContentTemplate="{DataTemplate views:BookingPage}" />
-        <ShellContent Title="Shop" Icon="shop.png"
+        <ShellContent Title="Shop" Icon="tab_shop.svg"
                       Route="ShopView"
                       ContentTemplate="{DataTemplate views:ShopView}" />
-        <ShellContent Title="Gallery" Icon="gallery.png"
+        <ShellContent Title="Gallery" Icon="tab_gallery.svg"
                       Route="GalleryView"
                       ContentTemplate="{DataTemplate views:GalleryView}" />
-        <ShellContent Title="Profile" Icon="profile.png"
+        <ShellContent Title="Profile" Icon="tab_profile.svg"
                       Route="ProfilePage"
                       ContentTemplate="{DataTemplate views:ProfilePage}" />
     </TabBar>

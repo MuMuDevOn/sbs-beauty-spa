@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="SBSBeautySpa.Mobile.Views.Admin.AdminAnalyticsPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             xmlns:vm="clr-namespace:SBSBeautySpa.Mobile.ViewModels.Admin"
+             xmlns:conv="clr-namespace:SBSBeautySpa.Mobile.Converters"
+             x:DataType="vm:AdminAnalyticsViewModel"
+             Shell.NavBarIsVisible="False">
+
+    <ContentPage.Resources>
+        <conv:IsNotNullConverter x:Key="IsNotNull" />
+        <conv:InvertedBoolConverter x:Key="InvertedBool" />
+
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="BackgroundColor" Value="White" />
+            <Setter Property="StrokeThickness" Value="0" />
+            <Setter Property="StrokeShape" Value="RoundRectangle 20" />
+            <Setter Property="Padding" Value="16" />
+        </Style>
+        <Style x:Key="CardTitle" TargetType="Label">
+            <Setter Property="FontFamily" Value="OpenSansSemibold" />
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="TextColor" Value="#2B1B6B" />
+        </Style>
+        <Style x:Key="Tiny" TargetType="Label">
+            <Setter Property="FontFamily" Value="OpenSansSemibold" />
+            <Setter Property="FontSize" Value="10" />
+            <Setter Property="CharacterSpacing" Value="1" />
+            <Setter Property="TextColor" Value="#6E63A6" />
+        </Style>
+        <Style x:Key="Big" TargetType="Label">
+            <Setter Property="FontFamily" Value="OpenSansSemibold" />
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="TextColor" Value="#2B1B6B" />
+        </Style>
+        <Style x:Key="Soft" TargetType="Label">
+            <Setter Property="FontFamily" Value="OpenSansRegular" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="TextColor" Value="#6E63A6" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*" Background="{StaticResource PageGradient}">
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Padding="20,50,20,6" ColumnDefinitions="Auto,*" ColumnSpacing="14">
+            <Image WidthRequest="26" HeightRequest="26" VerticalOptions="Center"
+                   mi:MauiIcon.Value="{mi:Material Icon=ArrowBack, IconColor=White}">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackTapped" />
+                </Image.GestureRecognizers>
+            </Image>
+            <Label Grid.Column="1" Text="Analytics" FontFamily="OpenSansSemibold" FontSize="24"
+                   TextColor="White" VerticalOptions="Center" />
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="20,10,20,32" Spacing="14" MaximumWidthRequest="780" HorizontalOptions="Fill">
+
+                <!-- Range -->
+                <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
+                    <Border x:Name="Chip7" Grid.Column="0" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="0,10">
+                        <Label x:Name="Label7" Text="7 days" HorizontalOptions="Center" FontFamily="OpenSansSemibold" FontSize="12" />
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding PickRangeCommand}" CommandParameter="7d" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                    <Border x:Name="Chip30" Grid.Column="1" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="0,10">
+                        <Label x:Name="Label30" Text="30 days" HorizontalOptions="Center" FontFamily="OpenSansSemibold" FontSize="12" />
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding PickRangeCommand}" CommandParameter="30d" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                    <Border x:Name="Chip12" Grid.Column="2" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="0,10">
+                        <Label x:Name="Label12" Text="12 months" HorizontalOptions="Center" FontFamily="OpenSansSemibold" FontSize="12" />
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding PickRangeCommand}" CommandParameter="12m" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                    <Border x:Name="ChipCustom" Grid.Column="3" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="0,10">
+                        <Label x:Name="LabelCustom" Text="Custom" HorizontalOptions="Center" FontFamily="OpenSansSemibold" FontSize="12" />
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding PickRangeCommand}" CommandParameter="custom" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                </Grid>
+
+                <!-- Custom dates -->
+                <Border Style="{StaticResource Card}" IsVisible="{Binding IsCustom}">
+                    <Grid ColumnDefinitions="*,*,Auto" ColumnSpacing="10">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                            <Label Text="FROM" Style="{StaticResource Tiny}" />
+                            <DatePicker Date="{Binding FromDate}" TextColor="#2B1B6B" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="2">
+                            <Label Text="TO" Style="{StaticResource Tiny}" />
+                            <DatePicker Date="{Binding ToDate}" TextColor="#2B1B6B" />
+                        </VerticalStackLayout>
+                        <Button Grid.Column="2" Text="Show" Command="{Binding LoadCommand}" VerticalOptions="End"
+                                BackgroundColor="#6D3FE0" TextColor="White" CornerRadius="14" FontFamily="OpenSansSemibold" />
+                    </Grid>
+                </Border>
+
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="White" />
+                <Label Text="{Binding ErrorMessage}" FontSize="13" TextColor="#FFD9D6" HorizontalTextAlignment="Center"
+                       IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNull}}" />
+                <Label Text="{Binding InfoMessage}" FontSize="13" TextColor="#E3DDFB" HorizontalTextAlignment="Center"
+                       IsVisible="{Binding InfoMessage, Converter={StaticResource IsNotNull}}" />
+
+                <!-- Total -->
+                <Border StrokeThickness="0" StrokeShape="RoundRectangle 24" Padding="20,18">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#F6F1FF" Offset="0.0" />
+                            <GradientStop Color="#B9A8F5" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <VerticalStackLayout Spacing="2">
+                        <Label Text="TOTAL REVENUE" Style="{StaticResource Tiny}" />
+                        <Label Text="{Binding TotalText}" FontFamily="OpenSansSemibold" FontSize="32" TextColor="#2B1B6B" />
+                        <Grid ColumnDefinitions="*,*" Margin="0,8,0,0">
+                            <VerticalStackLayout>
+                                <Label Text="SPA BOOKINGS" Style="{StaticResource Tiny}" />
+                                <Label Text="{Binding SpaText}" Style="{StaticResource Big}" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="1">
+                                <Label Text="SHOP" Style="{StaticResource Tiny}" />
+                                <Label Text="{Binding ShopText}" Style="{StaticResource Big}" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                    <Border Style="{StaticResource Card}" Padding="12">
+                        <VerticalStackLayout Spacing="3">
+                            <Label Text="PAYMENTS" Style="{StaticResource Tiny}" />
+                            <Label Text="{Binding PaymentsText}" Style="{StaticResource Big}" />
+                        </VerticalStackLayout>
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource Card}" Padding="12">
+                        <VerticalStackLayout Spacing="3">
+                            <Label Text="AVERAGE" Style="{StaticResource Tiny}" />
+                            <Label Text="{Binding AverageText}" Style="{StaticResource Big}" FontSize="15" />
+                        </VerticalStackLayout>
+                    </Border>
+                    <Border Grid.Column="2" Style="{StaticResource Card}" Padding="12">
+                        <VerticalStackLayout Spacing="3">
+                            <Label Text="PER DAY" Style="{StaticResource Tiny}" />
+                            <Label Text="{Binding PerDayText}" Style="{StaticResource Big}" FontSize="15" />
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+
+                <!-- Revenue over time -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Revenue over time" Style="{StaticResource CardTitle}" />
+                        <HorizontalStackLayout Spacing="16">
+                            <HorizontalStackLayout Spacing="6">
+                                <BoxView WidthRequest="12" HeightRequest="12" CornerRadius="3" Color="#6D3FE0" VerticalOptions="Center" />
+                                <Label Text="Spa bookings" Style="{StaticResource Soft}" />
+                            </HorizontalStackLayout>
+                            <HorizontalStackLayout Spacing="6">
+                                <BoxView WidthRequest="12" HeightRequest="12" CornerRadius="3" Color="#2F9BE0" VerticalOptions="Center" />
+                                <Label Text="Shop" Style="{StaticResource Soft}" />
+                            </HorizontalStackLayout>
+                        </HorizontalStackLayout>
+                        <GraphicsView x:Name="ColumnsView" HeightRequest="220" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Revenue split -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Where the money comes from" Style="{StaticResource CardTitle}" />
+                        <Grid ColumnDefinitions="170,*" ColumnSpacing="14">
+                            <GraphicsView x:Name="SplitView" WidthRequest="170" HeightRequest="170" />
+                            <VerticalStackLayout Grid.Column="1" Spacing="10" VerticalOptions="Center"
+                                                 BindableLayout.ItemsSource="{Binding SplitLegend}">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:LegendItem">
+                                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                                            <BoxView WidthRequest="12" HeightRequest="12" CornerRadius="3" Color="{Binding Color}" VerticalOptions="Center" />
+                                            <VerticalStackLayout Grid.Column="1">
+                                                <Label Text="{Binding Label}" Style="{StaticResource Soft}" />
+                                                <Label Text="{Binding ValueText}" Style="{StaticResource Big}" FontSize="15" />
+                                            </VerticalStackLayout>
+                                        </Grid>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Booking status -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Bookings by status" Style="{StaticResource CardTitle}" />
+                        <Grid ColumnDefinitions="170,*" ColumnSpacing="14">
+                            <GraphicsView x:Name="StatusView" WidthRequest="170" HeightRequest="170" />
+                            <VerticalStackLayout Grid.Column="1" Spacing="8" VerticalOptions="Center"
+                                                 BindableLayout.ItemsSource="{Binding StatusLegend}">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:LegendItem">
+                                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                                            <BoxView WidthRequest="12" HeightRequest="12" CornerRadius="3" Color="{Binding Color}" VerticalOptions="Center" />
+                                            <Label Grid.Column="1" Text="{Binding Label}" Style="{StaticResource Soft}" />
+                                            <Label Grid.Column="2" Text="{Binding ValueText}" Style="{StaticResource Big}" FontSize="15" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Top services -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Top services" Style="{StaticResource CardTitle}" />
+                        <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding TopServices}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="vm:TopRow">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <VerticalStackLayout>
+                                            <Label Text="{Binding Name}" FontFamily="OpenSansSemibold" FontSize="14" TextColor="#2B1B6B" />
+                                            <Label Text="{Binding Detail}" Style="{StaticResource Soft}" FontSize="12" />
+                                        </VerticalStackLayout>
+                                        <Label Grid.Column="1" Text="{Binding RevenueText}" Style="{StaticResource Big}" FontSize="15" VerticalOptions="Center" />
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Top products -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Top products" Style="{StaticResource CardTitle}" />
+                        <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding TopProducts}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="vm:TopRow">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <VerticalStackLayout>
+                                            <Label Text="{Binding Name}" FontFamily="OpenSansSemibold" FontSize="14" TextColor="#2B1B6B" />
+                                            <Label Text="{Binding Detail}" Style="{StaticResource Soft}" FontSize="12" />
+                                        </VerticalStackLayout>
+                                        <Label Grid.Column="1" Text="{Binding RevenueText}" Style="{StaticResource Big}" FontSize="15" VerticalOptions="Center" />
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Excel -->
+                <Button Text="Export to Excel" Command="{Binding ExportCommand}"
+                        IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBool}}"
+                        BackgroundColor="White" TextColor="#4A35B0" CornerRadius="16" HeightRequest="52"
+                        FontFamily="OpenSansSemibold" FontSize="15" />
+                <Label Text="The Excel file has a summary, revenue per day or month, every payment, shop orders and best sellers."
+                       Style="{StaticResource Soft}" FontSize="12" TextColor="#E3DDFB" HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

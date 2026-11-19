@@ -6,55 +6,49 @@
              x:DataType="vm:GetStartedViewModel"
              Shell.NavBarIsVisible="False">
 
-    <Grid Padding="24,60,24,40"
+    <!-- Same purple / blue / white theme as the Home, Services, Login and Sign Up pages -->
+    <Grid Background="{StaticResource PageGradient}" Padding="24,60,24,40"
           RowDefinitions="Auto,*,Auto">
-
-        <Grid.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                <GradientStop Color="#111827" Offset="0.00"/>
-                <GradientStop Color="#1B2A4A" Offset="0.07"/>
-                <GradientStop Color="#4D6893" Offset="0.34"/>
-                <GradientStop Color="#7C93C4" Offset="0.74"/>
-                <GradientStop Color="#9FBCE5" Offset="0.95"/>
-            </LinearGradientBrush>
-        </Grid.Background>
 
         <VerticalStackLayout Grid.Row="0" Spacing="0" HorizontalOptions="Center">
 
-            <Image Source="logo.png"
+            <!-- The logo starts off-screen on the left and rolls into place (see GetStartedPage.xaml.cs) -->
+            <Image x:Name="LogoImage"
+                   Source="logo.png"
                    HeightRequest="140"
                    WidthRequest="260"
                    Aspect="AspectFit"
-                   HorizontalOptions="Center"/>
+                   HorizontalOptions="Center"
+                   Opacity="0"/>
 
-            <Label Text="Nails • Lashes • Press-Ons"
-                   TextColor="#DCE8F5"
+            <Label x:Name="TaglineLabel"
+                   Text="Nails • Lashes • Press-Ons"
+                   TextColor="#E3DDFB"
+                   FontFamily="OpenSansRegular"
                    FontSize="20"
                    Margin="0,18,0,20"
-                   HorizontalOptions="Center"/>
+                   HorizontalOptions="Center"
+                   Opacity="0"/>
         </VerticalStackLayout>
 
+        <!-- Get Started button: purple to blue, same as the Log In / Create Account buttons -->
         <Border Grid.Row="2"
                 Stroke="Transparent"
-                StrokeShape="RoundRectangle 24"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 28"
                 HeightRequest="56"
-                HorizontalOptions="Fill">
+                HorizontalOptions="Fill"
+                Background="{StaticResource NavyButtonGradient}">
+            <Border.Shadow>
+                <Shadow Brush="Black" Opacity="0.25" Radius="14" Offset="0,6" />
+            </Border.Shadow>
 
-            <Border.Background>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                    <GradientStop Color="#111827" Offset="0.05"/>
-                    <GradientStop Color="#162139" Offset="0.19"/>
-                    <GradientStop Color="#34496F" Offset="0.92"/>
-                </LinearGradientBrush>
-            </Border.Background>
-
-            <!-- Now uses a Command instead of Clicked -->
             <Button Text="Get Started"
                     Command="{Binding ContinueCommand}"
                     BackgroundColor="Transparent"
                     TextColor="White"
-                    FontAttributes="Bold"
-                    FontSize="16"/>
+                    FontFamily="OpenSansSemibold"
+                    FontSize="17"/>
         </Border>
     </Grid>
 

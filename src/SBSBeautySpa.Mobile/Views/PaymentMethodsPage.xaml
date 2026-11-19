@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              x:Class="SBSBeautySpa.Mobile.Views.PaymentMethodsPage"
              Shell.NavBarIsVisible="False">
 
-    <Grid RowDefinitions="Auto,*,Auto" Padding="20,50,20,16"
+    <Grid RowDefinitions="Auto,*" Padding="20,50,20,16"
           Background="{StaticResource PageGradient}">
 
         <!-- Header: Back arrow + page title -->
         <Grid Grid.Row="0" ColumnDefinitions="Auto,*" ColumnSpacing="14">
-            <Label Text="←" FontSize="28" TextColor="White" VerticalOptions="Center">
-                <Label.GestureRecognizers>
+            <Image WidthRequest="26" HeightRequest="26" VerticalOptions="Center"
+                   mi:MauiIcon.Value="{mi:Material Icon=ArrowBack, IconColor=White}">
+                <Image.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnBackTapped" />
-                </Label.GestureRecognizers>
-            </Label>
+                </Image.GestureRecognizers>
+            </Image>
             <Label Grid.Column="1" Text="Payment Methods" Style="{StaticResource PageTitle}" />
         </Grid>
 
@@ -21,12 +23,12 @@
         <ScrollView Grid.Row="1" Margin="0,24,0,0">
             <VerticalStackLayout Spacing="10">
 
-                <Label Text="View and manage the payment methods saved to your account."
+                <Label Text="How payments work in SBS Beauty Spa."
                        Style="{StaticResource HintText}" />
 
-                <Label Text="SAVED PAYMENT METHODS" Style="{StaticResource CapsLabel}" Margin="0,6,0,0" />
+                <Label Text="SECURE PAYMENTS" Style="{StaticResource CapsLabel}" Margin="0,6,0,0" />
 
-                <!-- Empty state card (hide when saved methods exist) -->
+                <!-- Paystack info card -->
                 <Border x:Name="EmptyState" Style="{StaticResource GroupCard}">
                     <VerticalStackLayout Padding="20,28" Spacing="8">
 
@@ -39,24 +41,28 @@
                                    HorizontalOptions="Center" VerticalOptions="Center" />
                         </Border>
 
-                        <Label Text="No saved payment methods" Margin="0,6,0,0"
+                        <Label Text="Paid securely with Paystack" Margin="0,6,0,0"
                                Style="{StaticResource RowTitle}" HorizontalOptions="Center" />
 
-                        <Label Text="You haven't added a payment method yet. Add one to keep it available for future bookings."
+                        <Label Text="When you pay for a booking or a shop order, you'll be taken to Paystack's secure payment page to enter your payment details."
                                Style="{StaticResource RowSubtitle}"
                                HorizontalTextAlignment="Center" />
 
                     </VerticalStackLayout>
                 </Border>
 
-                <Label Text="Your saved methods will appear here after you add them."
+                <Border Style="{StaticResource GroupCard}">
+                    <VerticalStackLayout Padding="20,18" Spacing="6">
+                        <Label Text="Your card details are never saved" Style="{StaticResource RowTitle}" />
+                        <Label Text="SBS Beauty Spa never sees or stores your card number. You enter your details on Paystack each time you pay."
+                               Style="{StaticResource RowSubtitle}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label Text="Need a receipt? Open the Shop and tap the receipt icon to see your purchase history and invoices."
                        Style="{StaticResource HintText}" />
 
             </VerticalStackLayout>
         </ScrollView>
-
-        <!-- Add -->
-        <Button Grid.Row="2" Text="Add payment method" Margin="0,10,0,0"
-                Style="{StaticResource PrimaryButton}" Clicked="OnAddPaymentClicked" />
     </Grid>
 </ContentPage>

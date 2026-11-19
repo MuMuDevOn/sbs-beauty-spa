@@ -88,6 +88,14 @@
                                 <TapGestureRecognizer Tapped="OnRowTapped" CommandParameter="Contact Us" />
                             </Grid.GestureRecognizers>
                         </Grid>
+                        <BoxView Style="{StaticResource Divider}" />
+                        <Grid ColumnDefinitions="*,Auto" Padding="16,14">
+                            <Label Text="Privacy Policy" Style="{StaticResource RowText}" />
+                            <Label Grid.Column="1" Style="{StaticResource Chevron}" />
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnRowTapped" CommandParameter="Privacy Policy" />
+                            </Grid.GestureRecognizers>
+                        </Grid>
                     </VerticalStackLayout>
                 </Border>
 

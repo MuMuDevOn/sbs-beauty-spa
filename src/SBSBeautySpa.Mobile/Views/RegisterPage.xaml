@@ -1,176 +1,135 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              xmlns:vm="clr-namespace:SBSBeautySpa.Mobile.ViewModels"
              x:Class="SBSBeautySpa.Mobile.Views.RegisterPage"
              x:DataType="vm:RegisterViewModel"
              Title="Sign Up"
-             BackgroundColor="#14213D"
              Shell.NavBarIsVisible="False">
 
-    <Grid>
-        <Grid.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                <GradientStop Color="#111827" Offset="0.00"/>
-                <GradientStop Color="#1B2A4A" Offset="0.07"/>
-                <GradientStop Color="#4D6893" Offset="0.34"/>
-                <GradientStop Color="#7C93C4" Offset="0.74"/>
-                <GradientStop Color="#9FBCE5" Offset="0.95"/>
-            </LinearGradientBrush>
-        </Grid.Background>
-
+    <!-- Same purple / blue / white theme as the Home and Services pages -->
+    <Grid Background="{StaticResource PageGradient}">
         <ScrollView>
-            <VerticalStackLayout Padding="24,50,24,30" Spacing="0">
+            <VerticalStackLayout x:Name="ContentColumn" Padding="24,50,24,30" Spacing="0"
+                                 HorizontalOptions="Center">
 
-                <Image Source="logo.png"
-                       HeightRequest="140"
-                       WidthRequest="260"
-                       Aspect="AspectFit"
-                       HorizontalOptions="Center"/>
+                <!-- Back arrow (same icon as the admin pages) -> back to Log In -->
+                <Grid ColumnDefinitions="Auto,*" Margin="0,0,0,4">
+                    <Image WidthRequest="26" HeightRequest="26" VerticalOptions="Center"
+                           mi:MauiIcon.Value="{mi:Material Icon=ArrowBack, IconColor=White}">
+                        <Image.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnBackTapped" />
+                        </Image.GestureRecognizers>
+                    </Image>
+                </Grid>
 
-                <Label Text="Nails • Lashes • Press-Ons"
-                       TextColor="#DCE8F5"
-                       FontSize="20"
-                       Margin="0,18,0,20"
-                       HorizontalOptions="Center"
-                       Padding="4"/>
+                <Image Source="logo.png" HeightRequest="120" WidthRequest="220"
+                       Aspect="AspectFit" HorizontalOptions="Center" />
 
-                <Border Stroke="Transparent"
-                        StrokeShape="RoundRectangle 28,28,0,0"
-                        BackgroundColor="White"
-                        Margin="-24,26,-24,-30"
-                        Padding="26,32,26,40">
+                <Label Text="Nails • Lashes • Press-Ons" TextColor="#E3DDFB" FontFamily="OpenSansRegular"
+                       FontSize="16" Margin="0,8,0,16" HorizontalOptions="Center" />
+
+                <!-- Sign-up card -->
+                <Border BackgroundColor="White" StrokeThickness="0" StrokeShape="RoundRectangle 26"
+                        Padding="24,28,24,28">
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Opacity="0.22" Radius="16" Offset="0,6" />
+                    </Border.Shadow>
                     <VerticalStackLayout Spacing="0">
 
-                        <Label Text="Create your account"
-                               FontFamily="Georgia"
-                               FontAttributes="Bold"
-                               FontSize="24"
-                               TextColor="#1B2A4A"
-                               HorizontalOptions="Center"/>
+                        <Label Text="Create your account" FontFamily="OpenSansSemibold" FontSize="24"
+                               TextColor="#2B1B6B" HorizontalOptions="Center" />
+                        <Label Text="Sign up to book your first appointment" FontSize="13" FontFamily="OpenSansRegular"
+                               TextColor="#6E63A6" Margin="0,4,0,22" HorizontalOptions="Center" />
 
-                        <Label Text="Sign up to book your first appointment"
-                               FontSize="13"
-                               TextColor="#3B5BA5"
-                               Margin="0,4,0,26"
-                               HorizontalOptions="Center"/>
-
-                        <Label Text="Name &amp; Surname"
-                               FontSize="13"
-                               TextColor="#1B2A4A"
-                               Margin="0,0,0,6"/>
-                        <Border Stroke="Transparent"
-                                StrokeShape="RoundRectangle 8"
-                                BackgroundColor="#EAF0F6"
-                                Margin="0,0,0,18"
-                                Padding="14,0"
-                                HeightRequest="46">
+                        <Label Text="Name &amp; Surname" FontSize="13" FontFamily="OpenSansSemibold" TextColor="#2B1B6B" Margin="0,0,0,6" />
+                        <Border BackgroundColor="#EFE9FF" Stroke="Transparent" StrokeThickness="0"
+                                StrokeShape="RoundRectangle 14" Margin="0,0,0,16" Padding="14,0" HeightRequest="50">
                             <Entry Text="{Binding FullName}"
-                                   BackgroundColor="Transparent"
-                                   VerticalOptions="Center"/>
+                                   TextColor="#2B1B6B" BackgroundColor="Transparent"
+                                   FontFamily="OpenSansRegular" FontSize="15" VerticalOptions="Center" />
                         </Border>
 
-                        <Label Text="Email Address"
-                               FontSize="13"
-                               TextColor="#1B2A4A"
-                               Margin="0,0,0,6"/>
-                        <Border Stroke="Transparent"
-                                StrokeShape="RoundRectangle 8"
-                                BackgroundColor="#EAF0F6"
-                                Margin="0,0,0,18"
-                                Padding="14,0"
-                                HeightRequest="46">
-                            <Entry Text="{Binding Email}"
-                                   Keyboard="Email"
-                                   BackgroundColor="Transparent"
-                                   VerticalOptions="Center"/>
+                        <Label Text="Email Address" FontSize="13" FontFamily="OpenSansSemibold" TextColor="#2B1B6B" Margin="0,0,0,6" />
+                        <Border BackgroundColor="#EFE9FF" Stroke="Transparent" StrokeThickness="0"
+                                StrokeShape="RoundRectangle 14" Margin="0,0,0,16" Padding="14,0" HeightRequest="50">
+                            <Entry Text="{Binding Email}" Keyboard="Email"
+                                   TextColor="#2B1B6B" BackgroundColor="Transparent"
+                                   FontFamily="OpenSansRegular" FontSize="15" VerticalOptions="Center" />
                         </Border>
 
-                        <Label Text="Phone number"
-                               FontSize="13"
-                               TextColor="#1B2A4A"
-                               Margin="0,0,0,6"/>
-                        <Border Stroke="Transparent"
-                                StrokeShape="RoundRectangle 8"
-                                BackgroundColor="#EAF0F6"
-                                Margin="0,0,0,18"
-                                Padding="14,0"
-                                HeightRequest="46">
-                            <Entry Text="{Binding PhoneNumber}"
-                                   Keyboard="Telephone"
-                                   BackgroundColor="Transparent"
-                                   VerticalOptions="Center"/>
+                        <Label Text="Phone number" FontSize="13" FontFamily="OpenSansSemibold" TextColor="#2B1B6B" Margin="0,0,0,6" />
+                        <Border BackgroundColor="#EFE9FF" Stroke="Transparent" StrokeThickness="0"
+                                StrokeShape="RoundRectangle 14" Margin="0,0,0,16" Padding="14,0" HeightRequest="50">
+                            <Entry Text="{Binding PhoneNumber}" Keyboard="Telephone"
+                                   TextColor="#2B1B6B" BackgroundColor="Transparent"
+                                   FontFamily="OpenSansRegular" FontSize="15" VerticalOptions="Center" />
                         </Border>
 
-                        <Label Text="Password"
-                               FontSize="13"
-                               TextColor="#1B2A4A"
-                               Margin="0,0,0,6"/>
-                        <Border Stroke="Transparent"
-                                StrokeShape="RoundRectangle 8"
-                                BackgroundColor="#EAF0F6"
-                                Margin="0,0,0,18"
-                                Padding="14,0"
-                                HeightRequest="46">
-                            <Entry Text="{Binding Password}"
-                                   IsPassword="True"
-                                   BackgroundColor="Transparent"
-                                   VerticalOptions="Center"/>
+                        <Label Text="Password" FontSize="13" FontFamily="OpenSansSemibold" TextColor="#2B1B6B" Margin="0,0,0,6" />
+                        <Border BackgroundColor="#EFE9FF" Stroke="Transparent" StrokeThickness="0"
+                                StrokeShape="RoundRectangle 14" Margin="0,0,0,16" Padding="14,0" HeightRequest="50">
+                            <Entry Text="{Binding Password}" IsPassword="True"
+                                   TextColor="#2B1B6B" BackgroundColor="Transparent"
+                                   FontFamily="OpenSansRegular" FontSize="15" VerticalOptions="Center" />
                         </Border>
 
-                        <Label Text="Password Confirmation"
-                               FontSize="13"
-                               TextColor="#1B2A4A"
-                               Margin="0,0,0,6"/>
-                        <Border Stroke="Transparent"
-                                StrokeShape="RoundRectangle 8"
-                                BackgroundColor="#EAF0F6"
-                                Margin="0,0,0,18"
-                                Padding="14,0"
-                                HeightRequest="46">
-                            <Entry Text="{Binding ConfirmPassword}"
-                                   IsPassword="True"
-                                   BackgroundColor="Transparent"
-                                   VerticalOptions="Center"/>
+                        <Label Text="At least 8 characters, with a capital letter, a small letter, a number and a special character (like ! @ # $ %)."
+                               FontSize="12" FontFamily="OpenSansRegular" TextColor="#6E63A6" Margin="0,-8,0,16" />
+
+                        <Label Text="Password Confirmation" FontSize="13" FontFamily="OpenSansSemibold" TextColor="#2B1B6B" Margin="0,0,0,6" />
+                        <Border BackgroundColor="#EFE9FF" Stroke="Transparent" StrokeThickness="0"
+                                StrokeShape="RoundRectangle 14" Margin="0,0,0,16" Padding="14,0" HeightRequest="50">
+                            <Entry Text="{Binding ConfirmPassword}" IsPassword="True"
+                                   TextColor="#2B1B6B" BackgroundColor="Transparent"
+                                   FontFamily="OpenSansRegular" FontSize="15" VerticalOptions="Center" />
                         </Border>
 
-                        <HorizontalStackLayout Margin="0,0,0,18" Spacing="8">
-                            <CheckBox IsChecked="{Binding AgreedToTerms}" Color="#2563EB"/>
-                            <Label Text="I agree to the Terms and Conditions"
-                                   TextColor="#1B2A4A"
-                                   FontSize="13"
-                                   VerticalOptions="Center"/>
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8" Margin="0,0,0,14">
+                            <CheckBox IsChecked="{Binding AgreedToTerms}" Color="#6D3FE0" />
+                            <Label Grid.Column="1" Text="I agree to the Terms and Conditions and the Privacy Policy"
+                                   TextColor="#2B1B6B" FontSize="13" VerticalOptions="Center" />
+                        </Grid>
+
+                        <!-- Tap to read the full text -->
+                        <VerticalStackLayout Margin="40,-8,0,14" Spacing="4">
+                            <Label Text="Read the Terms and Conditions" TextColor="#6D3FE0" FontSize="12"
+                                   FontFamily="OpenSansSemibold" TextDecorations="Underline">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnTermsTapped" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label Text="Read the Privacy Policy" TextColor="#6D3FE0" FontSize="12"
+                                   FontFamily="OpenSansSemibold" TextDecorations="Underline">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnPrivacyTapped" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </VerticalStackLayout>
+
+                        <Label Text="{Binding ErrorMessage}" TextColor="#D92D20" FontSize="13" Margin="0,0,0,12"
+                               IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNull}}" />
+
+                        <!-- Create Account button: purple to blue -->
+                        <Border Background="{StaticResource NavyButtonGradient}" StrokeThickness="0"
+                                StrokeShape="RoundRectangle 26" HeightRequest="52" HorizontalOptions="Fill">
+                            <Button Text="Create Account" BackgroundColor="Transparent" TextColor="White"
+                                    FontFamily="OpenSansSemibold" FontSize="16"
+                                    Command="{Binding RegisterCommand}" />
+                        </Border>
+
+                        <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                                           Color="#6D3FE0" Margin="0,12,0,0" />
+
+                        <HorizontalStackLayout HorizontalOptions="Center" Margin="0,18,0,0">
+                            <Label Text="Already have an account?" TextColor="#6E63A6" FontSize="14" />
+                            <Label Text=" Log In" TextColor="#6D3FE0" FontFamily="OpenSansSemibold" FontSize="14">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnLoginTapped" />
+                                </Label.GestureRecognizers>
+                            </Label>
                         </HorizontalStackLayout>
-
-                        <Label Text="{Binding ErrorMessage}"
-                               TextColor="Red"
-                               FontSize="13"
-                               Margin="0,0,0,12"
-                               IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNull}}"/>
-
-                        <Border Stroke="Transparent"
-                                StrokeShape="RoundRectangle 24"
-                                HeightRequest="52"
-                                HorizontalOptions="Fill">
-                            <Border.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                    <GradientStop Color="#111827" Offset="0.05"/>
-                                    <GradientStop Color="#162139" Offset="0.19"/>
-                                    <GradientStop Color="#34496F" Offset="0.92"/>
-                                </LinearGradientBrush>
-                            </Border.Background>
-                            <Button Text="Create Account"
-                                    BackgroundColor="Transparent"
-                                    TextColor="White"
-                                    FontAttributes="Bold"
-                                    FontSize="16"
-                                    Command="{Binding RegisterCommand}"/>
-                        </Border>
-
-                        <ActivityIndicator IsRunning="{Binding IsBusy}"
-                                           IsVisible="{Binding IsBusy}"
-                                           Color="#2563EB"
-                                           Margin="0,10,0,0"/>
                     </VerticalStackLayout>
                 </Border>
             </VerticalStackLayout>

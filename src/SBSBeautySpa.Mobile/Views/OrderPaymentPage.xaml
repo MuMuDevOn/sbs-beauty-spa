@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="SBSBeautySpa.Mobile.Views.OrderPaymentPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             xmlns:vm="clr-namespace:SBSBeautySpa.Mobile.ViewModels"
+             xmlns:models="clr-namespace:SBSBeautySpa.Mobile.Models"
+             xmlns:conv="clr-namespace:SBSBeautySpa.Mobile.Converters"
+             x:DataType="vm:OrderPaymentViewModel"
+             BackgroundColor="White"
+             Shell.NavBarIsVisible="False">
+
+    <ContentPage.Resources>
+        <Color x:Key="DeepNavy">#1B2A4A</Color>
+        <Color x:Key="AccentBlue">#2F63E0</Color>
+        <Color x:Key="InkText">#111827</Color>
+        <Color x:Key="MutedGray">#8A93A6</Color>
+        <Color x:Key="SoftBlue">#EEF3FD</Color>
+        <Color x:Key="CardStroke">#E3E9F5</Color>
+        <LinearGradientBrush x:Key="BlueGradient" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="#1B2A4A" Offset="0.0" />
+            <GradientStop Color="#2F63E0" Offset="1.0" />
+        </LinearGradientBrush>
+        <conv:InvertedBoolConverter x:Key="InvertedBool" />
+        <conv:IsNotNullConverter x:Key="IsNotNull" />
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+        <Grid Grid.Row="0" Padding="20,44,20,10" ColumnDefinitions="Auto,*" ColumnSpacing="14">
+            <Image Grid.Column="0" WidthRequest="26" HeightRequest="26" VerticalOptions="Center"
+                   mi:MauiIcon.Value="{mi:Material Icon=ArrowBack, IconColor=#111827}">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackTapped" />
+                </Image.GestureRecognizers>
+            </Image>
+            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                <Label Text="Payment" FontSize="26" FontFamily="OpenSansSemibold" TextColor="{StaticResource InkText}" />
+                <Label Text="Review and pay securely" FontSize="13" TextColor="{StaticResource MutedGray}" />
+            </VerticalStackLayout>
+        </Grid>
+
+        <Grid Grid.Row="1" ColumnDefinitions="*,*,*" ColumnSpacing="8" Margin="20,0,20,12">
+            <Border Grid.Column="0" Padding="0,9" BackgroundColor="{StaticResource SoftBlue}" StrokeThickness="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12" />
+                </Border.StrokeShape>
+                <Label Text="DELIVERY" FontSize="11" FontFamily="OpenSansSemibold" TextColor="{StaticResource MutedGray}" HorizontalOptions="Center" />
+            </Border>
+            <Border Grid.Column="1" Padding="0,9" BackgroundColor="{StaticResource AccentBlue}" StrokeThickness="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12" />
+                </Border.StrokeShape>
+                <Label Text="PAYMENT" FontSize="11" FontFamily="OpenSansSemibold" TextColor="White" HorizontalOptions="Center" />
+            </Border>
+            <Border Grid.Column="2" Padding="0,9" BackgroundColor="{StaticResource SoftBlue}" StrokeThickness="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12" />
+                </Border.StrokeShape>
+                <Label Text="CONFIRMATION" FontSize="11" FontFamily="OpenSansSemibold" TextColor="{StaticResource MutedGray}" HorizontalOptions="Center" />
+            </Border>
+        </Grid>
+
+        <ScrollView Grid.Row="2">
+            <VerticalStackLayout Padding="16,0,16,24" Spacing="14">
+
+                <Border Padding="16" BackgroundColor="White" Stroke="{StaticResource CardStroke}" StrokeThickness="1">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="18" />
+                    </Border.StrokeShape>
+                    <Border.Shadow>
+                        <Shadow Brush="#1B2A4A" Opacity="0.10" Radius="14" Offset="0,5" />
+                    </Border.Shadow>
+                    <VerticalStackLayout Spacing="12">
+                        <VerticalStackLayout Spacing="3">
+                            <Label Text="DELIVERING TO" FontSize="11" FontFamily="OpenSansSemibold" TextColor="{StaticResource MutedGray}" />
+                            <Label Text="{Binding RecipientText}" FontSize="16" FontFamily="OpenSansSemibold" TextColor="{StaticResource InkText}" />
+                            <Label Text="{Binding AddressText}" FontSize="13" TextColor="#4B5563" />
+                        </VerticalStackLayout>
+                        <BoxView HeightRequest="1" Color="{StaticResource CardStroke}" />
+                        <VerticalStackLayout Spacing="3">
+                            <Label Text="DELIVERY OPTION" FontSize="11" FontFamily="OpenSansSemibold" TextColor="{StaticResource MutedGray}" />
+                            <Label Text="{Binding DeliveryName}" FontSize="16" FontFamily="OpenSansSemibold" TextColor="{StaticResource InkText}" />
+                            <Label Text="{Binding DeliveryDate}" FontSize="13" TextColor="#4B5563" />
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label Text="Order Summary" FontSize="18" FontFamily="OpenSansSemibold" TextColor="{StaticResource InkText}" Margin="0,6,0,0" />
+                <Border Padding="18" BackgroundColor="{StaticResource SoftBlue}" StrokeThickness="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="18" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="10">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Grid.Column="0" Text="Items" FontSize="15" TextColor="#4B5563" />
+                            <Label Grid.Column="1" Text="{Binding ItemsText}" FontSize="15" FontFamily="OpenSansSemibold" TextColor="{StaticResource InkText}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Grid.Column="0" Text="Subtotal" FontSize="15" TextColor="#4B5563" />
+                            <Label Grid.Column="1" Text="{Binding SubtotalLabel}" FontSize="15" FontFamily="OpenSansSemibold" TextColor="{StaticResource InkText}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Grid.Column="0" Text="Delivery (Courier Guy)" FontSize="15" TextColor="#4B5563" />
+                            <Label Grid.Column="1" Text="{Binding ShippingLabel}" FontSize="15" FontFamily="OpenSansSemibold" TextColor="{StaticResource InkText}" />
+                        </Grid>
+                        <BoxView HeightRequest="1" Color="#D5DEF2" />
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Grid.Column="0" Text="Total" FontSize="17" FontFamily="OpenSansSemibold" TextColor="{StaticResource InkText}" />
+                            <Label Grid.Column="1" Text="{Binding TotalLabel}" FontSize="19" FontFamily="OpenSansSemibold" TextColor="{StaticResource AccentBlue}" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource AccentBlue}" />
+                <Label Text="{Binding StatusText}" FontSize="13" TextColor="{StaticResource AccentBlue}" HorizontalTextAlignment="Center"
+                       IsVisible="{Binding StatusText, Converter={StaticResource IsNotNull}}" />
+                <Label Text="{Binding ErrorMessage}" FontSize="13" TextColor="#B3261E" HorizontalTextAlignment="Center"
+                       IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNull}}" />
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <VerticalStackLayout Grid.Row="3" Padding="16,10,16,18" BackgroundColor="White">
+            <Button Text="{Binding PayButtonText}" FontFamily="OpenSansSemibold" FontSize="16" HeightRequest="54" CornerRadius="16"
+                    Background="{StaticResource BlueGradient}" TextColor="White"
+                    IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBool}}"
+                    Command="{Binding PayCommand}" />
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

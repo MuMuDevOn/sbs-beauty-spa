@@ -4,63 +4,91 @@
              xmlns:svc="clr-namespace:SBSBeautySpa.Mobile.Services"
              xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              x:Class="SBSBeautySpa.Mobile.Views.Admin.AdminClientsPage"
-             BackgroundColor="White"
+             Background="{StaticResource PageGradient}"
              Shell.NavBarIsVisible="False">
 
-    <Grid RowDefinitions="Auto,Auto,Auto,*" Padding="20,50,20,0" RowSpacing="12">
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*" Padding="20,24,20,0" RowSpacing="12">
 
+        <!-- Header: same arrow icon as the other admin pages (white on the purple background) -->
         <HorizontalStackLayout Grid.Row="0" Spacing="14">
-            <Image WidthRequest="26" HeightRequest="26"
-                   mi:MauiIcon.Value="{mi:Material Icon=ArrowBack, IconColor=Black}">
+            <Image WidthRequest="26" HeightRequest="26" VerticalOptions="Center"
+                   mi:MauiIcon.Value="{mi:Material Icon=ArrowBack, IconColor=White}">
                 <Image.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnBackTapped"/>
                 </Image.GestureRecognizers>
             </Image>
-            <Label Text="Manage Clients" FontFamily="OpenSansSemibold" FontSize="20"
-                   TextColor="Black" VerticalOptions="Center"/>
+            <Label Text="Manage Clients"
+                   FontFamily="OpenSansSemibold" FontSize="26" TextColor="White"
+                   VerticalOptions="Center"/>
         </HorizontalStackLayout>
 
-        <Border Grid.Row="1" BackgroundColor="#F3F4F6" StrokeThickness="0"
-                StrokeShape="RoundRectangle 10" Padding="12,0" HeightRequest="44">
-            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
-                <Image Grid.Column="0" WidthRequest="18" HeightRequest="18"
-                       VerticalOptions="Center"
-                       mi:MauiIcon.Value="{mi:Material Icon=Search, IconColor=#6B7280}"/>
-                <Entry Grid.Column="1" Placeholder="Search by name, email or phone"
-                       FontSize="13" TextColor="Black" BackgroundColor="Transparent"
-                       VerticalOptions="Center" Text="{Binding SearchText}"/>
-            </Grid>
+        <!-- Search -->
+        <Border Grid.Row="1" BackgroundColor="White" StrokeThickness="0"
+                StrokeShape="RoundRectangle 22" Padding="16,0" HeightRequest="44">
+            <Entry Placeholder="Search by name, email or phone"
+                   PlaceholderColor="#8A80B8"
+                   FontFamily="OpenSansRegular" FontSize="13"
+                   TextColor="#2B1B6B" BackgroundColor="Transparent"
+                   VerticalOptions="Center" Text="{Binding SearchText}"/>
         </Border>
 
-        <Label Grid.Row="2" Text="{Binding Clients.Count, StringFormat='{0} clients'}"
-               FontSize="12" TextColor="#6B7280"/>
+        <!-- Count pill -->
+        <Border Grid.Row="2" HorizontalOptions="Start" Padding="12,5"
+                BackgroundColor="#33FFFFFF" StrokeThickness="0"
+                StrokeShape="RoundRectangle 14">
+            <Label Text="{Binding Clients.Count, StringFormat='{0} clients'}"
+                   FontFamily="OpenSansRegular" FontSize="12" TextColor="White"/>
+        </Border>
 
-        <CollectionView Grid.Row="3" ItemsSource="{Binding Clients}">
+        <!-- Loading / error (these only show if the view model has them) -->
+        <VerticalStackLayout Grid.Row="3" Spacing="6">
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                               Color="White" HeightRequest="24" WidthRequest="24"
+                               HorizontalOptions="Start"/>
+            <Label Text="{Binding ErrorMessage}"
+                   IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNull}}"
+                   FontFamily="OpenSansRegular" FontSize="12" TextColor="#FFD2D2"/>
+        </VerticalStackLayout>
+
+        <!-- Client list -->
+        <CollectionView Grid.Row="4" ItemsSource="{Binding Clients}">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="8"/>
+            </CollectionView.ItemsLayout>
+
             <CollectionView.EmptyView>
-                <Label Text="No clients found." TextColor="#9CA3AF"
-                       HorizontalOptions="Center" Margin="0,40,0,0"/>
+                <Label Text="No clients found." TextColor="White" Opacity="0.85"
+                       FontFamily="OpenSansRegular" FontSize="14"
+                       HorizontalOptions="Start" Margin="0,24,0,0"/>
             </CollectionView.EmptyView>
+
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="svc:ClientSummary">
-                    <Border BackgroundColor="White" Stroke="#E5E7EB" StrokeThickness="1"
-                            StrokeShape="RoundRectangle 10" Padding="14" Margin="0,0,0,10">
+                    <Border BackgroundColor="White" StrokeThickness="0"
+                            StrokeShape="RoundRectangle 16" Padding="16,14">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnClientTapped"/>
+                        </Border.GestureRecognizers>
                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
 
                             <VerticalStackLayout Spacing="3">
                                 <Label Text="{Binding Name, FallbackValue='(no name)'}"
-                                       FontFamily="OpenSansSemibold" FontSize="14"
-                                       TextColor="#111827"/>
-                                <Label Text="{Binding Email}" FontSize="12"
-                                       TextColor="#4B5563"/>
-                                <Label Text="{Binding PhoneNumber}" FontSize="12"
-                                       TextColor="#9CA3AF"/>
+                                       FontFamily="OpenSansSemibold" FontSize="15"
+                                       TextColor="#2B1B6B"/>
+                                <Label Text="{Binding Email}"
+                                       FontFamily="OpenSansRegular" FontSize="12"
+                                       TextColor="#6E63A6"/>
+                                <Label Text="{Binding PhoneNumber}"
+                                       FontFamily="OpenSansRegular" FontSize="12"
+                                       TextColor="#9A93BF"/>
                             </VerticalStackLayout>
 
-                            <Border Grid.Column="1" Padding="10,4"
-                                    BackgroundColor="#E5E7EB"
-                                    StrokeThickness="0" StrokeShape="RoundRectangle 6"
+                            <Border Grid.Column="1" Padding="12,4"
+                                    BackgroundColor="#EFE9FF"
+                                    StrokeThickness="0" StrokeShape="RoundRectangle 12"
                                     VerticalOptions="Start">
-                                <Label Text="Client" FontSize="11" TextColor="#4B5563"/>
+                                <Label Text="Client" FontFamily="OpenSansSemibold"
+                                       FontSize="11" TextColor="#6D3FE0"/>
                             </Border>
 
                         </Grid>

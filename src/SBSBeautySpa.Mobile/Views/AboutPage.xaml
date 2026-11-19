@@ -1,91 +1,103 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              x:Class="SBSBeautySpa.Mobile.Views.AboutPage"
              Shell.NavBarIsVisible="False">
 
+    <!-- Same purple / blue / white theme as the Home and Services pages -->
     <Grid RowDefinitions="Auto,*" Padding="20,50,20,16"
           Background="{StaticResource PageGradient}">
 
         <!-- Header: Back arrow + page title -->
         <Grid Grid.Row="0" ColumnDefinitions="Auto,*" ColumnSpacing="14">
-            <Label Text="←" FontSize="28" TextColor="White" VerticalOptions="Center">
-                <Label.GestureRecognizers>
+            <Image WidthRequest="26" HeightRequest="26" VerticalOptions="Center"
+                   mi:MauiIcon.Value="{mi:Material Icon=ArrowBack, IconColor=White}">
+                <Image.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnBackTapped" />
-                </Label.GestureRecognizers>
-            </Label>
+                </Image.GestureRecognizers>
+            </Image>
             <Label Grid.Column="1" Text="About" Style="{StaticResource PageTitle}" />
         </Grid>
 
-        <!-- Content -->
         <ScrollView Grid.Row="1" Margin="0,24,0,0">
-            <VerticalStackLayout Spacing="10">
+            <VerticalStackLayout x:Name="ContentColumn" HorizontalOptions="Center" Spacing="12">
 
-                <!-- About the app -->
-                <Label Text="ABOUT THE APP" Style="{StaticResource CapsLabel}" />
+                <Label Text="Tap a section to read it." Style="{StaticResource HintText}" />
+
                 <Border Style="{StaticResource GroupCard}">
-                    <VerticalStackLayout Padding="14,12" Spacing="6">
-                        <Label Text="Your services, in one place" Style="{StaticResource RowTitle}" />
-                        <Label Style="{StaticResource LegalBody}"
-                               Text="Browse services, make and manage bookings, explore the shop and view the gallery. Keep your profile, payment methods and notification preferences together in your account." />
+                    <VerticalStackLayout>
+                        <Grid ColumnDefinitions="*,Auto" Padding="16,16">
+                            <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                                <Label Text="About the App" Style="{StaticResource RowTitle}" />
+                                <Label Text="Background information" Style="{StaticResource RowSubtitle}" />
+                            </VerticalStackLayout>
+                            <Image x:Name="AboutChevron" Grid.Column="1" WidthRequest="26" HeightRequest="26"
+                                   VerticalOptions="Center"
+                                   mi:MauiIcon.Value="{mi:Material Icon=ExpandMore, IconColor=#6E63A6}" />
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnAboutTapped" />
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                        <VerticalStackLayout x:Name="AboutBody" IsVisible="False" Padding="16,0,16,16" Spacing="4" />
                     </VerticalStackLayout>
                 </Border>
 
-                <!-- Legal -->
-                <Label Text="LEGAL" Style="{StaticResource CapsLabel}" Margin="0,10,0,0" />
                 <Border Style="{StaticResource GroupCard}">
-                    <VerticalStackLayout Padding="16" Spacing="4">
-
-                        <Label Text="Terms and conditions" Style="{StaticResource LegalHeading}" />
-                        <Label Text="Last updated: 10/10/2026" Style="{StaticResource RowSubtitle}" />
-
-                        <Label Text="1. Introduction" Style="{StaticResource RowTitle}" Margin="0,10,0,0" />
-                        <Label Style="{StaticResource LegalBody}"
-                               Text="Welcome to SBS Beauty Spa! Our app allows you to browse beauty services and products, book appointments, make payments and manage your bookings. By using the app, you agree to these Terms and Conditions." />
-
-                        <Label Text="2. User Accounts" Style="{StaticResource RowTitle}" Margin="0,10,0,0" />
-                        <Label Style="{StaticResource LegalBody}"
-                               Text="Users must provide accurate information when creating an account and keep their login details secure. Users may not access other people's accounts or use the app for unlawful activities." />
-
-                        <Label Text="3. User Roles" Style="{StaticResource RowTitle}" Margin="0,10,0,0" />
-                        <Label Style="{StaticResource LegalBody}"
-                               Text="The app has three user roles:&#10;• Client/User: Can manage their profile, book appointments, make payments and view booking history.&#10;• Admin/Employee: Can manage appointments, availability and relevant client information.&#10;• Super Admin: The business owner, with access to employee management, user management, business reports and important settings. This account cannot be created by ordinary users or employees." />
-
-                        <Label Text="4. Bookings and Cancellations" Style="{StaticResource RowTitle}" Margin="0,10,0,0" />
-                        <Label Style="{StaticResource LegalBody}"
-                               Text="Clients are responsible for selecting the correct service, date and time. Appointments are confirmed once the app or SBS Beauty Spa confirms the booking. Please arrive on time and notify us if you need to cancel or reschedule. Any cancellation deadlines or charges will be communicated before booking. If we need to cancel an appointment, we will notify you as soon as reasonably possible." />
-
-                        <Label Text="5. Payments and Refunds" Style="{StaticResource RowTitle}" Margin="0,10,0,0" />
-                        <Label Style="{StaticResource LegalBody}"
-                               Text="Service and product prices will be communicated before payment. Some appointments may require a deposit, and any applicable conditions will be explained before booking. Refunds, cancellations and payment disputes will be handled fairly and in accordance with our applicable policies and South African law." />
-
-                        <Label Text="6. Services and Products" Style="{StaticResource RowTitle}" Margin="0,10,0,0" />
-                        <Label Style="{StaticResource LegalBody}"
-                               Text="Clients should inform us of relevant allergies or sensitivities before a beauty treatment. Nail designs shown in the app are examples, and final results may vary. For product orders, clients must provide correct delivery details. Delivery times may vary when third-party couriers are used. Please contact us if an order is missing, damaged or incorrect." />
-
-                        <Label Text="7. Notifications and Privacy" Style="{StaticResource RowTitle}" Margin="0,10,0,0" />
-                        <Label Style="{StaticResource LegalBody}"
-                               Text="We may send booking confirmations, reminders, payment updates and order notifications through the app or email. We collect personal information needed to manage accounts, appointments, payments and orders. We take reasonable steps to protect this information and handle it in accordance with South African privacy laws, including POPIA. Please also read our Privacy Policy." />
-
-                        <Label Text="8. Acceptable Use" Style="{StaticResource RowTitle}" Margin="0,10,0,0" />
-                        <Label Style="{StaticResource LegalBody}"
-                               Text="Users must not misuse the app, access restricted information or interfere with its security. We may restrict accounts involved in fraud, unauthorised access or serious misuse where reasonably necessary. We aim to keep the app available but cannot guarantee uninterrupted service." />
-
-                        <Label Text="9. Changes to These Terms" Style="{StaticResource RowTitle}" Margin="0,10,0,0" />
-                        <Label Style="{StaticResource LegalBody}"
-                               Text="SBS Beauty Spa may update these Terms and Conditions when necessary. Updated terms will be made available through the app, with the date of the latest update." />
-
-                        <Label Text="10. Governing Law" Style="{StaticResource RowTitle}" Margin="0,10,0,0" />
-                        <Label Style="{StaticResource LegalBody}"
-                               Text="These Terms and Conditions are governed by the laws of the Republic of South Africa. Clients may contact us directly to resolve any concerns or complaints." />
-
-                        <Label Text="11. Acceptance" Style="{StaticResource RowTitle}" Margin="0,10,0,0" />
-                        <Label Style="{StaticResource LegalBody}"
-                               Text="By creating an account or accepting these terms in the app, you confirm that you have read and agree to these Terms and Conditions, subject to your rights under applicable law." />
-
+                    <VerticalStackLayout>
+                        <Grid ColumnDefinitions="*,Auto" Padding="16,16">
+                            <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                                <Label Text="Terms and Conditions" Style="{StaticResource RowTitle}" />
+                                <Label Text="How using SBS Beauty Spa works" Style="{StaticResource RowSubtitle}" />
+                            </VerticalStackLayout>
+                            <Image x:Name="TermsChevron" Grid.Column="1" WidthRequest="26" HeightRequest="26"
+                                   VerticalOptions="Center"
+                                   mi:MauiIcon.Value="{mi:Material Icon=ExpandMore, IconColor=#6E63A6}" />
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnTermsTapped" />
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                        <VerticalStackLayout x:Name="TermsBody" IsVisible="False" Padding="16,0,16,16" Spacing="4" />
                     </VerticalStackLayout>
                 </Border>
 
+                <Border Style="{StaticResource GroupCard}">
+                    <VerticalStackLayout>
+                        <Grid ColumnDefinitions="*,Auto" Padding="16,16">
+                            <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                                <Label Text="Privacy Policy" Style="{StaticResource RowTitle}" />
+                                <Label Text="How we protect your information (POPIA)" Style="{StaticResource RowSubtitle}" />
+                            </VerticalStackLayout>
+                            <Image x:Name="PrivacyChevron" Grid.Column="1" WidthRequest="26" HeightRequest="26"
+                                   VerticalOptions="Center"
+                                   mi:MauiIcon.Value="{mi:Material Icon=ExpandMore, IconColor=#6E63A6}" />
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnPrivacyTapped" />
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                        <VerticalStackLayout x:Name="PrivacyBody" IsVisible="False" Padding="16,0,16,16" Spacing="4" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource GroupCard}">
+                    <VerticalStackLayout>
+                        <Grid ColumnDefinitions="*,Auto" Padding="16,16">
+                            <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                                <Label Text="Cancellation Policy" Style="{StaticResource RowTitle}" />
+                                <Label Text="Rescheduling and cancelling appointments" Style="{StaticResource RowSubtitle}" />
+                            </VerticalStackLayout>
+                            <Image x:Name="CancellationChevron" Grid.Column="1" WidthRequest="26" HeightRequest="26"
+                                   VerticalOptions="Center"
+                                   mi:MauiIcon.Value="{mi:Material Icon=ExpandMore, IconColor=#6E63A6}" />
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnCancellationTapped" />
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                        <VerticalStackLayout x:Name="CancellationBody" IsVisible="False" Padding="16,0,16,16" Spacing="4" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label x:Name="UpdatedLabel" Style="{StaticResource HintText}" Margin="4,6,0,16" />
             </VerticalStackLayout>
         </ScrollView>
     </Grid>

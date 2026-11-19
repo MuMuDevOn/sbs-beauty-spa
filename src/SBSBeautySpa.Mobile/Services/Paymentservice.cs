@@ -1,4 +1,4 @@
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using System.Text.Json.Serialization;
 
 namespace SBSBeautySpa.Mobile.Services
@@ -34,7 +34,7 @@ namespace SBSBeautySpa.Mobile.Services
 
     // This class talks to the server about payments.
     //
-    // It works the same way as AvailabilityService — a thin wrapper
+    // It works the same way as AvailabilityService â€” a thin wrapper
     // around two Cloud Functions (see firebase/functions/payments.js).
     //
     // This class NEVER:
@@ -55,7 +55,7 @@ namespace SBSBeautySpa.Mobile.Services
         // Same as the one used in AvailabilityService.
         // Example: https://us-central1-sbsbeautyspa.cloudfunctions.net
         // You must replace this with your real URL after deploying.
-        private const string FunctionsBaseUrl = "https://<region>-<project-id>.cloudfunctions.net";
+        private const string FunctionsBaseUrl = "https://us-central1-sbs-beauty-spa.cloudfunctions.net";
 
         public PaymentService(HttpClient http, IFirebaseAuthService auth)
         {
@@ -90,7 +90,7 @@ namespace SBSBeautySpa.Mobile.Services
         }
 
         // This helper method sends a POST request to the server and reads the response.
-        // Same pattern as AvailabilityService — one place to write the logic.
+        // Same pattern as AvailabilityService â€” one place to write the logic.
         private async Task<TEnvelope> PostCallableAsync<TEnvelope>(string functionName, object payload, CancellationToken ct)
         {
             // Get the user's login token so the server knows who is calling.
@@ -120,7 +120,7 @@ namespace SBSBeautySpa.Mobile.Services
         }
 
         // These small classes match the shape of the JSON the server sends back.
-        // They are called DTOs (Data Transfer Objects) — they just hold data.
+        // They are called DTOs (Data Transfer Objects) â€” they just hold data.
 
         // The full response when starting a payment.
         private class InitEnvelope

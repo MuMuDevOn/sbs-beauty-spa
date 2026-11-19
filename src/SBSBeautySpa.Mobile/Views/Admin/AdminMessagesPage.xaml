@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             x:Class="SBSBeautySpa.Mobile.Views.Admin.AdminMessagesPage"
+             Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,*" Padding="20,50,20,0"
+          Background="{StaticResource PageGradient}">
+
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*" ColumnSpacing="14">
+            <Image WidthRequest="26" HeightRequest="26" VerticalOptions="Center"
+                   mi:MauiIcon.Value="{mi:Material Icon=ArrowBack, IconColor=White}">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackTapped" />
+                </Image.GestureRecognizers>
+            </Image>
+            <Label Grid.Column="1" Text="Messages" Style="{StaticResource PageTitle}" />
+        </Grid>
+
+        <ScrollView Grid.Row="1" Margin="0,18,0,0">
+            <VerticalStackLayout x:Name="ContentColumn" Spacing="12" Padding="0,0,0,28" HorizontalOptions="Center">
+
+                <Label Text="Messages sent from the Contact Us page. Your name is shown on every reply."
+                       Style="{StaticResource HintText}" />
+
+                <!-- Filter -->
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                    <Border x:Name="AllChip" Grid.Column="0" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="0,10">
+                        <Label x:Name="AllLabel" Text="All" HorizontalOptions="Center" FontFamily="OpenSansSemibold" FontSize="13" />
+                        <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnAllTapped" /></Border.GestureRecognizers>
+                    </Border>
+                    <Border x:Name="WaitingChip" Grid.Column="1" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="0,10">
+                        <Label x:Name="WaitingLabel" Text="Waiting" HorizontalOptions="Center" FontFamily="OpenSansSemibold" FontSize="13" />
+                        <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnWaitingTapped" /></Border.GestureRecognizers>
+                    </Border>
+                    <Border x:Name="AnsweredChip" Grid.Column="2" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="0,10">
+                        <Label x:Name="AnsweredLabel" Text="Answered" HorizontalOptions="Center" FontFamily="OpenSansSemibold" FontSize="13" />
+                        <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnAnsweredTapped" /></Border.GestureRecognizers>
+                    </Border>
+                </Grid>
+
+                <ActivityIndicator x:Name="Spinner" Color="White" IsRunning="False" IsVisible="False" />
+                <Label x:Name="ErrorLabel" TextColor="#FFD7D2" FontSize="13" IsVisible="False" />
+
+                <VerticalStackLayout x:Name="MessageList" Spacing="12" />
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

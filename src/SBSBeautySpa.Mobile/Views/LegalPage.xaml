@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             x:Class="SBSBeautySpa.Mobile.Views.LegalPage"
+             Shell.NavBarIsVisible="False">
+
+    <!-- Same purple / blue / white theme as the Home and Services pages -->
+    <Grid RowDefinitions="Auto,*" Padding="20,50,20,16"
+          Background="{StaticResource PageGradient}">
+
+        <!-- Header: Back arrow + document title -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*" ColumnSpacing="14">
+            <Image WidthRequest="26" HeightRequest="26" VerticalOptions="Center"
+                   mi:MauiIcon.Value="{mi:Material Icon=ArrowBack, IconColor=White}">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackTapped" />
+                </Image.GestureRecognizers>
+            </Image>
+            <Label x:Name="TitleLabel" Grid.Column="1" Text="Terms and Conditions"
+                   Style="{StaticResource PageTitle}" />
+        </Grid>
+
+        <ScrollView Grid.Row="1" Margin="0,24,0,0">
+            <VerticalStackLayout x:Name="ContentColumn" HorizontalOptions="Center" Spacing="10">
+                <Label x:Name="UpdatedLabel" Style="{StaticResource HintText}" />
+                <Border Style="{StaticResource GroupCard}">
+                    <VerticalStackLayout x:Name="BodyStack" Padding="18,16" Spacing="4" />
+                </Border>
+                <BoxView HeightRequest="16" Color="Transparent" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

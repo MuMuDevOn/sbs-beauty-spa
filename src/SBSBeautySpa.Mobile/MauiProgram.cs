@@ -1,13 +1,13 @@
+using MauiIcons.Material;
 using Microsoft.Extensions.Logging;
 using NodaTime;
-using Syncfusion.Maui.Core.Hosting;
-using MauiIcons.Material;
+using Plugin.FirebasePushNotifications;
 using SBSBeautySpa.Mobile.Services;
 using SBSBeautySpa.Mobile.ViewModels;
 using SBSBeautySpa.Mobile.ViewModels.Admin;
 using SBSBeautySpa.Mobile.Views;
 using SBSBeautySpa.Mobile.Views.Admin;
-using Plugin.FirebasePushNotifications;
+using Syncfusion.Maui.Core.Hosting;
 
 namespace SBSBeautySpa.Mobile
 {
@@ -18,6 +18,9 @@ namespace SBSBeautySpa.Mobile
             Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(Secrets.SyncfusionLicenseKey);
 
             var builder = MauiApp.CreateBuilder();
+#if WINDOWS
+            SBSBeautySpa.Mobile.WindowsLogoFix.Register();
+#endif
 
             builder
                 .UseMauiApp<App>()
@@ -25,10 +28,10 @@ namespace SBSBeautySpa.Mobile
                 .ConfigureSyncfusionCore()
                 .ConfigureFonts(fonts =>
                 {
-                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-                    fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+                    fonts.AddFont("Poppins-Regular.ttf", "OpenSansRegular");
+                    fonts.AddFont("Poppins-Bold.ttf", "OpenSansSemibold");
                 });
-            
+
             // ---- Infrastructure ----
             builder.Services.AddSingleton<HttpClient>();
             builder.Services.AddSingleton<CallableFunctionClient>();
@@ -48,6 +51,8 @@ namespace SBSBeautySpa.Mobile
             builder.Services.AddSingleton<IBusinessSettingsService, BusinessSettingsService>();
             builder.Services.AddSingleton<IShopAdminService, ShopAdminService>();
             builder.Services.AddSingleton<IShopService, ShopService>();
+            builder.Services.AddSingleton<ICheckoutService, CheckoutService>();
+            builder.Services.AddSingleton<CheckoutSession>();
             builder.Services.AddSingleton<IGalleryAdminService, GalleryAdminService>();
             builder.Services.AddSingleton<IReviewsService, ReviewsService>();
             builder.Services.AddSingleton<IContactMessagesService, ContactMessagesService>();
@@ -55,6 +60,12 @@ namespace SBSBeautySpa.Mobile
             builder.UseFirebasePushNotifications();
             builder.Services.AddSingleton<IAdminClientsService, AdminClientsService>();
             builder.Services.AddSingleton<IUserClaimsService, UserClaimsService>();
+            builder.Services.AddSingleton<AdminInboxService>();
+            builder.Services.AddSingleton<InAppNotificationsService>();
+            builder.Services.AddTransient<AdminMessagesPage>();
+            builder.Services.AddSingleton<TrackingService>();
+            builder.Services.AddSingleton<AdminAnalyticsService>();
+            builder.Services.AddSingleton<PushTokenService>();
 
             // ---- Client ViewModels ----
             builder.Services.AddTransient<LoginViewModel>();
@@ -64,6 +75,14 @@ namespace SBSBeautySpa.Mobile
             builder.Services.AddTransient<ServicesViewModel>();
             builder.Services.AddTransient<CalendarViewModel>();
             builder.Services.AddTransient<AddOnsViewModel>();
+            builder.Services.AddTransient<RescheduleViewModel>();
+            builder.Services.AddTransient<DeliveryAddressesViewModel>();
+            builder.Services.AddTransient<AddressFormViewModel>();
+            builder.Services.AddTransient<DeliveryOptionsViewModel>();
+            builder.Services.AddTransient<OrderPaymentViewModel>();
+            builder.Services.AddTransient<PurchaseHistoryViewModel>();
+            builder.Services.AddTransient<InvoiceViewModel>();
+            builder.Services.AddTransient<OrderConfirmationViewModel>();
             builder.Services.AddTransient<BookingViewModel>();
             builder.Services.AddTransient<PaymentViewModel>();
             builder.Services.AddTransient<BookingHistoryViewModel>();
@@ -76,6 +95,10 @@ namespace SBSBeautySpa.Mobile
             builder.Services.AddTransient<PaymentMethodsViewModel>();
             builder.Services.AddTransient<NotificationsViewModel>();
             builder.Services.AddTransient<ContactUsViewModel>();
+            builder.Services.AddTransient<LoginCodeViewModel>();
+            builder.Services.AddTransient<VerifyEmailViewModel>();
+            builder.Services.AddSingleton<PlacesService>();
+            builder.Services.AddTransient<TrackOrderViewModel>();
 
             // ---- Admin ViewModels ----
             builder.Services.AddTransient<AdminDashboardViewModel>();
@@ -84,6 +107,9 @@ namespace SBSBeautySpa.Mobile
             builder.Services.AddTransient<AdminClientsViewModel>();
             builder.Services.AddTransient<AdminStaffViewModel>();
             builder.Services.AddTransient<AdminProductsViewModel>();
+            builder.Services.AddTransient<AdminClientDetailViewModel>();
+            builder.Services.AddTransient<AdminHoursViewModel>();
+            builder.Services.AddTransient<AdminAnalyticsViewModel>();
 
             // ---- Client pages ----
             builder.Services.AddTransient<GetStartedPage>();
@@ -104,6 +130,20 @@ namespace SBSBeautySpa.Mobile
             builder.Services.AddTransient<NotificationsPage>();
             builder.Services.AddTransient<ContactUsPage>();
             builder.Services.AddTransient<AboutPage>();
+            builder.Services.AddTransient<BookingReviewPage>();
+            builder.Services.AddTransient<AddOnsPage>();
+            builder.Services.AddTransient<BookingConfirmationPage>();
+            builder.Services.AddTransient<RescheduleBookingPage>();
+            builder.Services.AddTransient<DeliveryAddressesPage>();
+            builder.Services.AddTransient<AddressFormPage>();
+            builder.Services.AddTransient<DeliveryOptionsPage>();
+            builder.Services.AddTransient<OrderPaymentPage>();
+            builder.Services.AddTransient<PurchaseHistoryPage>();
+            builder.Services.AddTransient<InvoicePage>();
+            builder.Services.AddTransient<OrderConfirmationPage>();
+            builder.Services.AddTransient<LoginCodePage>();
+            builder.Services.AddTransient<VerifyEmailPage>();
+            builder.Services.AddTransient<TrackOrderPage>();
 
             // ---- Admin pages ----
             builder.Services.AddTransient<AdminDashboardPage>();
@@ -114,6 +154,8 @@ namespace SBSBeautySpa.Mobile
             builder.Services.AddTransient<AdminUploadGalleryPage>();
             builder.Services.AddTransient<AdminClientsPage>();
             builder.Services.AddTransient<AdminStaffPage>();
+            builder.Services.AddTransient<AdminClientDetailPage>();
+            builder.Services.AddTransient<AdminAnalyticsPage>();
 
 #if DEBUG
             builder.Logging.AddDebug();

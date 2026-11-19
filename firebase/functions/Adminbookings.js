@@ -8,7 +8,7 @@
  
  */
 
-const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const { onCall, HttpsError } = require("./secure");
 const admin = require("firebase-admin");
 
 // Initialize Firebase if not already done.

@@ -7,22 +7,42 @@ using SBSBeautySpa.Mobile.Services;
 
 namespace SBSBeautySpa.Mobile.ViewModels.Admin
 {
-    public record BookingStatusFilter(BookingStatus? Status, string Label);
+    // One filter chip ("All", "Pending", ...). IsSelected drives its colour.
+    public partial class BookingStatusFilter : ObservableObject
+    {
+        public BookingStatusFilter(BookingStatus? status, string label, bool isSelected = false)
+        {
+            Status = status;
+            Label = label;
+            this.isSelected = isSelected;
+        }
+
+        public BookingStatus? Status { get; }
+        public string Label { get; }
+
+        [ObservableProperty]
+        private bool isSelected;
+    }
 
     public partial class AdminBookingsViewModel : BaseViewModel
     {
         private readonly IAdminDataService _adminDataService;
         private readonly IAdminBookingActionsService _actionsService;
+        private readonly IFirestoreService _firestore;
 
-        public AdminBookingsViewModel(IAdminDataService adminDataService, IAdminBookingActionsService actionsService)
+        public AdminBookingsViewModel(
+            IAdminDataService adminDataService,
+            IAdminBookingActionsService actionsService,
+            IFirestoreService firestore)
         {
             _adminDataService = adminDataService;
             _actionsService = actionsService;
+            _firestore = firestore;
             Title = "Manage Bookings";
 
             StatusFilters = new ObservableCollection<BookingStatusFilter>
             {
-                new(null, "All"),
+                new(null, "All", isSelected: true),
                 new(BookingStatus.Pending, "Pending"),
                 new(BookingStatus.Confirmed, "Confirmed"),
                 new(BookingStatus.Completed, "Completed"),
@@ -37,7 +57,18 @@ namespace SBSBeautySpa.Mobile.ViewModels.Admin
         [ObservableProperty]
         private BookingStatusFilter selectedFilter;
 
-        partial void OnSelectedFilterChanged(BookingStatusFilter value) => LoadBookingsCommand.Execute(null);
+        [ObservableProperty]
+        private bool hasNoBookings;
+
+        [RelayCommand]
+        private async Task SelectFilterAsync(BookingStatusFilter? filter)
+        {
+            if (filter is null) return;
+
+            foreach (var f in StatusFilters) f.IsSelected = f == filter;
+            SelectedFilter = filter;
+            await LoadBookingsAsync();
+        }
 
         [RelayCommand]
         private async Task LoadBookingsAsync()
@@ -51,16 +82,31 @@ namespace SBSBeautySpa.Mobile.ViewModels.Admin
             {
                 var bookings = await _adminDataService.GetBookingsAsync(SelectedFilter.Status);
 
+                // A booking only stores the service id, so look the names up.
+                var names = new Dictionary<string, string>();
+                try
+                {
+                    var services = await _firestore.GetServicesAsync();
+                    names = services.GroupBy(s => s.Id).ToDictionary(g => g.Key, g => g.First().Name);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex);
+                }
+
                 Bookings.Clear();
                 foreach (var booking in bookings.OrderBy(b => b.Date).ThenBy(b => b.StartTime))
+                {
+                    booking.ServiceName = names.TryGetValue(booking.ServiceId, out var n) ? n : "Service";
                     Bookings.Add(booking);
-
-                if (Bookings.Count == 0)
-                    ErrorMessage = $"No {SelectedFilter.Label.ToLowerInvariant()} bookings right now.";
+                }
+                HasNoBookings = Bookings.Count == 0;
             }
             catch (Exception ex)
             {
-                ErrorMessage = "Couldn't load bookings. Pull to refresh to try again.";
+                // Show the real reason on screen (it used to be hidden, so a failed load
+                // looked exactly like "no bookings").
+                ErrorMessage = $"Couldn't load bookings: {ex.Message}";
                 System.Diagnostics.Debug.WriteLine(ex);
             }
             finally
@@ -76,8 +122,17 @@ namespace SBSBeautySpa.Mobile.ViewModels.Admin
         private Task CompleteBookingAsync(Booking booking) => ChangeStatusAsync(booking, BookingStatus.Completed);
 
         [RelayCommand]
-        private Task CancelBookingAsync((Booking Booking, string? Reason) args) =>
-            ChangeStatusAsync(args.Booking, BookingStatus.Cancelled, args.Reason);
+        private async Task CancelBookingAsync(Booking booking)
+        {
+            if (booking is null) return;
+
+            // Ask for an (optional) reason first. null means the admin backed out.
+            var reason = await Shell.Current.DisplayPromptAsync(
+                "Cancel booking", "Reason (optional):", "Cancel booking", "Keep it");
+            if (reason is null) return;
+
+            await ChangeStatusAsync(booking, BookingStatus.Cancelled, string.IsNullOrWhiteSpace(reason) ? null : reason.Trim());
+        }
 
         private async Task ChangeStatusAsync(Booking booking, BookingStatus newStatus, string? cancellationReason = null)
         {
@@ -96,6 +151,7 @@ namespace SBSBeautySpa.Mobile.ViewModels.Admin
 
                 if (SelectedFilter.Status.HasValue && SelectedFilter.Status.Value != newStatus)
                     Bookings.Remove(booking);
+                HasNoBookings = Bookings.Count == 0;
             }
             catch (Exception ex)
             {

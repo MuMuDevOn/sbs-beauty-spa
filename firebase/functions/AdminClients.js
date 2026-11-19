@@ -8,7 +8,7 @@
  * we page through Auth users and join with Firestore profile docs.
  */
 
-const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const { onCall, HttpsError } = require("./secure");
 const admin = require("firebase-admin");
 
 if (admin.apps.length === 0) {

@@ -1,34 +1,63 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              x:Class="SBSBeautySpa.Mobile.Views.NotificationsPage"
              Shell.NavBarIsVisible="False">
 
+    <!-- Main layout -->
     <Grid RowDefinitions="Auto,*" Padding="20,50,20,16"
           Background="{StaticResource PageGradient}">
 
         <!-- Header: Back arrow + page title -->
         <Grid Grid.Row="0" ColumnDefinitions="Auto,*" ColumnSpacing="14">
-            <Label Text="←" FontSize="28" TextColor="White" VerticalOptions="Center">
-                <Label.GestureRecognizers>
+            <!-- Back arrow; tapping it triggers OnBackTapped -->
+            <Image WidthRequest="26" HeightRequest="26" VerticalOptions="Center"
+                   mi:MauiIcon.Value="{mi:Material Icon=ArrowBack, IconColor=White}">
+                <Image.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnBackTapped" />
-                </Label.GestureRecognizers>
-            </Label>
+                </Image.GestureRecognizers>
+            </Image>
+            <!-- Page title -->
             <Label Grid.Column="1" Text="Notifications" Style="{StaticResource PageTitle}" />
         </Grid>
 
-        <!-- Content -->
+        <!-- Scrollable content area -->
         <ScrollView Grid.Row="1" Margin="0,24,0,0">
             <VerticalStackLayout Spacing="10">
 
-                <Label Text="Choose the notifications you'd like to receive."
-                       Style="{StaticResource HintText}" />
+                <!-- RECENT: what the spa has sent this client -->
+                <Label Text="RECENT" Style="{StaticResource CapsLabel}" />
+                <ActivityIndicator x:Name="Spinner" Color="White" IsRunning="False" IsVisible="False" />
+                <VerticalStackLayout x:Name="RecentList" Spacing="10" />
 
-                <!-- Booking updates -->
+                <!-- Intro hint -->
+                <Label Text="Choose the notifications you'd like to receive."
+                       Style="{StaticResource HintText}" Margin="0,14,0,0" />
+
+                <!-- PUSH (phones only): one switch for notifications on this phone -->
+                <VerticalStackLayout x:Name="PushSection" Spacing="10" IsVisible="False" Margin="0,6,0,0">
+                    <Label Text="ON THIS PHONE" Style="{StaticResource CapsLabel}" />
+                    <Border Style="{StaticResource GroupCard}">
+                        <Grid ColumnDefinitions="*,Auto" Padding="14,12">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="Push notifications" Style="{StaticResource RowTitle}" />
+                                <Label Text="Alerts for reminders and booking updates."
+                                       Style="{StaticResource RowSubtitle}" />
+                            </VerticalStackLayout>
+                            <Switch x:Name="PushSwitch" Grid.Column="1"
+                                    IsToggled="True" Style="{StaticResource AppSwitch}"
+                                    Toggled="OnPushToggled" />
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- BOOKING UPDATES section -->
                 <Label Text="BOOKING UPDATES" Style="{StaticResource CapsLabel}" Margin="0,6,0,0" />
                 <Border Style="{StaticResource GroupCard}">
                     <VerticalStackLayout>
 
+                        <!-- Booking confirmations toggle -->
                         <Grid ColumnDefinitions="*,Auto" Padding="14,12">
                             <VerticalStackLayout Spacing="2">
                                 <Label Text="Booking confirmations" Style="{StaticResource RowTitle}" />
@@ -36,12 +65,12 @@
                                        Style="{StaticResource RowSubtitle}" />
                             </VerticalStackLayout>
                             <Switch x:Name="BookingConfirmationsSwitch" Grid.Column="1"
-                                    AutomationId="BookingConfirmations"
                                     IsToggled="True" Style="{StaticResource AppSwitch}"
                                     Toggled="OnSwitchToggled" />
                         </Grid>
                         <BoxView Style="{StaticResource Divider}" />
 
+                        <!-- Booking changes toggle -->
                         <Grid ColumnDefinitions="*,Auto" Padding="14,12">
                             <VerticalStackLayout Spacing="2">
                                 <Label Text="Booking changes" Style="{StaticResource RowTitle}" />
@@ -49,7 +78,6 @@
                                        Style="{StaticResource RowSubtitle}" />
                             </VerticalStackLayout>
                             <Switch x:Name="BookingChangesSwitch" Grid.Column="1"
-                                    AutomationId="BookingChanges"
                                     IsToggled="True" Style="{StaticResource AppSwitch}"
                                     Toggled="OnSwitchToggled" />
                         </Grid>
@@ -57,9 +85,10 @@
                     </VerticalStackLayout>
                 </Border>
 
-                <!-- Reminders -->
+                <!-- REMINDERS section -->
                 <Label Text="REMINDERS" Style="{StaticResource CapsLabel}" Margin="0,10,0,0" />
                 <Border Style="{StaticResource GroupCard}">
+                    <!-- Appointment reminders toggle -->
                     <Grid ColumnDefinitions="*,Auto" Padding="14,12">
                         <VerticalStackLayout Spacing="2">
                             <Label Text="Appointment reminders" Style="{StaticResource RowTitle}" />
@@ -67,7 +96,6 @@
                                    Style="{StaticResource RowSubtitle}" />
                         </VerticalStackLayout>
                         <Switch x:Name="AppointmentRemindersSwitch" Grid.Column="1"
-                                AutomationId="AppointmentReminders"
                                 IsToggled="True" Style="{StaticResource AppSwitch}"
                                 Toggled="OnSwitchToggled" />
                     </Grid>
@@ -76,4 +104,5 @@
             </VerticalStackLayout>
         </ScrollView>
     </Grid>
+
 </ContentPage>

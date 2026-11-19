@@ -9,11 +9,14 @@ namespace SBSBeautySpa.Mobile.ViewModels
     public partial class BookingHistoryViewModel : BaseViewModel
     {
         private readonly IFirestoreService _firestore;
+        private readonly IPaymentService _payments;
         private List<(Booking Booking, BookingHistoryItem Item)> _all = new();
+        private Dictionary<string, string> _serviceNames = new();
 
-        public BookingHistoryViewModel(IFirestoreService firestore)
+        public BookingHistoryViewModel(IFirestoreService firestore, IPaymentService payments)
         {
             _firestore = firestore;
+            _payments = payments;
             Title = "Booking History";
 
             Tabs = new ObservableCollection<BookingHistoryTab>
@@ -41,12 +44,24 @@ namespace SBSBeautySpa.Mobile.ViewModels
             try
             {
                 var bookings = await _firestore.GetMyBookingsAsync();
-                _all = bookings.Select(b => (b, ToItem(b))).ToList();
+
+                // A booking only stores the service id, so look the names up.
+                try
+                {
+                    var services = await _firestore.GetServicesAsync();
+                    _serviceNames = services.GroupBy(s => s.Id).ToDictionary(g => g.Key, g => g.First().Name);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex);
+                }
+
+                _all = bookings.Select(b => (b, ToItem(b, _serviceNames))).ToList();
                 ApplyFilter();
             }
             catch (Exception ex)
             {
-                ErrorMessage = "Couldn't load your bookings. Please try again.";
+                ErrorMessage = $"Couldn't load your bookings: {ex.Message}";
                 System.Diagnostics.Debug.WriteLine(ex);
             }
             finally
@@ -65,16 +80,82 @@ namespace SBSBeautySpa.Mobile.ViewModels
         }
 
         [RelayCommand]
-        private Task RescheduleAsync(BookingHistoryItem? item) =>
-            Shell.Current.DisplayAlertAsync("Reschedule", "Rescheduling is coming soon.", "OK");
+        private async Task RescheduleAsync(BookingHistoryItem? item)
+        {
+            if (item is null) return;
+
+            // 24-hour rule. (The server enforces it too; this just saves the client a trip.)
+            if (item.StartsAt - DateTime.Now < TimeSpan.FromHours(24))
+            {
+                await Shell.Current.DisplayAlertAsync("Can't reschedule",
+                    "Bookings can only be rescheduled at least 24 hours before the appointment. Please contact the salon.", "OK");
+                return;
+            }
+
+            await Shell.Current.GoToAsync("RescheduleBookingPage", new ShellNavigationQueryParameters
+            {
+                ["BookingId"] = item.Id,
+                ["ServiceId"] = item.ServiceId,
+                ["ServiceName"] = item.ServiceName,
+                ["CurrentText"] = item.DateText,
+            });
+        }
 
         [RelayCommand]
         private Task ViewAddressAsync(BookingHistoryItem? item) =>
-            Shell.Current.DisplayAlertAsync("Address", "Salon address details are coming soon.", "OK");
+            Shell.Current.DisplayAlertAsync("Salon address",
+                "SBS Beauty Spa\n1 Eglin Road\nSunninghill, Sandton\nJohannesburg, Gauteng, 2157\nSouth Africa", "OK");
 
         [RelayCommand]
-        private Task PayDepositAsync(BookingHistoryItem? item) =>
-            Shell.Current.DisplayAlertAsync("Pay deposit", "Deposit payment is coming soon.", "OK");
+        private async Task PayDepositAsync(BookingHistoryItem? item)
+        {
+            if (item is null || IsBusy) return;
+
+            IsBusy = true;
+            try
+            {
+                // Same Paystack flow as the booking screen, for a booking that is still unpaid.
+                var init = await _payments.InitializePaymentAsync(item.Id, PaymentRequestType.Deposit);
+                await Browser.Default.OpenAsync(init.AuthorizationUrl, BrowserLaunchMode.SystemPreferred);
+
+                // Wait for the SERVER to confirm the payment with Paystack (nothing the client
+                // taps can confirm it). Gives up after 2 minutes; the webhook still confirms later.
+                var confirmed = false;
+                var deadline = DateTime.UtcNow.AddMinutes(2);
+                while (DateTime.UtcNow < deadline && !confirmed)
+                {
+                    await Task.Delay(3000);
+                    try
+                    {
+                        confirmed = (await _payments.VerifyPaymentAsync(init.Reference)).Succeeded;
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine(ex);
+                    }
+                }
+
+                await Shell.Current.DisplayAlertAsync(
+                    confirmed ? "Booking confirmed" : "Payment not received",
+                    confirmed
+                        ? "Your deposit was received. See you soon!"
+                        : "We haven't received your payment yet. If you did pay, it will confirm automatically.",
+                    "OK");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex);
+                await Shell.Current.DisplayAlertAsync("Couldn't start payment", ex.Message, "OK");
+                return;
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+
+            // Refresh the list (after IsBusy is cleared, so the reload isn't skipped).
+            await LoadAsync();
+        }
 
         private void ApplyFilter()
         {
@@ -106,11 +187,11 @@ namespace SBSBeautySpa.Mobile.ViewModels
             HasNoBookings = Bookings.Count == 0;
         }
 
-        private static BookingHistoryItem ToItem(Booking b)
+        private static BookingHistoryItem ToItem(Booking b, Dictionary<string, string> serviceNames)
         {
             var name = b.Services.Count > 0
                 ? string.Join(", ", b.Services.Select(s => s.Name))
-                : "Appointment";
+                : serviceNames.TryGetValue(b.ServiceId, out var serviceName) ? serviceName : "Appointment";
 
             var date = b.Date.ToDateTimeUnspecified();
             var start = DateTime.Today.AddTicks(b.StartTime.TickOfDay);
@@ -127,16 +208,32 @@ namespace SBSBeautySpa.Mobile.ViewModels
             return new BookingHistoryItem
             {
                 Id = b.Id,
+                ServiceId = b.ServiceId,
+                StartsAt = date.AddTicks(b.StartTime.TickOfDay),
                 ServiceName = name,
                 Status = label,
                 DateText = $"{date:MMM d, yyyy} • {start:h:mm tt} ({FormatDuration(minutes)})",
-                PriceText = $"R{b.TotalAmount:0.00}",
+                PriceText = PriceSummary(b),
                 IsConfirmed = b.Status == BookingStatus.Confirmed,
                 IsPending = b.Status == BookingStatus.Pending,
                 DepositLabel = $"Pay Deposit (R{b.DepositAmount:0.00})",
                 StatusTextColor = Color.FromArgb(text),
                 StatusBackColor = Color.FromArgb(back),
             };
+        }
+
+        // What the client has paid and what is still owed, so the card never looks "paid in full" by mistake.
+        private static string PriceSummary(Booking b)
+        {
+            var total = $"R{b.TotalAmount:0.00}";
+            if (b.Status == BookingStatus.Confirmed || b.Status == BookingStatus.Completed)
+            {
+                if (b.BalanceSettled) return $"{total} • Paid in full";
+                return $"{total} • Deposit R{b.DepositAmount:0.00} paid • R{b.OutstandingBalance:0.00} due in-store";
+            }
+            if (b.Status == BookingStatus.Pending)
+                return $"{total} • Deposit R{b.DepositAmount:0.00} due";
+            return total;
         }
 
         private static string FormatDuration(int minutes)
@@ -170,6 +267,8 @@ namespace SBSBeautySpa.Mobile.ViewModels
     public class BookingHistoryItem
     {
         public string Id { get; set; } = string.Empty;
+        public string ServiceId { get; set; } = string.Empty;
+        public DateTime StartsAt { get; set; }
         public string ServiceName { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
         public string DateText { get; set; } = string.Empty;

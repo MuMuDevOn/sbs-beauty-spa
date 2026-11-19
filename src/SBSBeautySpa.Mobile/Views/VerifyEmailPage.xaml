@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             xmlns:vm="clr-namespace:SBSBeautySpa.Mobile.ViewModels"
+             x:Class="SBSBeautySpa.Mobile.Views.VerifyEmailPage"
+             x:DataType="vm:VerifyEmailViewModel"
+             Shell.NavBarIsVisible="False">
+
+    <!-- Same purple / blue / white theme as the Login and Sign Up pages -->
+    <Grid Background="{StaticResource PageGradient}">
+        <ScrollView>
+            <VerticalStackLayout x:Name="ContentColumn" Padding="24,50,24,30" Spacing="0"
+                                 HorizontalOptions="Center">
+
+                <!-- Back arrow (same icon as the admin pages) -->
+                <Image WidthRequest="26" HeightRequest="26" HorizontalOptions="Start"
+                       mi:MauiIcon.Value="{mi:Material Icon=ArrowBack, IconColor=White}">
+                    <Image.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding BackCommand}" />
+                    </Image.GestureRecognizers>
+                </Image>
+
+                <Image Source="logo.png" HeightRequest="110" WidthRequest="200"
+                       Aspect="AspectFit" HorizontalOptions="Center" Margin="0,4,0,16" />
+
+                <Border BackgroundColor="White" StrokeThickness="0" StrokeShape="RoundRectangle 26"
+                        Padding="24,28,24,28">
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Opacity="0.22" Radius="16" Offset="0,6" />
+                    </Border.Shadow>
+                    <VerticalStackLayout Spacing="0">
+
+                        <Label Text="Verify your email" FontFamily="OpenSansSemibold" FontSize="24"
+                               TextColor="#2B1B6B" HorizontalOptions="Center" />
+                        <Label Text="We sent a verification link to" FontSize="14" FontFamily="OpenSansRegular"
+                               TextColor="#6E63A6" Margin="0,6,0,0" HorizontalTextAlignment="Center" />
+                        <Label Text="{Binding EmailText}" FontSize="15" FontFamily="OpenSansSemibold"
+                               TextColor="#2B1B6B" Margin="0,2,0,16" HorizontalTextAlignment="Center" />
+                        <Border BackgroundColor="#EFE9FF" StrokeThickness="0" StrokeShape="RoundRectangle 14"
+                                Padding="16" Margin="0,0,0,18">
+                            <Label FontSize="13" FontFamily="OpenSansRegular" TextColor="#2B1B6B"
+                                   Text="1. Open your email on your phone.&#10;2. Tap the link in the message from SBS Beauty Spa.&#10;3. Come back here and tap the button below." />
+                        </Border>
+
+                        <Label Text="{Binding ErrorMessage}" TextColor="#D92D20" FontSize="13" Margin="0,0,0,10"
+                               HorizontalTextAlignment="Center"
+                               IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNull}}" />
+                        <Label Text="{Binding InfoMessage}" TextColor="#1E7B3A" FontSize="13" Margin="0,0,0,10"
+                               HorizontalTextAlignment="Center"
+                               IsVisible="{Binding InfoMessage, Converter={StaticResource IsNotNull}}" />
+                        <Border Background="{StaticResource NavyButtonGradient}" StrokeThickness="0"
+                                StrokeShape="RoundRectangle 26" HeightRequest="52" Margin="0,6,0,0">
+                            <Button Text="I've verified my email" BackgroundColor="Transparent" TextColor="White"
+                                    FontFamily="OpenSansSemibold" FontSize="16"
+                                    Command="{Binding ContinueCommand}" />
+                        </Border>
+                        <Label Text="{Binding ResendText}" TextColor="#6D3FE0" FontFamily="OpenSansSemibold" FontSize="14"
+                               HorizontalOptions="Center" Margin="0,18,0,0">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ResendCommand}" />
+                            </Label.GestureRecognizers>
+                        </Label>
+
+                        <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                                           Color="#6D3FE0" HorizontalOptions="Center" Margin="0,12,0,0" />
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              x:Class="SBSBeautySpa.Mobile.Views.ContactUsPage"
              Shell.NavBarIsVisible="False">
 
@@ -9,11 +10,12 @@
 
         <!-- Header: Back arrow + page title -->
         <Grid Grid.Row="0" ColumnDefinitions="Auto,*" ColumnSpacing="14">
-            <Label Text="←" FontSize="28" TextColor="White" VerticalOptions="Center">
-                <Label.GestureRecognizers>
+            <Image WidthRequest="26" HeightRequest="26" VerticalOptions="Center"
+                   mi:MauiIcon.Value="{mi:Material Icon=ArrowBack, IconColor=White}">
+                <Image.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnBackTapped" />
-                </Label.GestureRecognizers>
-            </Label>
+                </Image.GestureRecognizers>
+            </Image>
             <Label Grid.Column="1" Text="Contact Us" Style="{StaticResource PageTitle}" />
         </Grid>
 
@@ -23,6 +25,22 @@
 
                 <Label Text="Have a question or need help? Tell us what you need support with."
                        Style="{StaticResource HintText}" />
+
+                <!-- Where to find us (temporary address, hard-coded) -->
+                <Label Text="FIND US" Style="{StaticResource CapsLabel}" Margin="0,6,0,0" />
+                <Border Style="{StaticResource GroupCard}">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" Padding="14,12">
+                        <Image WidthRequest="22" HeightRequest="22" VerticalOptions="Start"
+                               mi:MauiIcon.Value="{mi:Material Icon=LocationOn, IconColor=#6D3FE0}" />
+                        <VerticalStackLayout Grid.Column="1" Spacing="2">
+                            <Label Text="SBS Beauty Spa" Style="{StaticResource RowTitle}" />
+                            <Label Text="1 Eglin Road" Style="{StaticResource RowSubtitle}" />
+                            <Label Text="Sunninghill, Sandton" Style="{StaticResource RowSubtitle}" />
+                            <Label Text="Johannesburg, Gauteng, 2157" Style="{StaticResource RowSubtitle}" />
+                            <Label Text="South Africa" Style="{StaticResource RowSubtitle}" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
 
                 <!-- Your details -->
                 <Label Text="YOUR DETAILS" Style="{StaticResource CapsLabel}" Margin="0,6,0,0" />

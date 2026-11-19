@@ -5,88 +5,203 @@
              xmlns:models="clr-namespace:SBSBeautySpa.Mobile.Models"
              x:Class="SBSBeautySpa.Mobile.Views.Admin.AdminProductPage"
              x:Name="ThisPage"
-             BackgroundColor="White"
+             Background="{StaticResource PageGradient}"
              Shell.NavBarIsVisible="False">
+
+    <ContentPage.Resources>
+        <!-- Rounded lilac box that holds a text field -->
+        <Style x:Key="FieldBox" TargetType="Border">
+            <Setter Property="BackgroundColor" Value="#EFE9FF"/>
+            <Setter Property="StrokeThickness" Value="0"/>
+            <Setter Property="StrokeShape" Value="RoundRectangle 22"/>
+            <Setter Property="Padding" Value="16,0"/>
+            <Setter Property="HeightRequest" Value="44"/>
+        </Style>
+        <Style x:Key="FieldEntry" TargetType="Entry">
+            <Setter Property="BackgroundColor" Value="Transparent"/>
+            <Setter Property="TextColor" Value="#2B1B6B"/>
+            <Setter Property="PlaceholderColor" Value="#A59CC9"/>
+            <Setter Property="FontFamily" Value="OpenSansRegular"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="VerticalOptions" Value="Center"/>
+        </Style>
+    </ContentPage.Resources>
 
     <Grid RowDefinitions="Auto,Auto,*" Padding="20,50,20,0" RowSpacing="12">
 
         <!-- Header -->
         <HorizontalStackLayout Grid.Row="0" Spacing="14">
-            <Image WidthRequest="26" HeightRequest="26"
-                   mi:MauiIcon.Value="{mi:Material Icon=ArrowBack, IconColor=Black}">
+            <Image WidthRequest="26" HeightRequest="26" VerticalOptions="Center"
+                   mi:MauiIcon.Value="{mi:Material Icon=ArrowBack, IconColor=White}">
                 <Image.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnBackTapped"/>
                 </Image.GestureRecognizers>
             </Image>
-            <Label Text="Manage Products" FontFamily="OpenSansSemibold" FontSize="20"
-                   TextColor="Black" VerticalOptions="Center"/>
+            <Label Text="Manage Products" FontFamily="OpenSansSemibold" FontSize="24"
+                   TextColor="White" VerticalOptions="Center"/>
         </HorizontalStackLayout>
 
         <!-- Add button -->
-        <Button Grid.Row="1" Text="+ Add New Product" BackgroundColor="White"
-                TextColor="Black" BorderColor="Black" BorderWidth="1"
-                FontFamily="OpenSansSemibold" FontSize="13" CornerRadius="8" HeightRequest="42"
-                Clicked="OnAddProductClicked"/>
+        <Button Grid.Row="1" Text="{Binding AddButtonText}" BackgroundColor="White"
+                TextColor="#6D3FE0" FontFamily="OpenSansSemibold" FontSize="14"
+                CornerRadius="22" HeightRequest="44"
+                Command="{Binding ToggleNewProductCommand}"/>
 
-        <!-- Content: list + editor inside a scroll view -->
+        <!-- Content: editor + list inside a scroll view -->
         <ScrollView Grid.Row="2">
             <VerticalStackLayout Spacing="12">
 
-                <!-- Loading indicator -->
                 <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
-                                   Color="#111827" HorizontalOptions="Center"/>
+                                   Color="White" HorizontalOptions="Center"/>
+
+                <!-- Messages stay visible even when the form is closed -->
+                <Label Text="{Binding ErrorMessage}" TextColor="#FECACA"
+                       FontFamily="OpenSansRegular" FontSize="13"
+                       IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNull}}"/>
+                <Label Text="{Binding InfoMessage}" TextColor="#BBF7D0"
+                       FontFamily="OpenSansSemibold" FontSize="13"
+                       IsVisible="{Binding InfoMessage, Converter={StaticResource IsNotNull}}"/>
+
+                <!-- Editor panel -->
+                <Border BackgroundColor="White" StrokeThickness="0"
+                        StrokeShape="RoundRectangle 20" Padding="16"
+                        IsVisible="{Binding IsEditorOpen}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="{Binding EditorTitle}" FontFamily="OpenSansSemibold"
+                               FontSize="16" TextColor="#2B1B6B"/>
+
+                        <Border Style="{StaticResource FieldBox}">
+                            <Entry Style="{StaticResource FieldEntry}" Placeholder="Product name"
+                                   Text="{Binding DraftName}"/>
+                        </Border>
+                        <Border Style="{StaticResource FieldBox}">
+                            <Entry Style="{StaticResource FieldEntry}" Placeholder="Description"
+                                   Text="{Binding DraftDescription}"/>
+                        </Border>
+                        <Border Style="{StaticResource FieldBox}">
+                            <Entry Style="{StaticResource FieldEntry}" Placeholder="Category (kits, sets, tools)"
+                                   Text="{Binding DraftCategoryId}"/>
+                        </Border>
+                        <Border Style="{StaticResource FieldBox}">
+                            <Entry Style="{StaticResource FieldEntry}" Placeholder="Price" Keyboard="Numeric"
+                                   Text="{Binding DraftPrice}"/>
+                        </Border>
+                        <Border Style="{StaticResource FieldBox}">
+                            <Entry Style="{StaticResource FieldEntry}" Placeholder="Stock (leave 0 for untracked)"
+                                   Keyboard="Numeric" Text="{Binding DraftStockQuantity}"/>
+                        </Border>
+
+                        <!-- Photo from the device -->
+                        <Label Text="Product photo" FontFamily="OpenSansSemibold"
+                               FontSize="13" TextColor="#2B1B6B" Margin="0,4,0,0"/>
+
+                        <Border HeightRequest="150" BackgroundColor="#EFE9FF"
+                                Stroke="#CFC4F5" StrokeThickness="1" StrokeDashArray="4,4"
+                                StrokeShape="RoundRectangle 16">
+                            <Grid>
+                                <Image Source="{Binding DraftImageUrl}" Aspect="AspectFill"
+                                       IsVisible="{Binding HasImage}"/>
+                                <Label Text="No photo yet" TextColor="#8A80B8"
+                                       FontFamily="OpenSansRegular" FontSize="13"
+                                       HorizontalOptions="Center" VerticalOptions="Center"
+                                       IsVisible="{Binding HasNoImage}"/>
+                                <ActivityIndicator IsRunning="{Binding IsUploading}"
+                                                   IsVisible="{Binding IsUploading}"
+                                                   Color="#6D3FE0"
+                                                   HorizontalOptions="Center" VerticalOptions="Center"/>
+                            </Grid>
+                        </Border>
+
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                            <Button Text="Upload photo" FontFamily="OpenSansSemibold" FontSize="13"
+                                    HeightRequest="42" CornerRadius="21"
+                                    BackgroundColor="White" TextColor="#6D3FE0"
+                                    BorderColor="#6D3FE0" BorderWidth="1"
+                                    Command="{Binding PickPhotoCommand}"/>
+                            <Button Grid.Column="1" Text="Remove" FontFamily="OpenSansSemibold"
+                                    FontSize="13" HeightRequest="42" CornerRadius="21"
+                                    Padding="18,0"
+                                    BackgroundColor="White" TextColor="#B3261E"
+                                    BorderColor="#E5D5D5" BorderWidth="1"
+                                    IsVisible="{Binding HasImage}"
+                                    Command="{Binding RemovePhotoCommand}"/>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="8" Margin="0,6,0,0">
+                            <Button Text="Save" Command="{Binding SaveCommand}"
+                                    FontFamily="OpenSansSemibold" FontSize="14"
+                                    BackgroundColor="#6D3FE0" TextColor="White"
+                                    CornerRadius="22" HeightRequest="44"/>
+                            <Button Grid.Column="1" Text="Cancel"
+                                    Command="{Binding StartNewProductCommand}"
+                                    FontFamily="OpenSansSemibold" FontSize="14"
+                                    BackgroundColor="White" TextColor="#6D3FE0"
+                                    BorderColor="#6D3FE0" BorderWidth="1"
+                                    CornerRadius="22" HeightRequest="44"/>
+                        </Grid>
+
+                    </VerticalStackLayout>
+                </Border>
 
                 <!-- Products list -->
                 <CollectionView ItemsSource="{Binding Products}" SelectionMode="None">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Vertical" ItemSpacing="8"/>
+                    </CollectionView.ItemsLayout>
+
                     <CollectionView.EmptyView>
-                        <Label Text="No products yet." TextColor="#9CA3AF"
-                               HorizontalOptions="Center" Margin="0,30,0,0"/>
+                        <Label Text="No products yet." TextColor="White" Opacity="0.85"
+                               FontFamily="OpenSansRegular" FontSize="14"
+                               HorizontalOptions="Start" Margin="0,16,0,0"/>
                     </CollectionView.EmptyView>
+
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="models:Product">
-                            <Border BackgroundColor="White" Stroke="#E5E7EB" StrokeThickness="1"
-                                    StrokeShape="RoundRectangle 10" Padding="12" Margin="0,0,0,10">
-                                <VerticalStackLayout Spacing="10">
+                            <Border BackgroundColor="White" StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 20" Padding="14">
+                                <VerticalStackLayout Spacing="12">
 
                                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                                        <Border WidthRequest="48" HeightRequest="48" BackgroundColor="#F3F4F6"
-                                                Stroke="#D1D5DB" StrokeThickness="1" StrokeDashArray="3,3"
-                                                StrokeShape="RoundRectangle 8">
+                                        <Border WidthRequest="52" HeightRequest="52" BackgroundColor="#EFE9FF"
+                                                StrokeThickness="0" StrokeShape="RoundRectangle 12">
                                             <Image Source="{Binding ImageUrl}" Aspect="AspectFill"/>
                                         </Border>
 
                                         <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                                             <Label Text="{Binding Name}" FontFamily="OpenSansSemibold"
-                                                   FontSize="14" TextColor="#111827"/>
-                                            <Label Text="{Binding Description}" FontSize="11"
-                                                   TextColor="#6B7280" LineBreakMode="TailTruncation"/>
+                                                   FontSize="14" TextColor="#2B1B6B"/>
+                                            <Label Text="{Binding Description}" FontFamily="OpenSansRegular"
+                                                   FontSize="11" TextColor="#6E63A6"
+                                                   LineBreakMode="TailTruncation"/>
                                         </VerticalStackLayout>
 
                                         <Label Grid.Column="2" Text="{Binding Price, StringFormat='R{0:0.00}'}"
                                                FontFamily="OpenSansSemibold" FontSize="14"
-                                               TextColor="#111827" VerticalOptions="Start"/>
+                                               TextColor="#6D3FE0" VerticalOptions="Start"/>
                                     </Grid>
 
-                                    <BoxView HeightRequest="1" Color="#E5E7EB"/>
+                                    <BoxView HeightRequest="1" Color="#ECE8F7"/>
 
                                     <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
                                         <Button Grid.Column="0" Text="Edit"
-                                                BackgroundColor="White" TextColor="Black"
-                                                BorderColor="#D1D5DB" BorderWidth="1" FontSize="12"
-                                                CornerRadius="8" HeightRequest="36"
+                                                FontFamily="OpenSansSemibold" FontSize="12"
+                                                BackgroundColor="White" TextColor="#6D3FE0"
+                                                BorderColor="#6D3FE0" BorderWidth="1"
+                                                CornerRadius="18" HeightRequest="36"
                                                 Command="{Binding Source={x:Reference ThisPage}, Path=BindingContext.SelectForEditCommand}"
                                                 CommandParameter="{Binding .}"/>
                                         <Button Grid.Column="1"
                                                 Text="{Binding IsActive, StringFormat='Active: {0}'}"
-                                                BackgroundColor="White" TextColor="Black"
-                                                BorderColor="#D1D5DB" BorderWidth="1" FontSize="12"
-                                                CornerRadius="8" HeightRequest="36"
+                                                FontFamily="OpenSansSemibold" FontSize="12"
+                                                BackgroundColor="#6D3FE0" TextColor="White"
+                                                CornerRadius="18" HeightRequest="36"
                                                 Command="{Binding Source={x:Reference ThisPage}, Path=BindingContext.ToggleActiveCommand}"
                                                 CommandParameter="{Binding .}"/>
                                         <Button Grid.Column="2" Text="Delete"
+                                                FontFamily="OpenSansSemibold" FontSize="12"
                                                 BackgroundColor="White" TextColor="#B3261E"
-                                                BorderColor="#D1D5DB" BorderWidth="1" FontSize="12"
-                                                CornerRadius="8" HeightRequest="36"
+                                                BorderColor="#E5D5D5" BorderWidth="1"
+                                                CornerRadius="18" HeightRequest="36"
                                                 Command="{Binding Source={x:Reference ThisPage}, Path=BindingContext.DeleteCommand}"
                                                 CommandParameter="{Binding .}"/>
                                     </Grid>
@@ -96,37 +211,7 @@
                     </CollectionView.ItemTemplate>
                 </CollectionView>
 
-                <!-- Editor panel -->
-                <Border BackgroundColor="#F9FAFB" Stroke="#E5E7EB" StrokeThickness="1"
-                        StrokeShape="RoundRectangle 10" Padding="14" Margin="0,6,0,20">
-                    <VerticalStackLayout Spacing="10">
-                        <Label Text="{Binding EditorTitle}" FontFamily="OpenSansSemibold"
-                               FontSize="14" TextColor="#111827"/>
-
-                        <Entry Placeholder="Product name" Text="{Binding DraftName}"/>
-                        <Entry Placeholder="Description" Text="{Binding DraftDescription}"/>
-                        <Entry Placeholder="Category (kits, sets, tools)" Text="{Binding DraftCategoryId}"/>
-                        <Entry Placeholder="Price" Keyboard="Numeric" Text="{Binding DraftPrice}"/>
-                        <Entry Placeholder="Stock (leave 0 for untracked)" Keyboard="Numeric"
-                               Text="{Binding DraftStockQuantity}"/>
-                        <Entry Placeholder="Image URL (optional)" Text="{Binding DraftImageUrl}"/>
-
-                        <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
-                            <Button Text="Save" Command="{Binding SaveCommand}"
-                                    BackgroundColor="#111827" TextColor="White"
-                                    CornerRadius="8" HeightRequest="42"/>
-                            <Button Grid.Column="1" Text="Cancel"
-                                    Command="{Binding StartNewProductCommand}"
-                                    BackgroundColor="White" TextColor="Black"
-                                    BorderColor="#D1D5DB" BorderWidth="1"
-                                    CornerRadius="8" HeightRequest="42"/>
-                        </Grid>
-
-                        <Label Text="{Binding ErrorMessage}" TextColor="#B3261E" FontSize="12"
-                               IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNull}}"/>
-                    </VerticalStackLayout>
-                </Border>
-
+                <BoxView HeightRequest="20" Color="Transparent"/>
             </VerticalStackLayout>
         </ScrollView>
 

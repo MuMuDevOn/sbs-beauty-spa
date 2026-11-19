@@ -1,3 +1,4 @@
+using SBSBeautySpa.Mobile.Services;
 using SBSBeautySpa.Mobile.ViewModels;
 
 namespace SBSBeautySpa.Mobile.Views
@@ -10,11 +11,13 @@ namespace SBSBeautySpa.Mobile.Views
     public partial class CartView : ContentPage
     {
         private readonly CartViewModel _viewModel;
+        private readonly CheckoutSession _session;
 
-        public CartView(CartViewModel viewModel)
+        public CartView(CartViewModel viewModel, CheckoutSession session)
         {
             InitializeComponent();
             _viewModel = viewModel;
+            _session = session;
             BindingContext = _viewModel;
         }
 
@@ -28,15 +31,23 @@ namespace SBSBeautySpa.Mobile.Views
 
         private async void OnContinueShoppingClicked(object? sender, EventArgs e) => await GoBackAsync();
 
+        // Proceed to Checkout -> Delivery Addresses -> Delivery Options -> Payment -> Confirmation.
+        // The order itself is created on the Payment step, once a delivery option is chosen.
         private async void OnCheckoutClicked(object? sender, EventArgs e)
         {
-            await _viewModel.CheckoutCommand.ExecuteAsync(null);
-
-            if (_viewModel.OrderPlaced)
+            if (_viewModel.Lines.Count == 0)
             {
-                await DisplayAlert("Order placed", $"Your order has been placed. Total: {_viewModel.PlacedOrderTotalLabel}", "OK");
-                await GoBackAsync();
+                return;
             }
+
+            if (_viewModel.Lines.Any(l => !l.IsAvailable))
+            {
+                _viewModel.ErrorMessage = "Remove the unavailable items before checking out.";
+                return;
+            }
+
+            _session.Reset();
+            await Shell.Current.GoToAsync("DeliveryAddressesPage");
         }
 
         private async Task GoBackAsync()

@@ -121,6 +121,14 @@
       ]
     },
     {
+  "collectionGroup": "blockedTime",
+  "queryScope": "COLLECTION",
+  "fields": [
+    { "fieldPath": "start", "order": "ASCENDING" },
+    { "fieldPath": "end", "order": "ASCENDING" }
+  ]
+},
+    {
       "collectionGroup": "notifications",
       "queryScope": "COLLECTION",
       "fields": [

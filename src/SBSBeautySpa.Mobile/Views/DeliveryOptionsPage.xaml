@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="SBSBeautySpa.Mobile.Views.DeliveryOptionsPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             xmlns:vm="clr-namespace:SBSBeautySpa.Mobile.ViewModels"
+             xmlns:models="clr-namespace:SBSBeautySpa.Mobile.Models"
+             xmlns:conv="clr-namespace:SBSBeautySpa.Mobile.Converters"
+             x:DataType="vm:DeliveryOptionsViewModel"
+             BackgroundColor="White"
+             Shell.NavBarIsVisible="False">
+
+    <ContentPage.Resources>
+        <Color x:Key="DeepNavy">#1B2A4A</Color>
+        <Color x:Key="AccentBlue">#2F63E0</Color>
+        <Color x:Key="InkText">#111827</Color>
+        <Color x:Key="MutedGray">#8A93A6</Color>
+        <Color x:Key="SoftBlue">#EEF3FD</Color>
+        <Color x:Key="CardStroke">#E3E9F5</Color>
+        <LinearGradientBrush x:Key="BlueGradient" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="#1B2A4A" Offset="0.0" />
+            <GradientStop Color="#2F63E0" Offset="1.0" />
+        </LinearGradientBrush>
+        <conv:InvertedBoolConverter x:Key="InvertedBool" />
+        <conv:IsNotNullConverter x:Key="IsNotNull" />
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,Auto,*">
+        <Grid Grid.Row="0" Padding="20,44,20,10" ColumnDefinitions="Auto,*" ColumnSpacing="14">
+            <Image Grid.Column="0" WidthRequest="26" HeightRequest="26" VerticalOptions="Center"
+                   mi:MauiIcon.Value="{mi:Material Icon=ArrowBack, IconColor=#111827}">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackTapped" />
+                </Image.GestureRecognizers>
+            </Image>
+            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                <Label Text="Delivery Options" FontSize="26" FontFamily="OpenSansSemibold" TextColor="{StaticResource InkText}" />
+                <Label Text="Delivered by The Courier Guy" FontSize="13" TextColor="{StaticResource MutedGray}" />
+            </VerticalStackLayout>
+        </Grid>
+
+        <Grid Grid.Row="1" ColumnDefinitions="*,*,*" ColumnSpacing="8" Margin="20,0,20,12">
+            <Border Grid.Column="0" Padding="0,9" BackgroundColor="{StaticResource AccentBlue}" StrokeThickness="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12" />
+                </Border.StrokeShape>
+                <Label Text="DELIVERY" FontSize="11" FontFamily="OpenSansSemibold" TextColor="White" HorizontalOptions="Center" />
+            </Border>
+            <Border Grid.Column="1" Padding="0,9" BackgroundColor="{StaticResource SoftBlue}" StrokeThickness="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12" />
+                </Border.StrokeShape>
+                <Label Text="PAYMENT" FontSize="11" FontFamily="OpenSansSemibold" TextColor="{StaticResource MutedGray}" HorizontalOptions="Center" />
+            </Border>
+            <Border Grid.Column="2" Padding="0,9" BackgroundColor="{StaticResource SoftBlue}" StrokeThickness="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12" />
+                </Border.StrokeShape>
+                <Label Text="CONFIRMATION" FontSize="11" FontFamily="OpenSansSemibold" TextColor="{StaticResource MutedGray}" HorizontalOptions="Center" />
+            </Border>
+        </Grid>
+
+        <ScrollView Grid.Row="2">
+            <VerticalStackLayout Padding="16,0,16,24" Spacing="14">
+
+                <Border Padding="16" BackgroundColor="{StaticResource SoftBlue}" StrokeThickness="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="16" />
+                    </Border.StrokeShape>
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                        <VerticalStackLayout Grid.Column="0" Spacing="3">
+                            <Label Text="DELIVERING TO" FontSize="11" FontFamily="OpenSansSemibold" TextColor="{StaticResource MutedGray}" />
+                            <Label Text="{Binding RecipientText}" FontSize="16" FontFamily="OpenSansSemibold" TextColor="{StaticResource InkText}" />
+                            <Label Text="{Binding AddressText}" FontSize="13" TextColor="#4B5563" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="1" Text="Change" FontSize="14" FontFamily="OpenSansSemibold" TextColor="{StaticResource AccentBlue}" VerticalOptions="Start">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnBackTapped" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </Grid>
+                </Border>
+
+                <Label Text="When would you like it delivered?" FontSize="17" FontFamily="OpenSansSemibold" TextColor="{StaticResource InkText}" />
+
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource AccentBlue}" />
+
+                <VerticalStackLayout Spacing="12" BindableLayout.ItemsSource="{Binding Rates}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:CheckoutRate">
+                            <Border Padding="16" BackgroundColor="White" Stroke="{StaticResource CardStroke}" StrokeThickness="1">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="18" />
+                                </Border.StrokeShape>
+                                <Border.Shadow>
+                                    <Shadow Brush="#1B2A4A" Opacity="0.10" Radius="14" Offset="0,5" />
+                                </Border.Shadow>
+                                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
+                                    <VerticalStackLayout Grid.Column="0" Spacing="4" VerticalOptions="Center">
+                                        <Label Text="{Binding Name}" FontSize="16" FontFamily="OpenSansSemibold" TextColor="{StaticResource InkText}" />
+                                        <Label Text="{Binding DateText}" FontSize="13" TextColor="#4B5563" />
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="1" Text="{Binding PriceLabel}" FontSize="17" FontFamily="OpenSansSemibold" TextColor="{StaticResource AccentBlue}" VerticalOptions="Center" />
+                                    <Label Grid.Column="2" Text="&#8594;" FontSize="22" TextColor="{StaticResource InkText}" VerticalOptions="Center" />
+                                </Grid>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ChooseCommand}"
+                                                          CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <Label Text="{Binding ErrorMessage}" FontSize="13" TextColor="#B3261E" HorizontalTextAlignment="Center"
+                       IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNull}}" />
+                <Button Text="Try again" FontFamily="OpenSansSemibold" FontSize="14" HeightRequest="44" CornerRadius="14"
+                        BackgroundColor="White" TextColor="{StaticResource DeepNavy}" BorderColor="{StaticResource CardStroke}" BorderWidth="1.5"
+                        Command="{Binding LoadCommand}" IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNull}}" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

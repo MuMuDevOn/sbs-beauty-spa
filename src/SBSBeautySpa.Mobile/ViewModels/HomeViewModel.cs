@@ -34,6 +34,10 @@ namespace SBSBeautySpa.Mobile.ViewModels
                                   string PriceLabel, string PriceSubtitle, string DurationSubtitle);
     public record HomeProductCard(string Id, string Name, string? ImageUrl, string Subtitle);
 
+    // One slide in the sliding banner at the top of Home. ServiceId is set for a service (opens its booking);
+    // it is null for a product (opens the shop).
+    public record HomeBannerCard(string Tag, string Title, string Subtitle, string? ImageUrl, string? ServiceId);
+
     // One tappable option inside the filter panel (Show / Category / Price / Sort)
     public partial class FilterChip : ObservableObject
     {
@@ -90,6 +94,10 @@ namespace SBSBeautySpa.Mobile.ViewModels
         public ObservableCollection<HomeServiceCard> TrendingServices { get; } = new();
         public ObservableCollection<HomeProductCard> NewArrivals { get; } = new();
         public ObservableCollection<HomeServiceCard> PopularServices { get; } = new();
+
+        // Sliding banner: a shuffled mix of ALL active services and products that have a photo
+        public ObservableCollection<HomeBannerCard> BannerSlides { get; } = new();
+        private string _bannerKey = string.Empty;
 
         // ---------- Search / filter results (all matching items) ----------
         public ObservableCollection<HomeServiceCard> ResultServices { get; } = new();
@@ -177,6 +185,7 @@ namespace SBSBeautySpa.Mobile.ViewModels
                 Replace(TrendingServices, _allServices.Take(4).Select(ToServiceCard));
                 Replace(PopularServices, _allServices.Take(3).Select(ToServiceCard));
                 Replace(NewArrivals, _allProducts.Take(2).Select(p => ToProductCard(p, "New")));
+                BuildBanner();
 
                 // Re-run in case the user already typed something while loading
                 ApplyFilters();
@@ -190,6 +199,34 @@ namespace SBSBeautySpa.Mobile.ViewModels
             {
                 IsBusy = false;
             }
+        }
+
+        // ---------- Sliding banner ----------
+        // Picks up to 4 random services and 4 random products (only ones with a photo) and mixes them.
+        // The picks stay the same while the stored items don't change, so coming back to Home
+        // doesn't reshuffle the banner every time; a new app start gives a new mix.
+        private void BuildBanner()
+        {
+            var key = string.Join("|", _allServices.Select(s => s.Id)) + "#" + string.Join("|", _allProducts.Select(p => p.Id));
+            if (key == _bannerKey && BannerSlides.Count > 0) return;
+            _bannerKey = key;
+
+            var services = _allServices.Where(s => !string.IsNullOrWhiteSpace(s.ImageUrl))
+                .OrderBy(_ => Random.Shared.Next()).Take(4)
+                .Select(s => { var c = ToServiceCard(s); return new HomeBannerCard("SERVICE", c.Name, c.PriceSubtitle, c.ImageUrl, c.Id); })
+                .ToList();
+            var products = _allProducts.Where(p => !string.IsNullOrWhiteSpace(p.ImageUrl))
+                .OrderBy(_ => Random.Shared.Next()).Take(4)
+                .Select(p => { var c = ToProductCard(p); return new HomeBannerCard("IN THE SHOP", c.Name, c.Subtitle, c.ImageUrl, null); })
+                .ToList();
+
+            var mixed = new List<HomeBannerCard>();
+            for (int i = 0; i < Math.Max(services.Count, products.Count); i++)
+            {
+                if (i < services.Count) mixed.Add(services[i]);
+                if (i < products.Count) mixed.Add(products[i]);
+            }
+            Replace(BannerSlides, mixed);
         }
 
         // ---------- Filter panel ----------
@@ -353,8 +390,9 @@ namespace SBSBeautySpa.Mobile.ViewModels
         private Task OpenProductAsync() => Shell.Current.GoToAsync("//ShopView");
 
         [RelayCommand]
+
         private Task OpenNotificationsAsync() =>
-            Shell.Current.DisplayAlertAsync("Notifications", "Notifications are coming soon.", "OK");
+            Shell.Current.GoToAsync("NotificationsPage");
 
         // ---------- Helpers ----------
 

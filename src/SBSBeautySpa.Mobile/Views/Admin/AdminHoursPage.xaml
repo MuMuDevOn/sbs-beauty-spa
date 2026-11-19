@@ -2,55 +2,90 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             xmlns:vm="clr-namespace:SBSBeautySpa.Mobile.ViewModels.Admin"
              x:Class="SBSBeautySpa.Mobile.Views.Admin.AdminHoursPage"
              x:Name="ThisPage"
-             BackgroundColor="White"
+             Background="{StaticResource PageGradient}"
              Shell.NavBarIsVisible="False">
 
+    <ContentPage.Resources>
+        <Style x:Key="FieldBox" TargetType="Border">
+            <Setter Property="BackgroundColor" Value="#EFE9FF"/>
+            <Setter Property="StrokeThickness" Value="0"/>
+            <Setter Property="StrokeShape" Value="RoundRectangle 22"/>
+            <Setter Property="Padding" Value="14,0"/>
+            <Setter Property="HeightRequest" Value="44"/>
+        </Style>
+        <Style x:Key="FieldCaption" TargetType="Label">
+            <Setter Property="FontFamily" Value="OpenSansSemibold"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="TextColor" Value="#6E63A6"/>
+            <Setter Property="Margin" Value="4,2,0,-4"/>
+        </Style>
+    </ContentPage.Resources>
 
     <Grid RowDefinitions="Auto,*,Auto" Padding="20,50,20,16">
 
-        <!--Header-->
-        <HorizontalStackLayout Spacing="14">
-            <Image WidthRequest="26" HeightRequest="26"
-            mi:MauiIcon.Value="{mi:Material Icon = ArrowBack, IconColor= Black}">
+        <!-- Header -->
+        <HorizontalStackLayout Grid.Row="0" Spacing="14">
+            <Image WidthRequest="26" HeightRequest="26" VerticalOptions="Center"
+                   mi:MauiIcon.Value="{mi:Material Icon=ArrowBack, IconColor=White}">
                 <Image.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnBackTapped"/>
                 </Image.GestureRecognizers>
             </Image>
-            <Label Text=" Business Hours" FontFamily="OpenSansSemibold" FontSize="20"
-             TextColor="Black" VerticalOptions="Center"/>
+            <Label Text="Business Hours" FontFamily="OpenSansSemibold" FontSize="24"
+                   TextColor="White" VerticalOptions="Center"/>
         </HorizontalStackLayout>
-        
-        <!--Scrollable middle-->
-        <ScrollView Grid.Row=" 1">
-            <VerticalStackLayout Spacing="8">
-                <Label Text=" Set your default weekly availabiltiy" FontSize="12" TextColor="#6B7280"/>
 
-                <VerticalStackLayout Spacing= "6" BindableLayout.ItemsSource="{Binding Days}">
+        <!-- Scrollable middle -->
+        <ScrollView Grid.Row="1" Margin="0,12,0,0">
+            <VerticalStackLayout Spacing="10">
+
+                <Label Text="Set your default weekly availability"
+                       FontFamily="OpenSansRegular" FontSize="13" TextColor="White" Opacity="0.85"/>
+
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                                   Color="White" HorizontalOptions="Start"/>
+
+                <Label Text="{Binding ErrorMessage}" TextColor="#FECACA"
+                       FontFamily="OpenSansRegular" FontSize="13"
+                       IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNull}}"/>
+                <Label Text="{Binding InfoMessage}" TextColor="#BBF7D0"
+                       FontFamily="OpenSansSemibold" FontSize="13"
+                       IsVisible="{Binding InfoMessage, Converter={StaticResource IsNotNull}}"/>
+
+                <!-- Weekly hours -->
+                <VerticalStackLayout Spacing="8" BindableLayout.ItemsSource="{Binding Days}">
                     <BindableLayout.ItemTemplate>
-                        <DataTemplate>
-                            <Border BackgroundColor="White" Stroke="#E5E7EB" StrokeThickness="1"
-                                    StrokeShape="RoundRectangle 8" Padding="12,6">
-                                <Grid ColumnDefinitions="105, Auto,*" ColumnSpacing="8">
+                        <DataTemplate x:DataType="vm:DayRow">
+                            <Border BackgroundColor="White" StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 18" Padding="14,10">
+                                <Grid ColumnDefinitions="95,Auto,*" ColumnSpacing="8">
                                     <Label Text="{Binding Name}" FontFamily="OpenSansSemibold"
-                                           FontSize= "13" TextColor="Black" VerticalOptions="Center"/>
+                                           FontSize="14" TextColor="#2B1B6B" VerticalOptions="Center"/>
 
                                     <Switch Grid.Column="1" IsToggled="{Binding IsOpen}"
-                                            OnColor="Black" VerticalOptions="Center"/>
+                                            OnColor="#6D3FE0" VerticalOptions="Center"/>
 
-                                    <HorizontalStackLayout Grid.Column="2" Spacing="4"
-                                                           HorizontalOptions="End"
+                                    <HorizontalStackLayout Grid.Column="2" Spacing="6"
+                                                           HorizontalOptions="End" VerticalOptions="Center"
                                                            IsVisible="{Binding IsOpen}">
-                                        <TimePicker Time="{Binding Open}" Format="h:mm:tt"
-                                                    FontSize="12" TextColor="Black"/>
-                                        <Label Text="-" VerticalOptions="Center" TextColor="#9CA3AF"/>
-                                        <TimePicker Time="{Binding Close}" Format="h:mm:tt"
-                                                    FontSize="12" TextColor="Black"/>
+                                        <Border BackgroundColor="#EFE9FF" StrokeThickness="0"
+                                                StrokeShape="RoundRectangle 14" Padding="8,0">
+                                            <TimePicker Time="{Binding Open}" Format="HH:mm"
+                                                        FontSize="13" TextColor="#2B1B6B"/>
+                                        </Border>
+                                        <Label Text="-" VerticalOptions="Center" TextColor="#9A93BF"/>
+                                        <Border BackgroundColor="#EFE9FF" StrokeThickness="0"
+                                                StrokeShape="RoundRectangle 14" Padding="8,0">
+                                            <TimePicker Time="{Binding Close}" Format="HH:mm"
+                                                        FontSize="13" TextColor="#2B1B6B"/>
+                                        </Border>
                                     </HorizontalStackLayout>
 
-                                    <Label Grid.Column="2" Text=" Closed" FontSize="12"
-                                           TextColor="#9CA3AF" HorizontalOptions="End"
+                                    <Label Grid.Column="2" Text="Closed" FontFamily="OpenSansRegular"
+                                           FontSize="13" TextColor="#9A93BF" HorizontalOptions="End"
                                            VerticalOptions="Center"
                                            IsVisible="{Binding IsClosed}"/>
                                 </Grid>
@@ -59,24 +94,94 @@
                     </BindableLayout.ItemTemplate>
                 </VerticalStackLayout>
 
+                <!-- Special closures -->
                 <Label Text="Special Closures &amp; Holidays" FontFamily="OpenSansSemibold"
-                       FontSize="13" TextColor="Black" Margin="0,10,0,0"/>
+                       FontSize="16" TextColor="White" Margin="0,12,0,0"/>
 
-                <Border Stroke="#D1D5DB" StrokeThickness="1" StrokeDashArray="4,3"
-                        StrokeShape="RoundRectangle 8" Padding=" 12">
-                    <Label Text="+ Add Custom Closure Date" FontSize="12" TextColor="#4B5563"
-                           HorizontalOptions="Center"/>
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer
-                            Command="{Binding Source={x:Reference ThisPage}, Path=BindingContext.AddClosureCommand}"/>
-                    </Border.GestureRecognizers>
+                <Label Text="No closures coming up." FontFamily="OpenSansRegular" FontSize="13"
+                       TextColor="White" Opacity="0.85"
+                       IsVisible="{Binding HasNoClosures}"/>
+
+                <VerticalStackLayout Spacing="8" BindableLayout.ItemsSource="{Binding Closures}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ClosureRow">
+                            <Border BackgroundColor="White" StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 18" Padding="14,10">
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                                    <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                                        <Label Text="{Binding Title}" FontFamily="OpenSansSemibold"
+                                               FontSize="14" TextColor="#2B1B6B"/>
+                                        <Label Text="{Binding Reason}" FontFamily="OpenSansRegular"
+                                               FontSize="12" TextColor="#6E63A6"/>
+                                    </VerticalStackLayout>
+                                    <Button Grid.Column="1" Text="Remove"
+                                            FontFamily="OpenSansSemibold" FontSize="12"
+                                            HeightRequest="34" CornerRadius="17" Padding="14,0"
+                                            BackgroundColor="White" TextColor="#B3261E"
+                                            BorderColor="#E5D5D5" BorderWidth="1"
+                                            Command="{Binding Source={x:Reference ThisPage}, Path=BindingContext.DeleteClosureCommand}"
+                                            CommandParameter="{Binding .}"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <!-- Add closure (drops down) -->
+                <Button Text="+ Add Closure Date" FontFamily="OpenSansSemibold" FontSize="13"
+                        HeightRequest="42" CornerRadius="21"
+                        BackgroundColor="#33FFFFFF" TextColor="White"
+                        Command="{Binding ToggleClosureFormCommand}"/>
+
+                <Border BackgroundColor="White" StrokeThickness="0"
+                        StrokeShape="RoundRectangle 20" Padding="16"
+                        IsVisible="{Binding IsClosureFormOpen}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="New closure" FontFamily="OpenSansSemibold"
+                               FontSize="16" TextColor="#2B1B6B"/>
+
+                        <Label Text="First closed day" Style="{StaticResource FieldCaption}"/>
+                        <Border Style="{StaticResource FieldBox}">
+                            <DatePicker Date="{Binding ClosureStart}" FontSize="14" TextColor="#2B1B6B"/>
+                        </Border>
+
+                        <Label Text="Last closed day (same day for one day)" Style="{StaticResource FieldCaption}"/>
+                        <Border Style="{StaticResource FieldBox}">
+                            <DatePicker Date="{Binding ClosureEnd}" FontSize="14" TextColor="#2B1B6B"/>
+                        </Border>
+
+                        <Label Text="Reason" Style="{StaticResource FieldCaption}"/>
+                        <Border Style="{StaticResource FieldBox}">
+                            <Entry Placeholder="e.g. Public holiday" PlaceholderColor="#A59CC9"
+                                   Text="{Binding ClosureReason}"
+                                   BackgroundColor="Transparent" TextColor="#2B1B6B"
+                                   FontFamily="OpenSansRegular" FontSize="14"
+                                   VerticalOptions="Center"/>
+                        </Border>
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="8" Margin="0,6,0,0">
+                            <Button Text="Add closure" Command="{Binding AddClosureCommand}"
+                                    FontFamily="OpenSansSemibold" FontSize="14"
+                                    BackgroundColor="#6D3FE0" TextColor="White"
+                                    CornerRadius="22" HeightRequest="44"/>
+                            <Button Grid.Column="1" Text="Cancel"
+                                    Command="{Binding ToggleClosureFormCommand}"
+                                    FontFamily="OpenSansSemibold" FontSize="14"
+                                    BackgroundColor="White" TextColor="#6D3FE0"
+                                    BorderColor="#6D3FE0" BorderWidth="1"
+                                    CornerRadius="22" HeightRequest="44"/>
+                        </Grid>
+                    </VerticalStackLayout>
                 </Border>
+
+                <BoxView HeightRequest="8" Color="Transparent"/>
             </VerticalStackLayout>
-        </ScrollView> 
-        
-        <!--Save Button-->
-        <Button Grid.Row="2" Text="Save Changes" BackgroundColor="Black" TextColor="White"
-                FontFamily="OpenSansSemibold" CornerRadius="8" HeightRequest="48" Margin="0,10,0,0"
+        </ScrollView>
+
+        <!-- Save button -->
+        <Button Grid.Row="2" Text="Save Changes" BackgroundColor="White" TextColor="#6D3FE0"
+                FontFamily="OpenSansSemibold" FontSize="15" CornerRadius="24" HeightRequest="48"
+                Margin="0,10,0,0"
                 Command="{Binding SaveCommand}"/>
     </Grid>
 </ContentPage>

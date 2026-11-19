@@ -11,9 +11,10 @@
  * -----------------------------------------------------------------------
  */
 
-const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const { onCall, HttpsError } = require("./secure");
 const admin = require("firebase-admin");
 const { logDeletion } = require("./Deletionlog");
+const { COURIER_GUY_API_KEY, getRates, loadCartLines, round2 } = require("./courierguy");
 
 // Initialize Firebase if not already done.
 if (admin.apps.length === 0) {
@@ -193,95 +194,71 @@ exports.deleteProduct = onCall(async (request) => {
 
 /**
  * createOrder
- * Input: { deliveryAddress?, notes? }
- * Output: { orderId, total }
+ * Input: { addressId, serviceCode, notes? }
+ * Output: { orderId, subtotal, shippingFee, total }
  *
- * Reads straight from the caller's own cartItems. Never accepts a cart
- * snapshot from the client. Each item's price is re-fetched from the
- * product doc. Stock is decremented for tracked products. The cart is
- * cleared only after the order is written.
+ * Creates an order that is "awaiting_payment". Nothing is taken from stock and
+ * the cart is NOT cleared yet — that only happens once Paystack confirms the
+ * payment (see finalizeOrderPayment in payment.js), so a failed or abandoned
+ * payment never loses the customer's cart.
+ *
+ * Reads straight from the caller's own cartItems and re-prices every item from
+ * the product docs. The delivery fee is re-quoted from Courier Guy here on the
+ * server; the client only says WHICH delivery option it picked.
  */
-exports.createOrder = onCall(async (request) => {
+exports.createOrder = onCall({ secrets: [COURIER_GUY_API_KEY] }, async (request) => {
   const uid = request.auth && request.auth.uid;
   if (!uid) throw new HttpsError("unauthenticated", "Must be signed in to check out.");
 
-  const { deliveryAddress, notes } = request.data || {};
+  const { addressId, serviceCode, notes } = request.data || {};
+  if (!addressId || !serviceCode) {
+    throw new HttpsError("invalid-argument", "Please choose a delivery address and delivery option.");
+  }
+
+  const addressSnap = await db.collection("deliveryAddresses").doc(String(addressId)).get();
+  if (!addressSnap.exists || addressSnap.data().clientId !== uid) {
+    throw new HttpsError("not-found", "Delivery address not found.");
+  }
+  const address = addressSnap.data();
+
+  const { lines, subtotal } = await loadCartLines(db, uid);
+
+  const rates = await getRates(address, subtotal);
+  const rate = rates.find((r) => r.code === serviceCode);
+  if (!rate) {
+    throw new HttpsError("failed-precondition", "That delivery option is no longer available. Please choose again.");
+  }
+
+  const shippingFee = rate.price;
+  const total = round2(subtotal + shippingFee);
   const orderRef = db.collection("orders").doc();
 
-  const result = await db.runTransaction(async (tx) => {
-    // Read everything first (required by Firestore transactions).
-    const cartSnap = await tx.get(db.collection("cartItems").where("clientId", "==", uid));
-    if (cartSnap.empty) {
-      throw new HttpsError("failed-precondition", "Your cart is empty.");
-    }
-
-    const cartDocs = cartSnap.docs;
-    const productRefs = cartDocs.map((d) => db.collection("products").doc(d.data().productId));
-    const productSnaps = await Promise.all(productRefs.map((ref) => tx.get(ref)));
-
-    const lineItems = [];
-    let total = 0;
-
-    for (let i = 0; i < cartDocs.length; i++) {
-      const cartItem = cartDocs[i].data();
-      const productSnap = productSnaps[i];
-
-      // Check the product still exists.
-      if (!productSnap.exists) {
-        throw new HttpsError("failed-precondition", "One of the items in your cart is no longer available.");
-      }
-      const product = productSnap.data();
-
-      // Check the product is still active.
-      if (product.isActive === false) {
-        throw new HttpsError("failed-precondition", `"${product.name}" is no longer available.`);
-      }
-
-      // Check there's enough stock.
-      if (product.stockQuantity !== null && product.stockQuantity !== undefined && product.stockQuantity < cartItem.quantity) {
-        throw new HttpsError("failed-precondition", `Not enough stock for "${product.name}" (${product.stockQuantity} left).`);
-      }
-
-      const lineTotal = product.price * cartItem.quantity;
-      total += lineTotal;
-      lineItems.push({
-        productId: productSnap.id,
-        name: product.name,
-        unitPrice: product.price,
-        quantity: cartItem.quantity,
-        lineTotal,
-      });
-    }
-
-    // Write the order.
-    tx.set(orderRef, {
-      clientId: uid,
-      items: lineItems,
-      productIds: lineItems.map((li) => li.productId),
-      total,
-      deliveryAddress: deliveryAddress || null,
-      notes: notes || "",
-      status: "pending",
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
-
-    // Decrement stock for tracked products.
-    for (let i = 0; i < lineItems.length; i++) {
-      const product = productSnaps[i].data();
-      if (product.stockQuantity !== null && product.stockQuantity !== undefined) {
-        tx.update(productRefs[i], { stockQuantity: product.stockQuantity - lineItems[i].quantity });
-      }
-    }
-
-    // Clear the cart.
-    for (const cartDoc of cartDocs) {
-      tx.delete(cartDoc.ref);
-    }
-
-    return { total };
+  await orderRef.set({
+    clientId: uid,
+    items: lines,
+    productIds: lines.map((li) => li.productId),
+    subtotal,
+    shippingFee,
+    total,
+    deliveryService: { code: rate.code, name: rate.name },
+    deliveryAddress: {
+      recipientName: address.recipientName,
+      phone: address.phone,
+      addressType: address.addressType,
+      complex: address.complex || "",
+      streetAddress: address.streetAddress,
+      suburb: address.suburb,
+      city: address.city,
+      province: address.province,
+      postalCode: address.postalCode,
+    },
+    notes: notes || "",
+    status: "awaiting_payment",
+    paymentStatus: "unpaid",
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
   });
 
-  return { orderId: orderRef.id, total: result.total };
+  return { orderId: orderRef.id, subtotal, shippingFee, total };
 });
 
 // ---------------------------------------------------------------------

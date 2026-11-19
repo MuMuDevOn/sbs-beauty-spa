@@ -1,4 +1,4 @@
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using System.Text.Json.Serialization;
 using SBSBeautySpa.Mobile.Models;
 
@@ -10,7 +10,7 @@ namespace SBSBeautySpa.Mobile.Services
         // Changes a booking's status (confirmed, completed, or cancelled).
         //
         // IMPORTANT: The server decides which changes are actually allowed.
-        // (See adminBookings.js — it has a list of valid transitions.)
+        // (See adminBookings.js â€” it has a list of valid transitions.)
         //
         // This method does NOT check the rules on the client side first.
         // It just asks the server. If the change isn't allowed, the server
@@ -29,7 +29,7 @@ namespace SBSBeautySpa.Mobile.Services
 
         // The base web address of your deployed Cloud Functions.
         // Replace this with your real URL after deploying.
-        private const string FunctionsBaseUrl = "https://<region>-<project-id>.cloudfunctions.net";
+        private const string FunctionsBaseUrl = "https://us-central1-sbs-beauty-spa.cloudfunctions.net";
 
         public AdminBookingActionsService(HttpClient http, IFirebaseAuthService auth)
         {
@@ -53,7 +53,7 @@ namespace SBSBeautySpa.Mobile.Services
         }
 
         // This helper method sends a POST request to the server.
-        // Same pattern as every other service — one place to write the logic.
+        // Same pattern as every other service â€” one place to write the logic.
         private async Task<TEnvelope> PostCallableAsync<TEnvelope>(string functionName, object payload, CancellationToken ct)
         {
             // Get the user's login token so the server knows who is calling.
@@ -106,7 +106,7 @@ namespace SBSBeautySpa.Mobile.Services
             }
             catch (System.Text.Json.JsonException)
             {
-                // Not JSON, or not the shape we expected — just use the raw body.
+                // Not JSON, or not the shape we expected â€” just use the raw body.
             }
             return rawBody;
         }

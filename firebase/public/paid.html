@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Payment received - SBS Beauty Spa</title>
+<style>
+  :root { --ink:#2b1b6b; --muted:#6e63a6; --accent:#6d3fe0; --card:#ffffff; }
+  * { box-sizing: border-box; }
+  body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;
+         font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color:var(--ink);
+         background:linear-gradient(180deg,#1e1659,#4a35b0 55%,#6278e6); }
+  .card { background:var(--card); border-radius:24px; padding:32px 26px; max-width:420px; width:100%; text-align:center;
+          box-shadow:0 10px 30px rgba(0,0,0,.25); }
+  .tick { width:72px; height:72px; border-radius:50%; background:#eaf7ee; color:#1e7b3a; font-size:40px; line-height:72px; margin:0 auto 14px; }
+  h1 { margin:0 0 8px; font-size:1.5rem; }
+  p { margin:0 0 10px; color:var(--muted); line-height:1.55; }
+  strong { color:var(--ink); }
+  @media (prefers-color-scheme: dark) {
+    :root { --card:#1f1850; --ink:#ece8ff; --muted:#b9b0e6; }
+    .tick { background:#173a25; color:#7be0a0; }
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="tick">&#10003;</div>
+    <h1>Payment received</h1>
+    <p>Thank you! Your payment went through.</p>
+    <p><strong>You can close this page and go back to the SBS Beauty Spa app.</strong> Your booking or order will show as paid there.</p>
+    <p style="font-size:.9rem">If it still shows as unpaid, wait a moment and reopen the app.</p>
+  </div>
+</body>
+</html>

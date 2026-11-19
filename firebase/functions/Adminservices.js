@@ -2,7 +2,7 @@
  * This file handles full CRUD for the Service catalog.
  */
 
-const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const { onCall, HttpsError } = require("./secure");
 const admin = require("firebase-admin");
 const { logDeletion } = require("./Deletionlog");
 

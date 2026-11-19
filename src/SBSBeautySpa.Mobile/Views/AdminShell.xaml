@@ -5,29 +5,30 @@
        x:Class="SBSBeautySpa.Mobile.Views.AdminShell"
        FlyoutBehavior="Disabled"
        Shell.TabBarBackgroundColor="White"
-       Shell.TabBarForegroundColor="#111827"
-       Shell.TabBarTitleColor="#111827"
-       Shell.TabBarUnselectedColor="#9CA3AF">
+       Shell.TabBarForegroundColor="#6D3FE0"
+       Shell.TabBarTitleColor="#6D3FE0"
+       Shell.TabBarUnselectedColor="#9A93BF">
 
     <TabBar Route="AdminMain">
-        <ShellContent Title="Dashboard" Icon="home.png"
+        <ShellContent Title="Dashboard" Icon="tab_home.svg"
                       Route="AdminDashboard"
                       ContentTemplate="{DataTemplate admin:AdminDashboardPage}" />
-        <ShellContent Title="Bookings" Icon="booking.png"
+        <ShellContent Title="Bookings" Icon="tab_bookings.svg"
                       Route="AdminBookings"
                       ContentTemplate="{DataTemplate admin:AdminBookingsPage}" />
-        <ShellContent Title="Services" Icon="shop.png"
+        <ShellContent Title="Services" Icon="tab_gallery.svg"
                       Route="AdminServices"
                       ContentTemplate="{DataTemplate admin:AdminServicesPage}" />
-        <ShellContent Title="Products" Icon="gallery.png"
+        <ShellContent Title="Products" Icon="tab_shop.svg"
                       Route="AdminProducts"
                       ContentTemplate="{DataTemplate admin:AdminProductPage}" />
-        <ShellContent Title="Clients" Icon="profile.png"
+        <ShellContent Title="Clients" Icon="tab_profile.svg"
                       Route="AdminClients"
                       ContentTemplate="{DataTemplate admin:AdminClientsPage}" />
-        <ShellContent Title="Staff" Icon="profile.png"
+        <ShellContent Title="Staff" Icon="tab_profile.svg"
                       Route="AdminStaff"
                       ContentTemplate="{DataTemplate admin:AdminStaffPage}" />
+       
     </TabBar>
 
 </Shell>

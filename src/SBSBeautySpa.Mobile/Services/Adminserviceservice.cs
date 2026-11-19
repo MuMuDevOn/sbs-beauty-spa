@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
 
@@ -48,7 +48,7 @@ namespace SBSBeautySpa.Mobile.Services
 
         // The base web address of your deployed Cloud Functions.
         // Replace this with your real URL after deploying.
-        private const string FunctionsBaseUrl = "https://<region>-<project-id>.cloudfunctions.net";
+        private const string FunctionsBaseUrl = "https://us-central1-sbs-beauty-spa.cloudfunctions.net";
 
         public AdminServicesService(HttpClient http, IFirebaseAuthService auth)
         {
@@ -169,7 +169,7 @@ namespace SBSBeautySpa.Mobile.Services
             }
             catch (System.Text.Json.JsonException)
             {
-                // Not JSON, or not the shape we expected — fall through to raw body.
+                // Not JSON, or not the shape we expected â€” fall through to raw body.
             }
             return rawBody;
         }

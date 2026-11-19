@@ -1,22 +1,41 @@
 /**
  * This file sets request.auth.token.admin, which every admin-only
  * function in the app checks.
- 
+ *
  * There are two claims
  *   admin      — can manage bookings, services, hours, etc.
  *   superAdmin — can do everything admin can do, PLUS grant/revoke
  *                admin access to other users. superAdmin implies admin.
  *
- *   Instead, the first superAdmin is set with a one-off local script:
+ *   The first superAdmin is set with a one-off local script:
  *   scripts/bootstrapSuperAdmin.js — run once, outside the deployed app.
+ *
+ *   PROTECTED_EMAILS (below) are owner accounts: nobody can demote them
+ *   or remove their roles through the app.
  */
 
-const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const { onCall, HttpsError } = require("./secure");
 const admin = require("firebase-admin");
 
 // Initialize Firebase if not already done.
 if (admin.apps.length === 0) {
   admin.initializeApp();
+}
+
+// Accounts that can never be demoted or have their roles removed.
+// When the client takes over, replace this with their real email.
+const PROTECTED_EMAILS = ["matsworkbasedbrand@gmail.com"];
+
+function isProtectedEmail(email) {
+  return PROTECTED_EMAILS.includes((email || "").toLowerCase());
+}
+
+// Helper: throws an error if the target account is a protected owner.
+async function assertNotProtected(targetUid) {
+  const target = await admin.auth().getUser(targetUid);
+  if (isProtectedEmail(target.email)) {
+    throw new HttpsError("permission-denied", "The owner account cannot be changed.");
+  }
 }
 
 // Helper: throws an error if the caller isn't a super admin.
@@ -43,6 +62,9 @@ exports.setAdminClaim = onCall(async (request) => {
   if (!targetUid || typeof makeAdmin !== "boolean") {
     throw new HttpsError("invalid-argument", "targetUid and makeAdmin (boolean) are required.");
   }
+
+  // The owner account can never be changed.
+  await assertNotProtected(targetUid);
 
   // Load the target user.
   const targetUser = await admin.auth().getUser(targetUid);
@@ -87,6 +109,9 @@ exports.setSuperAdminClaim = onCall(async (request) => {
     throw new HttpsError("invalid-argument", "targetUid and makeSuperAdmin (boolean) are required.");
   }
 
+  // The owner account can never be changed.
+  await assertNotProtected(targetUid);
+
   // Prevent a super admin from removing their own super admin access.
   // (This avoids accidentally locking out the last super admin.)
   if (targetUid === request.auth.uid && makeSuperAdmin === false) {
@@ -94,7 +119,6 @@ exports.setSuperAdminClaim = onCall(async (request) => {
       "failed-precondition",
       "You can't remove your own super admin access — have another super admin do it, so the account is never accidentally locked out."
     );
-    
   }
 
   const targetUser = await admin.auth().getUser(targetUid);
@@ -113,21 +137,12 @@ exports.setSuperAdminClaim = onCall(async (request) => {
   return { uid: targetUid, superAdmin: makeSuperAdmin, admin: newClaims.admin };
 });
 
-exports.getMyClaims = onCall(async (request) => {
-  if (!request.auth) {
-    throw new HttpsError("unauthenticated", "Must be signed in.");
-  }
-  return {
-    admin: request.auth.token.admin === true,
-    superAdmin: request.auth.token.superAdmin === true,
-  };
-});
-
 /**
  * listAdmins
- * Output: { admins: [{ uid, email, admin, superAdmin }, ...] }
+ * Output: { admins: [{ uid, email, admin, superAdmin, isOwner }, ...] }
  *
  * Super admin only. Lists all admin and super admin users.
+ * isOwner is true for protected accounts (so the app can hide their buttons).
  *
  * NOTE: The Admin SDK can't query users by custom claim directly.
  * So this pages through all users and filters in memory.
@@ -153,6 +168,7 @@ exports.listAdmins = onCall(async (request) => {
           email: user.email || null,
           admin: claims.admin === true,
           superAdmin: claims.superAdmin === true,
+          isOwner: isProtectedEmail(user.email),
         });
       }
     }
@@ -162,4 +178,60 @@ exports.listAdmins = onCall(async (request) => {
   } while (pageToken && pagesFetched < 5); // Cap at 5000 users
 
   return { admins };
+});
+
+/**
+ * addStaffByEmail
+ * Input:  { email: string }
+ * Output: { uid, email, admin: true }
+ *
+ * Super admin only. Finds an existing account by email and makes it staff
+ * (plain admin). The person must have registered in the app first.
+ */
+exports.addStaffByEmail = onCall(async (request) => {
+  assertIsSuperAdmin(request);
+
+  const email = String((request.data && request.data.email) || "").trim().toLowerCase();
+  if (!email || !email.includes("@")) {
+    throw new HttpsError("invalid-argument", "Enter a valid email address.");
+  }
+
+  let user;
+  try {
+    user = await admin.auth().getUserByEmail(email);
+  } catch (err) {
+    if (err.code === "auth/user-not-found") {
+      throw new HttpsError(
+        "not-found",
+        "No account found for that email. They need to register in the app first."
+      );
+    }
+    throw err;
+  }
+
+  const existingClaims = user.customClaims || {};
+  if (existingClaims.admin === true || existingClaims.superAdmin === true) {
+    throw new HttpsError("already-exists", "That person is already staff.");
+  }
+
+  await admin.auth().setCustomUserClaims(user.uid, { ...existingClaims, admin: true });
+  // Their old token expires so the new role applies on next sign-in.
+  await admin.auth().revokeRefreshTokens(user.uid);
+
+  return { uid: user.uid, email: user.email, admin: true };
+});
+
+/**
+ * getMyClaims
+ * Output: { admin, superAdmin }
+ * Tells the app what the signed-in user is allowed to do.
+ */
+exports.getMyClaims = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Must be signed in.");
+  }
+  return {
+    admin: request.auth.token.admin === true,
+    superAdmin: request.auth.token.superAdmin === true,
+  };
 });

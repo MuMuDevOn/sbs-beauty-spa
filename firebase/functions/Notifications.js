@@ -12,7 +12,7 @@
 
 const { onDocumentUpdated } = require("firebase-functions/v2/firestore");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
-const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const { onCall, HttpsError } = require("./secure");
 const { defineSecret } = require("firebase-functions/params");
 const admin = require("firebase-admin");
 const { DateTime } = require("luxon");
@@ -26,7 +26,7 @@ const db = admin.firestore();
 
 // The SendGrid API key lives in Firebase secrets, not in this file.
 const SENDGRID_API_KEY = defineSecret("SENDGRID_API_KEY");
-const FROM_EMAIL = "bookings@sbsbeauty.co.za"; // must be verified in SendGrid
+const FROM_EMAIL =  "structsbsbeauty@gmail.com"; // must be verified in SendGrid
 const BUSINESS_TIMEZONE = "Africa/Johannesburg";
 
 // How far before an appointment a reminder should go out,
@@ -65,20 +65,38 @@ async function sendEmail(notificationRef, { to, subject, html }) {
 
 // Sends a push notification and updates the notification doc's status.
 //
-// IMPORTANT: This depends on users/{uid}.fcmToken existing.
-// Nothing in this backend writes that field yet — the CLIENT needs to
-// save its own token on login. Until that's built, every push will fail
-// with "No device token registered."
+// The phone saves its token to users/{uid}.fcmToken (see Push.js: registerPushToken).
+// If the client switched push off (users/{uid}.pushEnabled === false) nothing is sent
+// and the record is marked "skipped".
 async function sendPush(notificationRef, { clientId, title, body }) {
   try {
     const userSnap = await db.collection("users").doc(clientId).get();
-    const token = userSnap.exists ? userSnap.data().fcmToken : null;
+    const user = userSnap.exists ? userSnap.data() : {};
 
+    if (user.pushEnabled === false) {
+      await notificationRef.update({
+        status: "skipped",
+        lastError: "Client turned push notifications off.",
+        lastAttemptAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+      return;
+    }
+
+    const token = user.fcmToken || null;
     if (!token) {
       throw new Error("No device token registered for this user.");
     }
 
-    await admin.messaging().send({ token, notification: { title, body } });
+    try {
+      await admin.messaging().send({ token, notification: { title, body } });
+    } catch (sendErr) {
+      // The phone's token is no longer valid (app removed / token rotated): forget it.
+      const code = sendErr && sendErr.code;
+      if (code === "messaging/registration-token-not-registered" || code === "messaging/invalid-registration-token") {
+        await db.collection("users").doc(clientId).update({ fcmToken: admin.firestore.FieldValue.delete() });
+      }
+      throw sendErr;
+    }
     await notificationRef.update({
       status: "sent",
       lastAttemptAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -238,6 +256,7 @@ exports.sendBookingReminders = onSchedule("every 60 minutes", async () => {
     for (const doc of snap.docs) {
       const booking = doc.data();
       if (booking.reminderSentAt) continue; // already reminded
+      if (!booking.startTime || !booking.clientId) continue; // broken record: skip it, don't stop the run
 
       const [hour, minute] = booking.startTime.split(":").map(Number);
       const appointmentAt = DateTime.fromISO(booking.date, { zone: BUSINESS_TIMEZONE }).set({ hour, minute });
@@ -248,8 +267,9 @@ exports.sendBookingReminders = onSchedule("every 60 minutes", async () => {
     }
   }
 
-  // Send reminders.
+  // Send reminders. One failing booking must not stop the others.
   for (const booking of dueBookings) {
+   try {
     const message = `Reminder: your appointment is tomorrow at ${booking.startTime}.`;
 
     // In-app notification.
@@ -285,6 +305,9 @@ exports.sendBookingReminders = onSchedule("every 60 minutes", async () => {
     await db.collection("bookings").doc(booking.id).update({
       reminderSentAt: admin.firestore.FieldValue.serverTimestamp(),
     });
+   } catch (err) {
+    console.error("Reminder failed for booking", booking.id, err);
+   }
   }
 });
 

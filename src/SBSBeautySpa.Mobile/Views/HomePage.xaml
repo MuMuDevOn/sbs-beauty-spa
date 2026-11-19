@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
@@ -10,7 +10,15 @@
 
     <ContentPage.Resources>
 
-        <!-- Section heading on the gradient -->
+        <!-- Real values are set in HomePage.xaml.cs once the page width is known -->
+        <x:Double x:Key="CardWidth">160</x:Double>
+        <x:Double x:Key="CardImageWidth">140</x:Double>
+        <x:Double x:Key="CardImageHeight">130</x:Double>
+        <x:Double x:Key="RowWidth">320</x:Double>
+        <x:Double x:Key="ProductCardWidth">160</x:Double>
+        <x:Double x:Key="ProductImageWidth">140</x:Double>
+        <x:Double x:Key="ProductImageHeight">130</x:Double>
+
         <Style x:Key="SectionTitle" TargetType="Label">
             <Setter Property="TextColor" Value="White" />
             <Setter Property="FontFamily" Value="OpenSansSemibold" />
@@ -23,35 +31,32 @@
             <Setter Property="FontSize" Value="16" />
         </Style>
         <Style x:Key="FilterHeading" TargetType="Label">
-            <Setter Property="TextColor" Value="#1B2A4A" />
+            <Setter Property="TextColor" Value="#2B1B6B" />
             <Setter Property="FontFamily" Value="OpenSansSemibold" />
             <Setter Property="FontSize" Value="13" />
             <Setter Property="Margin" Value="0,6,0,2" />
         </Style>
-
-        <!-- "View all" pill text -->
         <Style x:Key="ViewAll" TargetType="Label">
             <Setter Property="TextColor" Value="White" />
             <Setter Property="FontFamily" Value="OpenSansSemibold" />
             <Setter Property="FontSize" Value="12" />
             <Setter Property="VerticalOptions" Value="Center" />
         </Style>
-
-        <!-- Text inside white cards -->
         <Style x:Key="CardTitle" TargetType="Label">
-            <Setter Property="TextColor" Value="#1B2A4A" />
+            <Setter Property="TextColor" Value="#2B1B6B" />
             <Setter Property="FontFamily" Value="OpenSansSemibold" />
             <Setter Property="FontSize" Value="14" />
             <Setter Property="LineBreakMode" Value="TailTruncation" />
+            <Setter Property="MaxLines" Value="1" />
         </Style>
         <Style x:Key="CardSubtitle" TargetType="Label">
-            <Setter Property="TextColor" Value="#5B6B8C" />
+            <Setter Property="TextColor" Value="#6E63A6" />
             <Setter Property="FontFamily" Value="OpenSansRegular" />
             <Setter Property="FontSize" Value="12" />
             <Setter Property="LineBreakMode" Value="TailTruncation" />
+            <Setter Property="MaxLines" Value="1" />
         </Style>
 
-        <!-- One option in the filter panel -->
         <DataTemplate x:Key="FilterChipTemplate" x:DataType="vm:FilterChip">
             <Border BackgroundColor="{Binding ChipBackground}" StrokeThickness="0"
                     StrokeShape="RoundRectangle 16" Padding="14,7" Margin="0,0,8,8">
@@ -64,23 +69,26 @@
 
         <!-- A service as a row (Popular Services + search results) -->
         <DataTemplate x:Key="ServiceRowTemplate" x:DataType="vm:HomeServiceCard">
-            <Border BackgroundColor="White" StrokeThickness="0"
-                    StrokeShape="RoundRectangle 20" Padding="12">
+            <Border WidthRequest="{DynamicResource RowWidth}"
+                    BackgroundColor="White" StrokeThickness="0"
+                    StrokeShape="RoundRectangle 20" Padding="12" Margin="0,0,0,12">
                 <Border.Shadow>
                     <Shadow Brush="Black" Opacity="0.18" Radius="12" Offset="0,4" />
                 </Border.Shadow>
                 <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
-                    <Border WidthRequest="60" HeightRequest="60" StrokeThickness="0"
-                            StrokeShape="RoundRectangle 14" BackgroundColor="#E6EBF4">
-                        <Image Source="{Binding ImageUrl}" Aspect="AspectFill" />
+                    <Border WidthRequest="64" HeightRequest="64" StrokeThickness="0"
+                            StrokeShape="RoundRectangle 16" BackgroundColor="#EFE9FF">
+                        <Image Source="{Binding ImageUrl}" Aspect="AspectFill"
+                               WidthRequest="64" HeightRequest="64"
+                               HorizontalOptions="Fill" VerticalOptions="Fill" />
                     </Border>
                     <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="3">
                         <Label Text="{Binding Name}" Style="{StaticResource CardTitle}" />
                         <Label Text="{Binding DurationSubtitle}" Style="{StaticResource CardSubtitle}" />
                     </VerticalStackLayout>
-                    <Border Grid.Column="2" BackgroundColor="#E6EBF4" StrokeThickness="0"
+                    <Border Grid.Column="2" BackgroundColor="#EFE9FF" StrokeThickness="0"
                             StrokeShape="RoundRectangle 14" Padding="12,6" VerticalOptions="Center">
-                        <Label Text="{Binding PriceLabel}" TextColor="#1B2A4A"
+                        <Label Text="{Binding PriceLabel}" TextColor="#2B1B6B"
                                FontFamily="OpenSansSemibold" FontSize="13" />
                     </Border>
                 </Grid>
@@ -90,18 +98,22 @@
             </Border>
         </DataTemplate>
 
-        <!-- A product as a card (New Arrivals + search results) -->
+        <!-- A product as a card (New Arrivals + search results).
+             Card and photo have EXACT widths, so any photo is cropped to fit. -->
         <DataTemplate x:Key="ProductCardTemplate" x:DataType="vm:HomeProductCard">
-            <Border FlexLayout.Basis="47%" BackgroundColor="White"
-                    StrokeThickness="0" StrokeShape="RoundRectangle 22"
-                    Padding="10" Margin="0,0,0,14">
+            <Border WidthRequest="{DynamicResource ProductCardWidth}"
+                    BackgroundColor="White" StrokeThickness="0" StrokeShape="RoundRectangle 22"
+                    Padding="10" Margin="0,0,0,12">
                 <Border.Shadow>
                     <Shadow Brush="Black" Opacity="0.18" Radius="12" Offset="0,4" />
                 </Border.Shadow>
                 <VerticalStackLayout Spacing="8">
-                    <Border HeightRequest="120" StrokeThickness="0"
-                            StrokeShape="RoundRectangle 16" BackgroundColor="#E6EBF4">
-                        <Image Source="{Binding ImageUrl}" Aspect="AspectFill" />
+                    <Border WidthRequest="{DynamicResource ProductImageWidth}" HeightRequest="{DynamicResource ProductImageHeight}"
+                            HorizontalOptions="Start" StrokeThickness="0"
+                            StrokeShape="RoundRectangle 16" BackgroundColor="#EFE9FF">
+                        <Image Source="{Binding ImageUrl}" Aspect="AspectFill"
+                               WidthRequest="{DynamicResource ProductImageWidth}" HeightRequest="{DynamicResource ProductImageHeight}"
+                               HorizontalOptions="Fill" VerticalOptions="Fill" />
                     </Border>
                     <VerticalStackLayout Spacing="2" Padding="4,0,4,4">
                         <Label Text="{Binding Name}" Style="{StaticResource CardTitle}" />
@@ -117,29 +129,40 @@
 
     <Grid Background="{StaticResource PageGradient}">
         <ScrollView>
-            <VerticalStackLayout Padding="20,46,20,32" Spacing="22">
+            <!-- Content column: centred and capped so it never stretches on a wide window -->
+            <VerticalStackLayout x:Name="ContentColumn"
+                                 HorizontalOptions="Center"
+                                 Padding="20,46,20,32" Spacing="22">
 
                 <!-- Top row: logo + notifications bell -->
                 <Grid ColumnDefinitions="*,Auto">
-                    <Image Source="logo.png" HeightRequest="46" WidthRequest="160"
+                    <Image Source="logo.png" HeightRequest="64" WidthRequest="110"
                            Aspect="AspectFit" HorizontalOptions="Start" VerticalOptions="Center" />
 
-                    <Border Grid.Column="1" WidthRequest="46" HeightRequest="46"
-                            StrokeShape="Ellipse" StrokeThickness="0"
-                            BackgroundColor="#E6EBF4" VerticalOptions="Center">
-                        <Image Source="ic_bell.png" WidthRequest="22" HeightRequest="22"
-                               HorizontalOptions="Center" VerticalOptions="Center" />
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding OpenNotificationsCommand}" />
-                        </Border.GestureRecognizers>
-                    </Border>
+                    <Grid Grid.Column="1" WidthRequest="46" HeightRequest="46" VerticalOptions="Center">
+                        <Border WidthRequest="46" HeightRequest="46"
+                                StrokeShape="Ellipse" StrokeThickness="0"
+                                BackgroundColor="#EFE9FF">
+                            <Image Source="bellicon.png" WidthRequest="22" HeightRequest="22"
+                                   Aspect="AspectFit"
+                                   HorizontalOptions="Center" VerticalOptions="Center" />
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenNotificationsCommand}" />
+                            </Border.GestureRecognizers>
+                        </Border>
+                        <!-- Red dot: shown when there are unread notifications -->
+                        <Border x:Name="UnreadDot" IsVisible="False" InputTransparent="True"
+                                WidthRequest="12" HeightRequest="12" StrokeShape="Ellipse"
+                                BackgroundColor="#E5484D" Stroke="White" StrokeThickness="2"
+                                HorizontalOptions="End" VerticalOptions="Start" Margin="0,2,2,0" />
+                    </Grid>
                 </Grid>
 
                 <!-- Greeting -->
                 <VerticalStackLayout Spacing="2" Margin="0,-4,0,0">
-                    <Label Text="Hello," TextColor="#DCE8F5" FontFamily="OpenSansRegular" FontSize="15" />
+                    <Label Text="Hello," TextColor="#E3DDFB" FontFamily="OpenSansRegular" FontSize="15" />
                     <Label Text="Welcome!" TextColor="White" FontFamily="OpenSansSemibold" FontSize="32" />
-                    <Label Text="What would you like to book today?" TextColor="#DCE8F5"
+                    <Label Text="What would you like to book today?" TextColor="#E3DDFB"
                            FontFamily="OpenSansRegular" FontSize="13" />
                 </VerticalStackLayout>
 
@@ -158,12 +181,12 @@
                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
                         <Image Grid.Column="0" WidthRequest="20" HeightRequest="20"
                                VerticalOptions="Center"
-                               mi:MauiIcon.Value="{mi:Material Icon=Search, IconColor=#5B6B8C}" />
+                               mi:MauiIcon.Value="{mi:Material Icon=Search, IconColor=#6E63A6}" />
 
                         <Entry Grid.Column="1"
                                Placeholder="Search nails, lashes, press-ons..."
-                               PlaceholderColor="#9AA5BC"
-                               TextColor="#1B2A4A"
+                               PlaceholderColor="#A59CC9"
+                               TextColor="#2B1B6B"
                                BackgroundColor="Transparent"
                                FontFamily="OpenSansRegular"
                                FontSize="14"
@@ -171,7 +194,7 @@
                                ReturnType="Done"
                                Text="{Binding SearchText}" />
 
-                        <Border Grid.Column="2" BackgroundColor="#1B2A4A" StrokeThickness="0"
+                        <Border Grid.Column="2" BackgroundColor="#6D3FE0" StrokeThickness="0"
                                 StrokeShape="RoundRectangle 20" Padding="14,0"
                                 HeightRequest="38" VerticalOptions="Center">
                             <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
@@ -217,41 +240,90 @@
 
                         <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,8,0,0">
                             <Button Text="Clear all" Command="{Binding ClearFiltersCommand}"
-                                    BackgroundColor="Transparent" TextColor="#1B2A4A"
-                                    BorderColor="#1B2A4A" BorderWidth="1" CornerRadius="14"
+                                    BackgroundColor="Transparent" TextColor="#2B1B6B"
+                                    BorderColor="#6D3FE0" BorderWidth="1" CornerRadius="14"
                                     FontFamily="OpenSansSemibold" HeightRequest="46" />
                             <Button Grid.Column="1" Text="Show results"
                                     Command="{Binding ToggleFilterPanelCommand}"
-                                    BackgroundColor="#1B2A4A" TextColor="White" CornerRadius="14"
+                                    BackgroundColor="#6D3FE0" TextColor="White" CornerRadius="14"
                                     FontFamily="OpenSansSemibold" HeightRequest="46" />
                         </Grid>
                     </VerticalStackLayout>
                 </Border>
 
-                <!-- Category shortcuts (these filter this page too) -->
+                <!-- Category shortcuts: icons come straight from Resources\Images -->
                 <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
-                    <HorizontalStackLayout Spacing="14"
-                                           BindableLayout.ItemsSource="{Binding Categories}">
-                        <BindableLayout.ItemTemplate>
-                            <DataTemplate x:DataType="vm:HomeCategory">
-                                <VerticalStackLayout Spacing="8" WidthRequest="72">
-                                    <Border WidthRequest="62" HeightRequest="62"
-                                            StrokeShape="Ellipse" StrokeThickness="2" Stroke="#40FFFFFF"
-                                            BackgroundColor="{Binding Background}"
-                                            HorizontalOptions="Center">
-                                        <Label Text="{Binding Glyph}" FontSize="24"
-                                               HorizontalOptions="Center" VerticalOptions="Center" />
-                                    </Border>
-                                    <Label Text="{Binding Label}" TextColor="White"
-                                           FontFamily="OpenSansRegular" FontSize="12"
-                                           HorizontalTextAlignment="Center"
-                                           LineBreakMode="TailTruncation" />
-                                    <VerticalStackLayout.GestureRecognizers>
-                                        <TapGestureRecognizer Tapped="OnCategoryTapped" />
-                                    </VerticalStackLayout.GestureRecognizers>
-                                </VerticalStackLayout>
-                            </DataTemplate>
-                        </BindableLayout.ItemTemplate>
+                    <HorizontalStackLayout Spacing="14" x:Name="ShortcutRow">
+                        <VerticalStackLayout Spacing="8" WidthRequest="72">
+                            <Border x:Name="CatNailsCircle" WidthRequest="64" HeightRequest="64"
+                                    StrokeShape="Ellipse" StrokeThickness="2" Stroke="#55FFFFFF"
+                                    BackgroundColor="Black" HorizontalOptions="Center">
+                                <Image x:Name="CatNailsIcon" Source="scissors.png"
+                                       WidthRequest="28" HeightRequest="28" Aspect="AspectFit"
+                                       HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                            <Label Text="Nails" TextColor="White" FontFamily="OpenSansRegular"
+                                   FontSize="12" HorizontalTextAlignment="Center" />
+                            <VerticalStackLayout.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnCategoryShortcutTapped" CommandParameter="Nails" />
+                            </VerticalStackLayout.GestureRecognizers>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Spacing="8" WidthRequest="72">
+                            <Border x:Name="CatLashesCircle" WidthRequest="64" HeightRequest="64"
+                                    StrokeShape="Ellipse" StrokeThickness="2" Stroke="#55FFFFFF"
+                                    BackgroundColor="White" HorizontalOptions="Center">
+                                <Image x:Name="CatLashesIcon" Source="eye.png"
+                                       WidthRequest="28" HeightRequest="28" Aspect="AspectFit"
+                                       HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                            <Label Text="Lashes" TextColor="White" FontFamily="OpenSansRegular"
+                                   FontSize="12" HorizontalTextAlignment="Center" />
+                            <VerticalStackLayout.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnCategoryShortcutTapped" CommandParameter="Lashes" />
+                            </VerticalStackLayout.GestureRecognizers>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Spacing="8" WidthRequest="72">
+                            <Border x:Name="CatPressOnsCircle" WidthRequest="64" HeightRequest="64"
+                                    StrokeShape="Ellipse" StrokeThickness="2" Stroke="#55FFFFFF"
+                                    BackgroundColor="White" HorizontalOptions="Center">
+                                <Image x:Name="CatPressOnsIcon" Source="package_icon.png"
+                                       WidthRequest="28" HeightRequest="28" Aspect="AspectFit"
+                                       HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                            <Label Text="Press-Ons" TextColor="White" FontFamily="OpenSansRegular"
+                                   FontSize="12" HorizontalTextAlignment="Center" />
+                            <VerticalStackLayout.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnCategoryShortcutTapped" CommandParameter="PressOns" />
+                            </VerticalStackLayout.GestureRecognizers>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Spacing="8" WidthRequest="72">
+                            <Border x:Name="CatGelXCircle" WidthRequest="64" HeightRequest="64"
+                                    StrokeShape="Ellipse" StrokeThickness="2" Stroke="#55FFFFFF"
+                                    BackgroundColor="White" HorizontalOptions="Center">
+                                <Image x:Name="CatGelXIcon" Source="droplet.png"
+                                       WidthRequest="28" HeightRequest="28" Aspect="AspectFit"
+                                       HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                            <Label Text="Gel X" TextColor="White" FontFamily="OpenSansRegular"
+                                   FontSize="12" HorizontalTextAlignment="Center" />
+                            <VerticalStackLayout.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnCategoryShortcutTapped" CommandParameter="GelX" />
+                            </VerticalStackLayout.GestureRecognizers>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Spacing="8" WidthRequest="72">
+                            <Border x:Name="CatShopCircle" WidthRequest="64" HeightRequest="64"
+                                    StrokeShape="Ellipse" StrokeThickness="2" Stroke="#55FFFFFF"
+                                    BackgroundColor="White" HorizontalOptions="Center">
+                                <Image x:Name="CatShopIcon" Source="shopping_bag.png"
+                                       WidthRequest="28" HeightRequest="28" Aspect="AspectFit"
+                                       HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                            <Label Text="Shop" TextColor="White" FontFamily="OpenSansRegular"
+                                   FontSize="12" HorizontalTextAlignment="Center" />
+                            <VerticalStackLayout.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnCategoryShortcutTapped" CommandParameter="Shop" />
+                            </VerticalStackLayout.GestureRecognizers>
+                        </VerticalStackLayout>
                     </HorizontalStackLayout>
                 </ScrollView>
 
@@ -274,10 +346,10 @@
 
                     <Label Text="Services" Style="{StaticResource ResultHeading}"
                            IsVisible="{Binding HasServiceResults}" />
-                    <VerticalStackLayout Spacing="12"
-                                         IsVisible="{Binding HasServiceResults}"
-                                         BindableLayout.ItemsSource="{Binding ResultServices}"
-                                         BindableLayout.ItemTemplate="{StaticResource ServiceRowTemplate}" />
+                    <FlexLayout Wrap="Wrap" JustifyContent="SpaceBetween" AlignItems="Start"
+                                IsVisible="{Binding HasServiceResults}"
+                                BindableLayout.ItemsSource="{Binding ResultServices}"
+                                BindableLayout.ItemTemplate="{StaticResource ServiceRowTemplate}" />
 
                     <Label Text="Products" Style="{StaticResource ResultHeading}"
                            IsVisible="{Binding HasProductResults}" />
@@ -290,55 +362,69 @@
                 <!-- ============ DEFAULT HOME (hidden while searching / filtering) ============ -->
                 <VerticalStackLayout IsVisible="{Binding IsNotFiltering}" Spacing="22">
 
-                    <!-- Promo banner -->
-                    <Border StrokeThickness="0" StrokeShape="RoundRectangle 28"
-                            HeightRequest="170" Padding="0">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="#F7F8FC" Offset="0.0" />
-                                <GradientStop Color="#B9C9EA" Offset="1.0" />
-                            </LinearGradientBrush>
-                        </Border.Background>
-                        <Border.Shadow>
-                            <Shadow Brush="Black" Opacity="0.22" Radius="16" Offset="0,6" />
-                        </Border.Shadow>
+                    <!-- Sliding banner: pictures of services and products, same purple look as before -->
+                    <Grid HeightRequest="170">
+                        <Border StrokeThickness="0" StrokeShape="RoundRectangle 28" Padding="0">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#F6F1FF" Offset="0.0" />
+                                    <GradientStop Color="#B9A8F5" Offset="1.0" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Border.Shadow>
+                                <Shadow Brush="Black" Opacity="0.22" Radius="16" Offset="0,6" />
+                            </Border.Shadow>
 
-                        <Grid>
-                            <!-- Decorative circles -->
-                            <Ellipse Fill="#40FFFFFF" WidthRequest="170" HeightRequest="170"
-                                     HorizontalOptions="End" VerticalOptions="Start"
-                                     Margin="0,-60,-50,0" />
-                            <Ellipse Fill="#26FFFFFF" WidthRequest="110" HeightRequest="110"
-                                     HorizontalOptions="Start" VerticalOptions="End"
-                                     Margin="-30,0,0,-40" />
+                            <CarouselView x:Name="BannerCarousel" Loop="True" IsSwipeEnabled="True"
+                                          ItemsSource="{Binding BannerSlides}"
+                                          HeightRequest="170" HorizontalScrollBarVisibility="Never"
+                                          IndicatorView="BannerDots">
+                                <CarouselView.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:HomeBannerCard">
+                                        <Grid Padding="20,18,16,28" ColumnDefinitions="*,Auto" ColumnSpacing="14">
+                                            <VerticalStackLayout VerticalOptions="Center" Spacing="6">
+                                                <Border BackgroundColor="#6D3FE0" StrokeThickness="0"
+                                                        StrokeShape="RoundRectangle 14" Padding="12,6"
+                                                        HorizontalOptions="Start">
+                                                    <Label Text="{Binding Tag}" TextColor="White"
+                                                           FontFamily="OpenSansSemibold" FontSize="11" />
+                                                </Border>
+                                                <Label Text="{Binding Title}" TextColor="#2B1B6B"
+                                                       FontFamily="OpenSansSemibold" FontSize="22"
+                                                       MaxLines="2" LineBreakMode="TailTruncation" />
+                                                <Label Text="{Binding Subtitle}" TextColor="#5B4BB0"
+                                                       FontFamily="OpenSansRegular" FontSize="13"
+                                                       MaxLines="1" LineBreakMode="TailTruncation" />
+                                            </VerticalStackLayout>
+                                            <Border Grid.Column="1" WidthRequest="118" HeightRequest="118"
+                                                    StrokeThickness="0" StrokeShape="RoundRectangle 20"
+                                                    BackgroundColor="#EFE9FF" VerticalOptions="Center">
+                                                <Image Source="{Binding ImageUrl}" Aspect="AspectFill"
+                                                       WidthRequest="118" HeightRequest="118" />
+                                            </Border>
+                                            <Grid.GestureRecognizers>
+                                                <TapGestureRecognizer Tapped="OnBannerTapped" />
+                                            </Grid.GestureRecognizers>
+                                        </Grid>
+                                    </DataTemplate>
+                                </CarouselView.ItemTemplate>
+                                <CarouselView.EmptyView>
+                                    <Grid Padding="20">
+                                        <VerticalStackLayout VerticalOptions="End" Spacing="2">
+                                            <Label Text="SBS Beauty Spa" TextColor="#2B1B6B"
+                                                   FontFamily="OpenSansSemibold" FontSize="24" />
+                                            <Label Text="Nails, lashes and press-ons" TextColor="#5B4BB0"
+                                                   FontFamily="OpenSansRegular" FontSize="13" />
+                                        </VerticalStackLayout>
+                                    </Grid>
+                                </CarouselView.EmptyView>
+                            </CarouselView>
+                        </Border>
 
-                            <Grid RowDefinitions="Auto,*" Padding="20">
-                                <Grid ColumnDefinitions="Auto,*,Auto">
-                                    <Border BackgroundColor="#1B2A4A" StrokeThickness="0"
-                                            StrokeShape="RoundRectangle 14" Padding="12,6">
-                                        <Label Text="SUMMER SALE" TextColor="White"
-                                               FontFamily="OpenSansSemibold" FontSize="11" />
-                                    </Border>
-
-                                    <Border Grid.Column="2" BackgroundColor="White" StrokeThickness="0"
-                                            StrokeShape="RoundRectangle 18" Padding="16,9">
-                                        <Label Text="Shop now  →" TextColor="#1B2A4A"
-                                               FontFamily="OpenSansSemibold" FontSize="13" />
-                                        <Border.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding ShopNowCommand}" />
-                                        </Border.GestureRecognizers>
-                                    </Border>
-                                </Grid>
-
-                                <VerticalStackLayout Grid.Row="1" VerticalOptions="End" Spacing="2">
-                                    <Label Text="Summer Nail Sale" TextColor="#1B2A4A"
-                                           FontFamily="OpenSansSemibold" FontSize="24" />
-                                    <Label Text="Up to 40% off select services" TextColor="#4D6893"
-                                           FontFamily="OpenSansRegular" FontSize="13" />
-                                </VerticalStackLayout>
-                            </Grid>
-                        </Grid>
-                    </Border>
+                        <IndicatorView x:Name="BannerDots" HorizontalOptions="Center" VerticalOptions="End"
+                                       Margin="0,0,0,10" IndicatorSize="7" IndicatorColor="#80FFFFFF"
+                                       SelectedIndicatorColor="#6D3FE0" InputTransparent="True" />
+                    </Grid>
 
                     <!-- Trending Styles -->
                     <Grid ColumnDefinitions="*,Auto">
@@ -356,16 +442,20 @@
                                 BindableLayout.ItemsSource="{Binding TrendingServices}">
                         <BindableLayout.ItemTemplate>
                             <DataTemplate x:DataType="vm:HomeServiceCard">
-                                <Border FlexLayout.Basis="47%" BackgroundColor="White"
-                                        StrokeThickness="0" StrokeShape="RoundRectangle 22"
-                                        Padding="10" Margin="0,0,0,14">
+                                <Border WidthRequest="{DynamicResource CardWidth}"
+                                        BackgroundColor="White" StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 22"
+                                        Padding="10" Margin="0,0,0,12">
                                     <Border.Shadow>
                                         <Shadow Brush="Black" Opacity="0.18" Radius="12" Offset="0,4" />
                                     </Border.Shadow>
                                     <VerticalStackLayout Spacing="8">
-                                        <Border HeightRequest="120" StrokeThickness="0"
-                                                StrokeShape="RoundRectangle 16" BackgroundColor="#E6EBF4">
-                                            <Image Source="{Binding ImageUrl}" Aspect="AspectFill" />
+                                        <Border WidthRequest="{DynamicResource CardImageWidth}" HeightRequest="{DynamicResource CardImageHeight}"
+                                                HorizontalOptions="Start" StrokeThickness="0"
+                                                StrokeShape="RoundRectangle 16" BackgroundColor="#EFE9FF">
+                                            <Image Source="{Binding ImageUrl}" Aspect="AspectFill"
+                                                   WidthRequest="{DynamicResource CardImageWidth}" HeightRequest="{DynamicResource CardImageHeight}"
+                                                   HorizontalOptions="Fill" VerticalOptions="Fill" />
                                         </Border>
                                         <VerticalStackLayout Spacing="2" Padding="4,0,4,4">
                                             <Label Text="{Binding Name}" Style="{StaticResource CardTitle}" />
@@ -408,9 +498,9 @@
                         </Border>
                     </Grid>
 
-                    <VerticalStackLayout Spacing="12"
-                                         BindableLayout.ItemsSource="{Binding PopularServices}"
-                                         BindableLayout.ItemTemplate="{StaticResource ServiceRowTemplate}" />
+                    <FlexLayout Wrap="Wrap" JustifyContent="SpaceBetween" AlignItems="Start"
+                                BindableLayout.ItemsSource="{Binding PopularServices}"
+                                BindableLayout.ItemTemplate="{StaticResource ServiceRowTemplate}" />
                 </VerticalStackLayout>
 
             </VerticalStackLayout>

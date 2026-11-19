@@ -25,9 +25,10 @@ public partial class ChangePasswordPage : ContentPage
             return;
         }
 
-        if (NewPasswordEntry.Text.Length < 8)
+        var problem = PasswordRules.Validate(NewPasswordEntry.Text);
+        if (problem is not null)
         {
-            await DisplayAlertAsync("Too short", "Use at least 8 characters", "OK");
+            await DisplayAlertAsync("Choose a stronger password", problem, "OK");
             return;
         }
 
@@ -50,8 +51,16 @@ public partial class ChangePasswordPage : ContentPage
                 CurrentPasswordEntry.Text = string.Empty;
                 NewPasswordEntry.Text = string.Empty;
                 ConfirmPasswordEntry.Text = string.Empty;
-                await DisplayAlertAsync("Saved", "Your password has been changed", "OK");
-                await Shell.Current.GoToAsync("..");
+                await DisplayAlertAsync("Saved", "Your password has been changed. Please log in again with your new password.", "OK");
+
+                // Changing the password ends every old login, so go back to the Log In screen.
+                var window = Application.Current?.Windows.FirstOrDefault();
+                if (window is not null)
+                {
+                    var authShell = new AuthShell();
+                    window.Page = authShell;
+                    await authShell.GoToAsync("//LoginPage");
+                }
             }
             else
             {

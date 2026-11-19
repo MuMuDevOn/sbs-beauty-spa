@@ -123,7 +123,8 @@ namespace SBSBeautySpa.Mobile.ViewModels
             }
             catch (Exception ex)
             {
-                _ = ShowToastAsync("Couldn't add that to your cart.");
+                var reason = ex is InvalidOperationException ? ex.Message : "Couldn't add that to your cart. (" + ex.Message + ")";
+                _ = ShowToastAsync(reason);
                 System.Diagnostics.Debug.WriteLine(ex);
             }
         }
@@ -159,7 +160,7 @@ namespace SBSBeautySpa.Mobile.ViewModels
         private async Task ShowToastAsync(string message)
         {
             ToastMessage = message;
-            await Task.Delay(2000);
+            await Task.Delay(3500);
             if (ToastMessage == message)
             {
                 ToastMessage = null; // only clear our own message, not a newer one that replaced it

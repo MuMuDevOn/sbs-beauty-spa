@@ -53,6 +53,13 @@ namespace SBSBeautySpa.Mobile.ViewModels
         {
             if (!CanRegister()) return;
 
+            var passwordProblem = PasswordRules.Validate(Password);
+            if (passwordProblem is not null)
+            {
+                ErrorMessage = passwordProblem;
+                return;
+            }
+
             if (Password != ConfirmPassword)
             {
                 ErrorMessage = "Passwords don't match.";

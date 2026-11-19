@@ -41,7 +41,7 @@ namespace SBSBeautySpa.Mobile.ViewModels.Admin
             }
             catch (Exception ex)
             {
-                ErrorMessage = "Couldn't load clients. Please try again.";
+                ErrorMessage = "Couldn't load clients: " + ex.Message;
                 System.Diagnostics.Debug.WriteLine(ex);
             }
             finally

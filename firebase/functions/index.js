@@ -30,6 +30,9 @@ module.exports = {
 
   // Shop (products, cart checkout, orders)
   ...require("./Shop"),
+  ...require("./delivery"),             // listMyAddresses, saveMyAddress, deleteMyAddress, getDeliveryRates
+
+  ...require("./mfa"), // sendLoginCode, verifyLoginCode
 
   // Gallery
   ...require("./Gallery"),               // createGalleryCategory, addGalleryImage, deleteGalleryImage
@@ -43,11 +46,18 @@ module.exports = {
   // Notes, notifications, reviews, contact form
   ...require("./Bookingnotes"),          // addBookingNote, listBookingNotes
   ...require("./Notifications"),         // onBookingStatusChange, onPaymentCompleted (triggers)
+  ...require("./ClientNotifications"),  // listMyNotifications, markMyNotificationsRead
   ...require("./Reviews"),               // submitReview
   ...require("./Contactmessages"),       // submitContactMessage, listContactMessages, markContactMessageHandled
+  ...require("./Places"),                // listPlaces, getPlaceDetails
+  ...require("./Tracking"),              // trackBooking, trackPayment
+  ...require("./Analytics"),             // getAnalyticsData
+
+    ...require("./Push"), // sendPushNotification
 
   // Audit trail
   ...require("./Deletionlog"),         // listDeletionLog (logDeletion itself isn't a trigger — see that file's note)
 
    ...require("./AdminClients"),          // listClients, getClientDetails, setClientDisabled
+   
 };

@@ -19,9 +19,18 @@ public partial class AdminServicesPage : ContentPage
         _viewModel.LoadServicesCommand.Execute(null);
     }
 
+    // Back arrow: go back if this page was opened on top of another page,
+    // otherwise (when it's a tab) switch to the Dashboard tab.
     private async void OnBackTapped(object sender, TappedEventArgs e)
-        => await Shell.Current.GoToAsync("..");
+    {
+        if (Navigation.NavigationStack.Count > 1)
+        {
+            await Shell.Current.GoToAsync("..");
+            return;
+        }
 
-    private void OnAddServiceClicked(object sender, EventArgs e)
-        => _viewModel.StartNewServiceCommand.Execute(null);
+        var tabBar = Shell.Current.CurrentItem;
+        if (tabBar?.Items.Count > 0)
+            tabBar.CurrentItem = tabBar.Items[0];
+    }
 }

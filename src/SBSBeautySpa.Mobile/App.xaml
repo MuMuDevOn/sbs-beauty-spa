@@ -17,23 +17,23 @@
             <conv:BoolToColorConverter x:Key="BoolToColor" />
 
             <!-- ========== Colours and brushes (shared by every page) ========== -->
-            <Color x:Key="NavyText">#1B2A4A</Color>
-            <Color x:Key="MutedText">#5B6B8C</Color>
-            <Color x:Key="SoftText">#DCE8F5</Color>
-            <Color x:Key="Placeholder">#EDEEF3</Color>
-            <SolidColorBrush x:Key="CardWhite" Color="#F7F8FC" />
+            <Color x:Key="NavyText">#2B1B6B</Color>
+            <Color x:Key="MutedText">#6E63A6</Color>
+            <Color x:Key="SoftText">#E3DDFB</Color>
+            <Color x:Key="Placeholder">#F1EDFB</Color>
+            <SolidColorBrush x:Key="CardWhite" Color="#FAF8FF" />
 
             <LinearGradientBrush x:Key="PageGradient" StartPoint="0,0" EndPoint="0,1">
-                <GradientStop Color="#111827" Offset="0.00" />
-                <GradientStop Color="#1B2A4A" Offset="0.07" />
-                <GradientStop Color="#4D6893" Offset="0.34" />
-                <GradientStop Color="#7C93C4" Offset="0.74" />
-                <GradientStop Color="#9FBCE5" Offset="0.95" />
+                <GradientStop Color="#1E1659" Offset="0.00" />
+                <GradientStop Color="#2B1B6B" Offset="0.12" />
+                <GradientStop Color="#4A35B0" Offset="0.45" />
+                <GradientStop Color="#6C7FE0" Offset="0.80" />
+                <GradientStop Color="#8FB4F0" Offset="1.00" />
             </LinearGradientBrush>
 
-            <LinearGradientBrush x:Key="NavyButtonGradient" StartPoint="0,0" EndPoint="0,1">
-                <GradientStop Color="#2A3B63" Offset="0" />
-                <GradientStop Color="#0F1B33" Offset="1" />
+            <LinearGradientBrush x:Key="NavyButtonGradient" StartPoint="0,0" EndPoint="1,0">
+                <GradientStop Color="#7C4DF0" Offset="0" />
+                <GradientStop Color="#4F6BE8" Offset="1" />
             </LinearGradientBrush>
 
             <!-- ========== Text styles ========== -->
@@ -91,7 +91,7 @@
             <Style x:Key="IconBadge" TargetType="Border">
                 <Setter Property="WidthRequest" Value="52" />
                 <Setter Property="HeightRequest" Value="52" />
-                <Setter Property="BackgroundColor" Value="#1B2A4A" />
+                <Setter Property="BackgroundColor" Value="#6D3FE0" />
                 <Setter Property="StrokeThickness" Value="0" />
                 <Setter Property="StrokeShape" Value="RoundRectangle 16" />
                 <Setter Property="VerticalOptions" Value="Center" />
@@ -99,7 +99,7 @@
 
             <Style x:Key="Divider" TargetType="BoxView">
                 <Setter Property="HeightRequest" Value="1" />
-                <Setter Property="Color" Value="#E5E7EB" />
+                <Setter Property="Color" Value="#ECE8F7" />
                 <Setter Property="Margin" Value="16,0" />
             </Style>
 
@@ -115,7 +115,7 @@
             <Style x:Key="OutlineButton" TargetType="Button">
                 <Setter Property="BackgroundColor" Value="White" />
                 <Setter Property="TextColor" Value="{StaticResource NavyText}" />
-                <Setter Property="BorderColor" Value="#B8C0D4" />
+                <Setter Property="BorderColor" Value="#CFC6EE" />
                 <Setter Property="BorderWidth" Value="1" />
                 <Setter Property="CornerRadius" Value="12" />
                 <Setter Property="HeightRequest" Value="44" />
@@ -153,7 +153,7 @@
                 <Setter Property="FontFamily" Value="OpenSansRegular" />
                 <Setter Property="FontSize" Value="15" />
                 <Setter Property="TextColor" Value="{StaticResource NavyText}" />
-                <Setter Property="PlaceholderColor" Value="#9AA5BC" />
+                <Setter Property="PlaceholderColor" Value="#A59CC9" />
             </Style>
 
             <Style x:Key="FieldPicker" TargetType="Picker">
@@ -161,7 +161,7 @@
                 <Setter Property="FontFamily" Value="OpenSansRegular" />
                 <Setter Property="FontSize" Value="15" />
                 <Setter Property="TextColor" Value="{StaticResource NavyText}" />
-                <Setter Property="TitleColor" Value="#9AA5BC" />
+                <Setter Property="TitleColor" Value="#A59CC9" />
             </Style>
 
             <Style x:Key="FieldEditor" TargetType="Editor">
@@ -170,7 +170,7 @@
                 <Setter Property="FontSize" Value="15" />
                 <Setter Property="HeightRequest" Value="110" />
                 <Setter Property="TextColor" Value="{StaticResource NavyText}" />
-                <Setter Property="PlaceholderColor" Value="#9AA5BC" />
+                <Setter Property="PlaceholderColor" Value="#A59CC9" />
             </Style>
 
             <Style x:Key="RowTitle" TargetType="Label">
@@ -186,7 +186,7 @@
             </Style>
 
             <Style x:Key="AppSwitch" TargetType="Switch">
-                <Setter Property="OnColor" Value="#1B2A4A" />
+                <Setter Property="OnColor" Value="#6D3FE0" />
                 <Setter Property="ThumbColor" Value="White" />
                 <Setter Property="VerticalOptions" Value="Center" />
             </Style>

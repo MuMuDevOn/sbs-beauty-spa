@@ -9,8 +9,10 @@
  *      on the webhook.
  */
 
-const { onCall, onRequest, HttpsError } = require("firebase-functions/v2/https");
+const { onCall, onRequest, HttpsError } = require("./secure");
 const { defineSecret } = require("firebase-functions/params");
+const { COURIER_GUY_API_KEY } = require("./courierguy");
+const { createShipmentForOrder } = require("./shipping");
 const admin = require("firebase-admin");
 const crypto = require("crypto");
 
@@ -38,6 +40,11 @@ exports.initializePayment = onCall({ secrets: [PAYSTACK_SECRET_KEY] }, async (re
   const uid = request.auth && request.auth.uid;
   if (!uid) {
     throw new HttpsError("unauthenticated", "Must be signed in to pay.");
+  }
+
+  // Shop orders take a separate path (amount comes from the order, never the client).
+  if (request.data && request.data.orderId) {
+    return initializeOrderPayment(uid, String(request.data.orderId));
   }
 
   // Make sure we got the right data.
@@ -83,7 +90,7 @@ exports.initializePayment = onCall({ secrets: [PAYSTACK_SECRET_KEY] }, async (re
       amount: Math.round(amount * 100), // Convert Rands to cents
       currency: CURRENCY,
       reference,
-      callback_url: "https://sbsbeautyspa.app/payment-callback",
+      callback_url: "https://sbs-beauty-spa.web.app/paid.html",
       metadata: { bookingId, type, uid },
     }),
   });
@@ -120,7 +127,7 @@ exports.initializePayment = onCall({ secrets: [PAYSTACK_SECRET_KEY] }, async (re
  * Called by the app right after the payment page closes.
  * Gives the UI instant feedback instead of waiting on the webhook.
  */
-exports.verifyPayment = onCall({ secrets: [PAYSTACK_SECRET_KEY] }, async (request) => {
+exports.verifyPayment = onCall({ secrets: [PAYSTACK_SECRET_KEY, COURIER_GUY_API_KEY] }, async (request) => {
   const { reference } = request.data || {};
   if (!reference) {
     throw new HttpsError("invalid-argument", "reference is required.");
@@ -134,7 +141,7 @@ exports.verifyPayment = onCall({ secrets: [PAYSTACK_SECRET_KEY] }, async (reques
  * So it's a plain HTTPS function, not a callable one.
  * We verify the request is really from Paystack using a signature.
  */
-exports.paystackWebhook = onRequest({ secrets: [PAYSTACK_SECRET_KEY] }, async (req, res) => {
+exports.paystackWebhook = onRequest({ secrets: [PAYSTACK_SECRET_KEY, COURIER_GUY_API_KEY] }, async (req, res) => {
   // Check the signature to make sure this request really came from Paystack.
   const signature = req.headers["x-paystack-signature"];
   const expected = crypto
@@ -176,6 +183,11 @@ async function reconcilePaymentByReference(reference) {
   }
   const paymentDoc = paymentQuery.docs[0];
   const payment = paymentDoc.data();
+
+  // Shop order payment -> its own reconcile path.
+  if (payment.orderId) {
+    return reconcileOrderPayment(paymentDoc, payment, reference);
+  }
 
   // If we already handled this payment, do nothing — just return success.
   // This makes the function idempotent: it's safe to run more than once.
@@ -230,4 +242,142 @@ function resolveAmount(booking, type) {
   if (type === "full") return booking.totalAmount;
   if (type === "balance") return booking.totalAmount - booking.depositAmount;
   return 0;
+}
+
+// ---------------------------------------------------------------------
+// Shop orders
+// ---------------------------------------------------------------------
+
+async function initializeOrderPayment(uid, orderId) {
+  const orderRef = db.collection("orders").doc(orderId);
+  const orderSnap = await orderRef.get();
+  if (!orderSnap.exists) throw new HttpsError("not-found", "Order not found.");
+  const order = orderSnap.data();
+
+  if (order.clientId !== uid) throw new HttpsError("permission-denied", "This order doesn't belong to you.");
+  if (order.paymentStatus === "paid") throw new HttpsError("failed-precondition", "This order is already paid.");
+
+  const amount = order.total;
+  if (!amount || amount <= 0) throw new HttpsError("failed-precondition", "Nothing due for this order.");
+
+  const userRecord = await admin.auth().getUser(uid);
+  const reference = `or_${orderId}_${Date.now()}`;
+
+  const paystackRes = await fetch(`${PAYSTACK_BASE_URL}/transaction/initialize`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${PAYSTACK_SECRET_KEY.value()}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email: userRecord.email,
+      amount: Math.round(amount * 100),
+      currency: CURRENCY,
+      reference,
+      callback_url: "https://sbs-beauty-spa.web.app/paid.html",
+      metadata: { orderId, type: "order", uid },
+    }),
+  });
+  const paystackData = await paystackRes.json();
+  if (!paystackRes.ok || !paystackData.status) {
+    throw new HttpsError("internal", `Paystack initialize failed: ${paystackData.message || "unknown error"}`);
+  }
+
+  await db.collection("payments").add({
+    orderId,
+    type: "order",
+    amount,
+    status: "pending",
+    reference,
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  return { authorizationUrl: paystackData.data.authorization_url, reference };
+}
+
+async function reconcileOrderPayment(paymentDoc, payment, reference) {
+  const result = (status) => ({ status, bookingId: "", orderId: payment.orderId });
+
+  if (payment.status === "completed") return result("success");
+
+  const verifyRes = await fetch(`${PAYSTACK_BASE_URL}/transaction/verify/${reference}`, {
+    headers: { Authorization: `Bearer ${PAYSTACK_SECRET_KEY.value()}` },
+  });
+  const verifyData = await verifyRes.json();
+
+  // Not paid (yet): the abandoned/ongoing states stay "pending" so polling can continue.
+  if (!verifyRes.ok || !verifyData.data) return result("pending");
+  const gatewayStatus = verifyData.data.status;
+  if (gatewayStatus === "failed" || gatewayStatus === "reversed") {
+    await paymentDoc.ref.update({ status: "failed" });
+    return result("failed");
+  }
+  if (gatewayStatus !== "success") return result("pending");
+
+  // Never trust the amount: it must match what we asked for.
+  const expectedCents = Math.round(payment.amount * 100);
+  if (verifyData.data.amount !== expectedCents) {
+    console.error(`Amount mismatch for ${reference}: expected ${expectedCents}, got ${verifyData.data.amount}`);
+    await paymentDoc.ref.update({ status: "failed" });
+    return result("failed");
+  }
+
+  await paymentDoc.ref.update({
+    status: "completed",
+    gatewayReference: String(verifyData.data.id),
+    paidAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  await finalizeOrderPayment(payment.orderId);
+
+  // Book the courier. A courier problem must never undo or fail a payment that
+  // already went through, so any error is logged and the order simply has no
+  // tracking number yet (trackOrder tries again when the client opens tracking).
+  try {
+    await createShipmentForOrder(payment.orderId);
+  } catch (err) {
+    console.error("createShipmentForOrder failed for order", payment.orderId, err);
+  }
+
+  return result("success");
+}
+
+// Marks the order paid, takes the stock, and clears the paid-for items from the cart.
+// Safe to run twice (it checks paymentStatus first).
+async function finalizeOrderPayment(orderId) {
+  const orderRef = db.collection("orders").doc(orderId);
+
+  await db.runTransaction(async (tx) => {
+    const orderSnap = await tx.get(orderRef);
+    if (!orderSnap.exists) return;
+    const order = orderSnap.data();
+    if (order.paymentStatus === "paid") return;
+
+    const cartSnap = await tx.get(db.collection("cartItems").where("clientId", "==", order.clientId));
+    const productRefs = order.items.map((li) => db.collection("products").doc(li.productId));
+    const productSnaps = await Promise.all(productRefs.map((ref) => tx.get(ref)));
+
+    let attention = "";
+    order.items.forEach((li, i) => {
+      const snap = productSnaps[i];
+      if (!snap.exists) return;
+      const stock = snap.data().stockQuantity;
+      if (stock === null || stock === undefined) return; // not stock-tracked
+      if (stock < li.quantity) attention += `"${li.name}" had only ${stock} left (ordered ${li.quantity}). `;
+      tx.update(productRefs[i], { stockQuantity: Math.max(0, stock - li.quantity) });
+    });
+
+    // Only remove the cart lines that were part of this order.
+    const orderedIds = new Set(order.productIds);
+    cartSnap.docs.forEach((d) => {
+      if (orderedIds.has(d.data().productId)) tx.delete(d.ref);
+    });
+
+    tx.update(orderRef, {
+      paymentStatus: "paid",
+      status: "pending",
+      paidAt: admin.firestore.FieldValue.serverTimestamp(),
+      ...(attention ? { needsAttention: true, attentionNote: attention.trim() } : {}),
+    });
+  });
 }

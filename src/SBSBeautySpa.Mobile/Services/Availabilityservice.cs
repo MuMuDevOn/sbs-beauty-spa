@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
 using NodaTime;
@@ -44,7 +44,7 @@ namespace SBSBeautySpa.Mobile.Services
         // Example: https://us-central1-sbsbeautyspa.cloudfunctions.net
         // You must replace this with your real URL after deploying.
         // Later, move this to a config file instead of hardcoding it.
-        private const string FunctionsBaseUrl = "https://<region>-<project-id>.cloudfunctions.net";
+        private const string FunctionsBaseUrl = "https://us-central1-sbs-beauty-spa.cloudfunctions.net";
 
         public AvailabilityService(HttpClient http, IFirebaseAuthService auth)
         {
@@ -131,7 +131,7 @@ namespace SBSBeautySpa.Mobile.Services
         }
 
         // These small classes match the shape of the JSON the server sends back.
-        // They are called DTOs (Data Transfer Objects) — they just hold data.
+        // They are called DTOs (Data Transfer Objects) â€” they just hold data.
 
         // The full response when asking for slots.
         private class GetSlotsResult
@@ -147,7 +147,7 @@ namespace SBSBeautySpa.Mobile.Services
             public List<SlotDto> Slots { get; set; } = new();
         }
 
-        // One single slot — start time and end time (as text like "09:00").
+        // One single slot â€” start time and end time (as text like "09:00").
         private class SlotDto
         {
             [JsonPropertyName("startTime")]

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="SBSBeautySpa.Mobile.Views.PurchaseHistoryPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             xmlns:vm="clr-namespace:SBSBeautySpa.Mobile.ViewModels"
+             xmlns:models="clr-namespace:SBSBeautySpa.Mobile.Models"
+             xmlns:conv="clr-namespace:SBSBeautySpa.Mobile.Converters"
+             x:DataType="vm:PurchaseHistoryViewModel"
+             BackgroundColor="White"
+             Shell.NavBarIsVisible="False">
+
+    <ContentPage.Resources>
+        <Color x:Key="DeepNavy">#1B2A4A</Color>
+        <Color x:Key="AccentBlue">#2F63E0</Color>
+        <Color x:Key="InkText">#111827</Color>
+        <Color x:Key="MutedGray">#8A93A6</Color>
+        <Color x:Key="SoftBlue">#EEF3FD</Color>
+        <Color x:Key="CardStroke">#E3E9F5</Color>
+        <LinearGradientBrush x:Key="BlueGradient" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="#1B2A4A" Offset="0.0" />
+            <GradientStop Color="#2F63E0" Offset="1.0" />
+        </LinearGradientBrush>
+        <conv:IsNotNullConverter x:Key="IsNotNull" />
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*">
+        <Grid Grid.Row="0" Padding="20,44,20,10" ColumnDefinitions="Auto,*" ColumnSpacing="14">
+            <Image Grid.Column="0" WidthRequest="26" HeightRequest="26" VerticalOptions="Center"
+                   mi:MauiIcon.Value="{mi:Material Icon=ArrowBack, IconColor=#111827}">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackTapped" />
+                </Image.GestureRecognizers>
+            </Image>
+            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                <Label Text="Purchase History" FontSize="26" FontFamily="OpenSansSemibold" TextColor="{StaticResource InkText}" />
+                <Label Text="Your shop orders and invoices" FontSize="13" TextColor="{StaticResource MutedGray}" />
+            </VerticalStackLayout>
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="16,4,16,24" Spacing="14">
+
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource AccentBlue}" />
+
+                <Label Text="{Binding ErrorMessage}" FontSize="13" TextColor="#B3261E" HorizontalTextAlignment="Center"
+                       IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNull}}" />
+
+                <VerticalStackLayout Spacing="12" BindableLayout.ItemsSource="{Binding Orders}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:PurchaseOrder">
+                            <Border Padding="16" BackgroundColor="White" Stroke="{StaticResource CardStroke}" StrokeThickness="1">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="18" />
+                                </Border.StrokeShape>
+                                <Border.Shadow>
+                                    <Shadow Brush="#1B2A4A" Opacity="0.10" Radius="14" Offset="0,5" />
+                                </Border.Shadow>
+                                <VerticalStackLayout Spacing="8">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Label Grid.Column="0" Text="{Binding InvoiceNumber}" FontSize="16" FontFamily="OpenSansSemibold"
+                                               TextColor="{StaticResource InkText}" VerticalOptions="Center" />
+                                        <Border Grid.Column="1" Padding="10,3" StrokeThickness="0" BackgroundColor="{Binding StatusBackground}">
+                                            <Border.StrokeShape>
+                                                <RoundRectangle CornerRadius="10" />
+                                            </Border.StrokeShape>
+                                            <Label Text="{Binding StatusLabel}" FontSize="11" FontFamily="OpenSansSemibold" TextColor="{Binding StatusColor}" />
+                                        </Border>
+                                    </Grid>
+                                    <Label Text="{Binding DateText}" FontSize="13" TextColor="{StaticResource MutedGray}" />
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Label Grid.Column="0" Text="{Binding ItemsSummary}" FontSize="14" TextColor="{StaticResource InkText}" VerticalOptions="Center" />
+                                        <Label Grid.Column="1" Text="{Binding TotalLabel}" FontSize="18" FontFamily="OpenSansSemibold" TextColor="{StaticResource AccentBlue}" />
+                                    </Grid>
+                                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,4,0,0">
+                                        <Button Grid.Column="0" Text="View invoice" FontFamily="OpenSansSemibold" FontSize="14" HeightRequest="44" CornerRadius="14"
+                                                Background="{StaticResource BlueGradient}" TextColor="White"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenInvoiceCommand}"
+                                                CommandParameter="{Binding .}" />
+                                        <Button Grid.Column="1" Text="Track order" FontFamily="OpenSansSemibold" FontSize="14" HeightRequest="44" CornerRadius="14"
+                                                BackgroundColor="{StaticResource SoftBlue}" TextColor="{StaticResource AccentBlue}"
+                                                Clicked="OnTrackClicked" />
+                                    </Grid>
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <Label Text="No purchases yet. Your paid shop orders will appear here." FontSize="14" TextColor="{StaticResource MutedGray}"
+                       HorizontalTextAlignment="Center" HorizontalOptions="Center" Margin="0,40,0,0" IsVisible="{Binding HasNoOrders}" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

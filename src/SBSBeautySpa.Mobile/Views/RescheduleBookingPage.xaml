@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             xmlns:vm="clr-namespace:SBSBeautySpa.Mobile.ViewModels"
+             x:Class="SBSBeautySpa.Mobile.Views.RescheduleBookingPage"
+             x:DataType="vm:RescheduleViewModel"
+             Shell.NavBarIsVisible="False">
+
+    <Grid Background="{StaticResource PageGradient}"
+          RowDefinitions="Auto,*,Auto" Padding="20,56,20,16">
+
+        <!-- Header -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*" ColumnSpacing="12">
+            <Image WidthRequest="28" HeightRequest="28" VerticalOptions="Center"
+                   mi:MauiIcon.Value="{mi:Material Icon=ArrowBack, IconColor=White}">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackTapped" />
+                </Image.GestureRecognizers>
+            </Image>
+            <Label Grid.Column="1" Text="Reschedule" Style="{StaticResource ScreenTitle}"
+                   FontSize="26" VerticalOptions="Center" />
+        </Grid>
+
+        <ScrollView Grid.Row="1" Margin="0,20,0,0">
+            <VerticalStackLayout Spacing="12" Padding="0,0,0,12">
+
+                <!-- Current appointment -->
+                <Border Style="{StaticResource ActionCard}" Padding="14">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Current appointment" Style="{StaticResource CardCaption}" />
+                        <Label Text="{Binding ServiceName}" Style="{StaticResource CardHeading}" />
+                        <Label Text="{Binding CurrentText}" Style="{StaticResource CardCaption}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- New date -->
+                <Label Text="Choose a new date" TextColor="White" FontFamily="OpenSansSemibold" FontSize="15" />
+                <Border Style="{StaticResource ActionCard}" Padding="14,4">
+                    <DatePicker Date="{Binding SelectedDate, Mode=TwoWay}"
+                                MinimumDate="{Binding MinDate}"
+                                TextColor="{StaticResource NavyText}" FontFamily="OpenSansSemibold" />
+                </Border>
+
+                <!-- New time -->
+                <Label Text="Choose a new time" TextColor="White" FontFamily="OpenSansSemibold" FontSize="15" Margin="0,6,0,0" />
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                                   Color="White" HorizontalOptions="Center" />
+                <Label Text="{Binding ErrorMessage}" TextColor="#FECACA" FontSize="13"
+                       IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNull}}" />
+                <Label Text="No free times on this day. Try another date." TextColor="White" FontSize="14"
+                       IsVisible="{Binding HasNoSlots}" />
+
+                <FlexLayout Wrap="Wrap" JustifyContent="Start" BindableLayout.ItemsSource="{Binding Slots}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:RescheduleSlot">
+                            <Border BackgroundColor="{Binding Background}" StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 20" Padding="16,9" Margin="0,0,8,8">
+                                <Label Text="{Binding Label}" TextColor="{Binding TextColor}"
+                                       FontFamily="OpenSansSemibold" FontSize="14" />
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnSlotTapped" />
+                                </Border.GestureRecognizers>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </FlexLayout>
+
+                <Label Text="You can reschedule up to 24 hours before your appointment."
+                       TextColor="White" FontSize="12" Opacity="0.85" Margin="0,8,0,0" />
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Confirm -->
+        <Button Grid.Row="2" Text="Confirm new time" Style="{StaticResource PrimaryButton}"
+                Command="{Binding ConfirmCommand}" IsEnabled="{Binding CanConfirm}" />
+    </Grid>
+</ContentPage>

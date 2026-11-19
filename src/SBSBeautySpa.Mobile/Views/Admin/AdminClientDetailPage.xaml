@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:SBSBeautySpa.Mobile.Models"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             x:Class="SBSBeautySpa.Mobile.Views.Admin.AdminClientDetailPage"
+             Background="{StaticResource PageGradient}"
+             Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*" Padding="20,50,20,0" RowSpacing="12">
+
+        <!-- Header -->
+        <HorizontalStackLayout Grid.Row="0" Spacing="14">
+            <Image WidthRequest="26" HeightRequest="26" VerticalOptions="Center"
+                   mi:MauiIcon.Value="{mi:Material Icon=ArrowBack, IconColor=White}">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackTapped"/>
+                </Image.GestureRecognizers>
+            </Image>
+            <Label Text="Client" FontFamily="OpenSansSemibold" FontSize="24"
+                   TextColor="White" VerticalOptions="Center"/>
+        </HorizontalStackLayout>
+
+        <!-- Client details -->
+        <Border Grid.Row="1" BackgroundColor="White" StrokeThickness="0"
+                StrokeShape="RoundRectangle 20" Padding="16">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                <Border WidthRequest="48" HeightRequest="48" StrokeShape="Ellipse"
+                        StrokeThickness="0" BackgroundColor="#EFE9FF" VerticalOptions="Center">
+                    <Image WidthRequest="24" HeightRequest="24"
+                           HorizontalOptions="Center" VerticalOptions="Center"
+                           mi:MauiIcon.Value="{mi:Material Icon=Person, IconColor=#6D3FE0}"/>
+                </Border>
+                <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
+                    <Label Text="{Binding Client.Name, FallbackValue='(no name)'}"
+                           FontFamily="OpenSansSemibold" FontSize="16" TextColor="#2B1B6B"/>
+                    <Label Text="{Binding Client.Email}"
+                           FontFamily="OpenSansRegular" FontSize="12" TextColor="#6E63A6"/>
+                    <Label Text="{Binding Client.PhoneNumber}"
+                           FontFamily="OpenSansRegular" FontSize="12" TextColor="#9A93BF"/>
+                </VerticalStackLayout>
+            </Grid>
+        </Border>
+
+        <!-- Add a note (staff only: clients never see these) -->
+        <Border Grid.Row="2" BackgroundColor="White" StrokeThickness="0"
+                StrokeShape="RoundRectangle 20" Padding="16">
+            <VerticalStackLayout Spacing="10">
+                <Label Text="Add a note" FontFamily="OpenSansSemibold" FontSize="15" TextColor="#2B1B6B"/>
+                <Label Text="Private to staff. The client never sees notes."
+                       FontFamily="OpenSansRegular" FontSize="12" TextColor="#6E63A6"/>
+
+                <Border BackgroundColor="#EFE9FF" StrokeThickness="0"
+                        StrokeShape="RoundRectangle 16" Padding="14,6">
+                    <Editor Placeholder="e.g. Allergic to gel, prefers pink polish"
+                            PlaceholderColor="#A59CC9" HeightRequest="80"
+                            TextColor="#2B1B6B" FontFamily="OpenSansRegular" FontSize="14"
+                            BackgroundColor="Transparent"
+                            Text="{Binding NewNote}"/>
+                </Border>
+
+                <Button Text="Save note" FontFamily="OpenSansSemibold" FontSize="14"
+                        HeightRequest="44" CornerRadius="22"
+                        BackgroundColor="#6D3FE0" TextColor="White"
+                        Command="{Binding AddNoteCommand}"/>
+            </VerticalStackLayout>
+        </Border>
+
+        <!-- Loading / messages -->
+        <VerticalStackLayout Grid.Row="3" Spacing="6">
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                               Color="White" HeightRequest="24" WidthRequest="24"
+                               HorizontalOptions="Start"/>
+            <Label Text="{Binding ErrorMessage}" TextColor="#FECACA"
+                   FontFamily="OpenSansRegular" FontSize="13"
+                   IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNull}}"/>
+            <Label Text="{Binding InfoMessage}" TextColor="#BBF7D0"
+                   FontFamily="OpenSansSemibold" FontSize="13"
+                   IsVisible="{Binding InfoMessage, Converter={StaticResource IsNotNull}}"/>
+        </VerticalStackLayout>
+
+        <!-- Notes list -->
+        <CollectionView Grid.Row="4" ItemsSource="{Binding Notes}" SelectionMode="None">
+            <CollectionView.Header>
+                <Label Text="Notes" FontFamily="OpenSansSemibold" FontSize="16"
+                       TextColor="White" Margin="0,0,0,8"/>
+            </CollectionView.Header>
+
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="8"/>
+            </CollectionView.ItemsLayout>
+
+            <CollectionView.EmptyView>
+                <Label Text="No notes yet." TextColor="White" Opacity="0.85"
+                       FontFamily="OpenSansRegular" FontSize="14"
+                       HorizontalOptions="Start" Margin="0,8,0,0"/>
+            </CollectionView.EmptyView>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:ClientNote">
+                    <Border BackgroundColor="White" StrokeThickness="0"
+                            StrokeShape="RoundRectangle 16" Padding="16,14">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="{Binding Note}" FontFamily="OpenSansRegular"
+                                   FontSize="14" TextColor="#2B1B6B"/>
+                            <Label Text="{Binding CreatedAt, StringFormat='{0:dd MMM yyyy, HH:mm}'}"
+                                   FontFamily="OpenSansRegular" FontSize="11" TextColor="#9A93BF"/>
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </Grid>
+</ContentPage>

@@ -97,10 +97,24 @@ namespace SBSBeautySpa.Mobile.Services
             var uid = _auth.CurrentUserId;
             if (string.IsNullOrEmpty(uid)) return new List<CartItem>();
 
-            var docs = await QueryCollectionAsync("cartItems", ct);
-            return docs.Select(MapCartItem)
+            // Query by clientId (listing the whole collection is blocked by security rules
+            // and silently came back empty, so the cart always looked empty).
+            var docs = await QueryByFieldAsync("cartItems", "clientId", uid, ct);
+            var items = docs.Select(MapCartItem)
                 .Where(c => c.ClientId == uid)
                 .ToList();
+
+            // Join in each line's product (the Cart screen reads CartItem.Product).
+            // Without this every line showed "Item no longer available" at R0.00.
+            // Deleted/inactive products stay null (GetProductsAsync only returns active ones).
+            if (items.Count > 0)
+            {
+                var products = (await GetProductsAsync(null, ct)).ToDictionary(p => p.Id);
+                foreach (var item in items)
+                    item.Product = products.TryGetValue(item.ProductId, out var product) ? product : null;
+            }
+
+            return items;
         }
 
         public async Task AddToCartAsync(string productId, int quantity, CancellationToken ct = default)
@@ -158,7 +172,9 @@ namespace SBSBeautySpa.Mobile.Services
             var uid = _auth.CurrentUserId;
             if (string.IsNullOrEmpty(uid)) return new List<Booking>();
 
-            var docs = await QueryCollectionAsync("bookings", ct);
+            // Ask Firestore for only this client's bookings. (Listing the whole collection
+            // and filtering here fails when the security rules only allow reading your own.)
+            var docs = await QueryByFieldAsync("bookings", "clientId", uid, ct);
             return docs.Select(MapBooking)
                 .Where(b => b.ClientId == uid)
                 .ToList();
@@ -318,6 +334,41 @@ namespace SBSBeautySpa.Mobile.Services
             return list;
         }
 
+        // Runs a Firestore query: all documents in a collection where a text field equals a value.
+        // Unlike QueryCollectionAsync, a failure is thrown so the screen can show the real reason.
+        private async Task<List<JsonElement>> QueryByFieldAsync(string collection, string field, string value, CancellationToken ct)
+        {
+            var body = new
+            {
+                structuredQuery = new
+                {
+                    from = new[] { new { collectionId = collection } },
+                    where = new
+                    {
+                        fieldFilter = new
+                        {
+                            field = new { fieldPath = field },
+                            op = "EQUAL",
+                            value = new { stringValue = value },
+                        }
+                    }
+                }
+            };
+
+            var request = await BuildRequestAsync(HttpMethod.Post, $"{BaseUrl}/{DocumentsPath}:runQuery", body, ct);
+            var response = await _http.SendAsync(request, ct);
+            var json = await response.Content.ReadAsStringAsync(ct);
+            if (!response.IsSuccessStatusCode)
+                throw new InvalidOperationException($"Couldn't load {collection} ({(int)response.StatusCode}): {json}");
+
+            using var doc = JsonDocument.Parse(json);
+            var list = new List<JsonElement>();
+            foreach (var item in doc.RootElement.EnumerateArray())
+                if (item.TryGetProperty("document", out var d))
+                    list.Add(d.Clone());
+            return list;
+        }
+
         private async Task PostDocumentAsync(string collection, object doc, CancellationToken ct)
         {
             var request = await BuildRequestAsync(HttpMethod.Post, $"{BaseUrl}/{DocumentsPath}/{collection}", doc, ct);
@@ -469,11 +520,21 @@ namespace SBSBeautySpa.Mobile.Services
                 Date = GetLocalDate(fields, "date"),
                 StartTime = GetLocalTime(fields, "startTime"),
                 EndTime = GetLocalTime(fields, "endTime"),
+                Status = GetBookingStatus(GetString(fields, "status")),
+                BalanceSettled = GetBool(fields, "balanceSettled"),
                 DepositAmount = GetDecimal(fields, "depositAmount"),
                 TotalAmount = GetDecimal(fields, "totalAmount"),
                 Notes = GetString(fields, "notes")
             };
         }
+
+        private static BookingStatus GetBookingStatus(string status) => status.ToLowerInvariant() switch
+        {
+            "confirmed" or "in_progress" => BookingStatus.Confirmed,
+            "completed" => BookingStatus.Completed,
+            "cancelled" or "no_show" => BookingStatus.Cancelled,
+            _ => BookingStatus.Pending,
+        };
 
         private static Order MapOrder(JsonElement doc)
         {

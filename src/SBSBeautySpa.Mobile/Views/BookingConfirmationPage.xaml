@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SBSBeautySpa.Mobile.Views.BookingConfirmationPage"
+             Shell.NavBarIsVisible="False">
+
+    <!-- Page layout -->
+    <Grid RowDefinitions="Auto,*,Auto" Padding="20,50,20,16"
+          Background="{StaticResource PageGradient}">
+
+        <!-- Header:-->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*" ColumnSpacing="14">
+            <Image Source="backarrowicon.png" HeightRequest="28" WidthRequest="28" VerticalOptions="Center">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackTapped" />
+                </Image.GestureRecognizers>
+            </Image>
+            <Label Grid.Column="1" Text="Booking Confirmed!" Style="{StaticResource PageTitle}" />
+        </Grid>
+
+        <!-- Scrollable content -->
+        <ScrollView Grid.Row="1" Margin="0,24,0,0">
+            <VerticalStackLayout Spacing="10">
+
+                <!-- Confirmation Details -->
+                <Border Style="{StaticResource GroupCard}">
+                    <VerticalStackLayout Padding="14,12" Spacing="4">
+                        <Label x:Name="ReferenceLabel" Text="" IsVisible="False" Style="{StaticResource RowTitle}" />
+                        <Label x:Name="BalanceLabel" Text="" IsVisible="False" Style="{StaticResource RowSubtitle}" />
+                        <Label x:Name="DepositLabel" Text="Deposit: R0.00" Style="{StaticResource RowSubtitle}" />
+                        <Label x:Name="ServiceNameLabel" Text="Your service" Style="{StaticResource RowTitle}" />
+                        <Label x:Name="WhenLabel" Text="" Style="{StaticResource RowSubtitle}" />
+                        <Label x:Name="AddOnsLabel" Text="" IsVisible="False" Style="{StaticResource RowSubtitle}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Next Steps -->
+                <Label Text="Next Steps" Style="{StaticResource CapsLabel}" Margin="0,6,0,0" />
+                <Border Style="{StaticResource GroupCard}">
+                    <VerticalStackLayout Padding="14,12" Spacing="6">
+                        <Label Text="1. A confirmation email with receipt has been sent." Style="{StaticResource RowSubtitle}" />
+                        <Label Text="2. Full studio address will be revealed 24 hours prior." Style="{StaticResource RowSubtitle}" />
+                        <Label Text="3. Please arrive 5 minutes early to prepare." Style="{StaticResource RowSubtitle}" />
+                    </VerticalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Action Buttons -->
+        <VerticalStackLayout Grid.Row="2" Spacing="10">
+            <Button Text="View My Bookings"
+                    Style="{StaticResource PrimaryButton}"
+                    Clicked="OnViewBookingsClicked" />
+            <Button Text="Return Home"
+                    BackgroundColor="Transparent" BorderColor="White" BorderWidth="1" TextColor="White"
+                    CornerRadius="12" HeightRequest="52" FontFamily="OpenSansSemibold"
+                    Clicked="OnReturnHomeClicked" />
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

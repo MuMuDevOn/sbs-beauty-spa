@@ -58,6 +58,21 @@ public partial class ProfilePage : ContentPage
         }
     }
 
+    // The policy is a public web page, opened in the phone's browser.
+    private const string PrivacyPolicyUrl = "https://sbs-beauty-spa.web.app/privacy.html";
+
+    private async Task OpenPrivacyPolicyAsync()
+    {
+        try
+        {
+            await Launcher.Default.OpenAsync(new Uri(PrivacyPolicyUrl));
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlertAsync("Couldn't open the page", ex.Message, "OK");
+        }
+    }
+
     private async void OnRowTapped(object sender, TappedEventArgs e)
     {
         switch (e.Parameter?.ToString())
@@ -68,12 +83,17 @@ public partial class ProfilePage : ContentPage
             case "Notifications": await OpenAsync(nameof(NotificationsPage)); break;
             case "Contact Us": await OpenAsync(nameof(ContactUsPage)); break;
             case "About": await OpenAsync(nameof(AboutPage)); break;
+            case "Privacy Policy": await OpenPrivacyPolicyAsync(); break;
         }
     }
 
     private async void OnLogoutClicked(object sender, EventArgs e)
     {
         var services = IPlatformApplication.Current?.Services;
+
+        // Forget this phone's push token first (needs the login), so a signed-out phone gets no notifications.
+        var push = services?.GetService<PushTokenService>();
+        if (push is not null) await push.StopAsync();
 
         var auth = services?.GetService<IFirebaseAuthService>();
         if (auth is not null) await auth.SignOutAsync();

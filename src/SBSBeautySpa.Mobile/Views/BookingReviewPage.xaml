@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             x:Class="SBSBeautySpa.Mobile.Views.BookingReviewPage"
+             Shell.NavBarIsVisible="False">
+
+    <!-- Page layout -->
+    <Grid RowDefinitions="Auto,*,Auto" Padding="20,50,20,16"
+          Background="{StaticResource PageGradient}">
+
+        <!-- Header -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*" ColumnSpacing="14">
+            <Image WidthRequest="26" HeightRequest="26" VerticalOptions="Center"
+                   mi:MauiIcon.Value="{mi:Material Icon=ArrowBack, IconColor=White}">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackTapped" />
+                </Image.GestureRecognizers>
+            </Image>
+            <Label Grid.Column="1" Text="Review Booking" Style="{StaticResource PageTitle}" />
+        </Grid>
+
+        <!-- Scrollable content -->
+        <ScrollView Grid.Row="1" Margin="0,24,0,0">
+            <VerticalStackLayout Spacing="10">
+
+                <!-- Service Details Card -->
+                <Border Style="{StaticResource GroupCard}">
+                    <VerticalStackLayout Padding="14,12" Spacing="4">
+                        <Label x:Name="ServiceNameLabel" Text="Your service" Style="{StaticResource RowTitle}" />
+                        <Label x:Name="WhenLabel" Text="" Style="{StaticResource RowSubtitle}" />
+                        <Label x:Name="AddOnsLabel" Text="Add-Ons: none" Style="{StaticResource RowSubtitle}" />
+                        <Label x:Name="RequestsLabel" Text="" IsVisible="False" Style="{StaticResource RowSubtitle}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Payment Breakdown -->
+                <Label Text="Payment Breakdown" Style="{StaticResource CapsLabel}" Margin="0,6,0,0" />
+                <Border Style="{StaticResource GroupCard}">
+                    <VerticalStackLayout Padding="14,12" Spacing="6">
+                        <Label x:Name="SubtotalLabel" Text="Subtotal: R0.00" Style="{StaticResource RowSubtitle}" />
+                        <Label x:Name="DepositLabel" Text="Deposit Required Now: R0.00" Style="{StaticResource RowSubtitle}" />
+                        <Label x:Name="TotalDueLabel" Text="Total Due at Appointment: R0.00" Style="{StaticResource RowTitle}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- How to pay -->
+                <Label Text="How would you like to pay?" Style="{StaticResource CapsLabel}" Margin="0,6,0,0" />
+                <VerticalStackLayout Spacing="2">
+                    <RadioButton x:Name="DepositOnlyRadio" GroupName="PayOption" IsChecked="True"
+                                 Content="Pay deposit now, balance in-store on the day"
+                                 TextColor="White" BorderColor="White" FontFamily="OpenSansSemibold"
+                                 CheckedChanged="OnPayOptionChanged" />
+                    <RadioButton x:Name="FullAmountRadio" GroupName="PayOption"
+                                 Content="Pay the full amount now"
+                                 TextColor="White" BorderColor="White" FontFamily="OpenSansSemibold"
+                                 CheckedChanged="OnPayOptionChanged" />
+                </VerticalStackLayout>
+
+                <!-- Cancellation Policy -->
+                <Border Style="{StaticResource GroupCard}" Margin="0,6,0,0">
+                    <VerticalStackLayout Padding="14,12" Spacing="6">
+                        <Label Text="Cancellation policy" Style="{StaticResource RowTitle}" />
+                        <Label Style="{StaticResource RowSubtitle}" FontSize="13"
+                               Text="You can only reschedule at least 24 hours before your appointment. Deposits and any cancellation conditions are explained in the full policy." />
+                        <Label Text="Read the full Cancellation Policy" TextColor="#6D3FE0" FontSize="13"
+                               FontFamily="OpenSansSemibold" TextDecorations="Underline">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnPolicyTapped" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Grid ColumnDefinitions="Auto,*" Padding="4,4">
+                    <CheckBox x:Name="PolicyCheckBox" Color="White" />
+                    <Label Grid.Column="1" Text="I agree to the Cancellation Policy"
+                           TextColor="White" FontFamily="OpenSansSemibold" FontAttributes="Bold"
+                           VerticalOptions="Center" />
+                </Grid>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Confirm Button -->
+        <Button x:Name="ConfirmButton" Grid.Row="2" Text="Confirm and Pay Deposit (R0.00)"
+                Style="{StaticResource PrimaryButton}"
+                Clicked="OnConfirmClicked" />
+    </Grid>
+</ContentPage>
+    

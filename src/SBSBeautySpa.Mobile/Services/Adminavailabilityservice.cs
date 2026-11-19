@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
 using NodaTime;
@@ -47,7 +47,7 @@ namespace SBSBeautySpa.Mobile.Services
 
         // The base web address of your deployed Cloud Functions.
         // Replace this with your real URL after deploying.
-        private const string FunctionsBaseUrl = "https://<region>-<project-id>.cloudfunctions.net";
+        private const string FunctionsBaseUrl = "https://us-central1-sbs-beauty-spa.cloudfunctions.net";
 
         public AdminAvailabilityService(HttpClient http, IFirebaseAuthService auth)
         {
@@ -160,7 +160,7 @@ namespace SBSBeautySpa.Mobile.Services
         }
 
         // These small classes match the shape of the JSON the server sends back.
-        // They are called DTOs (Data Transfer Objects) — they just hold data.
+        // They are called DTOs (Data Transfer Objects) â€” they just hold data.
 
         // The full response when getting opening hours.
         private class HoursEnvelope
